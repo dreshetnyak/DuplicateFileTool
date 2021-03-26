@@ -24,7 +24,8 @@ namespace FileBadger.Comparers
     [FileComparer("56E94DDC-1021-49D5-8DB1-FF1C92710978", 
         "File Hash Comparer", 
         "Calculates file hash while read files, compares the hash values. The hash is cached to prevent reading files twice.", 
-        typeof(ComparableFileHashConfig))]
+        typeof(ComparableFileHashConfig), 
+        typeof(Factory))]
     internal class ComparableFileHash : ComparableFile, IDisposable
     {
         #region Abstract Factory Implementation

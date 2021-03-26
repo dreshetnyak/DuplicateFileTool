@@ -1,7 +1,35 @@
 ﻿using System;
+using System.IO;
+using System.Reflection;
 
 namespace FileBadger
 {
+    internal static class Utility
+    {
+        public static string GetAssemblyLocation()
+        {
+            const string prefix = "file:///";
+            var executingAssemblyLocation = Assembly.GetExecutingAssembly().CodeBase;
+            if (executingAssemblyLocation.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+                executingAssemblyLocation = executingAssemblyLocation.Substring(prefix.Length).Replace("/", "\\");
+            return Path.GetDirectoryName(executingAssemblyLocation);
+        }
+
+        public static bool MakeSureDirectoryExists(string path)
+        {
+            if (string.IsNullOrEmpty(path))
+                return false;
+
+            if (Directory.Exists(path))
+                return true;
+
+            try { Directory.CreateDirectory(path); }
+            catch { return false; }
+
+            return true;
+        }
+    }
+
     internal static class Extensions
     {
         public static T[] SubArray<T>(this T[] source, int offset, int length = -1)

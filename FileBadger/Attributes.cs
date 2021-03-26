@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FileBadger
 {
@@ -16,13 +12,15 @@ namespace FileBadger
         public string Name { get; }
         public string Description { get; }
         public Type ConfigurationType { get; }
-        
-        public FileComparerAttribute(string guid, string name, string description, Type configurationType)
+        public Type ComparableFileFactoryType { get; }
+
+        public FileComparerAttribute(string guid, string name, string description, Type configurationType, Type comparableFileFactoryType)
         {
             Guid = guid;
             Name = name;
             Description = description;
             ConfigurationType = configurationType;
+            ComparableFileFactoryType = comparableFileFactoryType;
         }
     }
 
@@ -31,13 +29,15 @@ namespace FileBadger
     [AttributeUsage(AttributeTargets.Property)]
     internal class ConfigurationPropertyAttribute : Attribute
     {
-        public string Name { get; }                     // Short name of the property to be displayed before the property value entry
-        public string Description { get; }              // Long description of the configuration property that should be available on demand
+        public string Name { get; }        // Short name of the property to be displayed before the property value entry
+        public string Description { get; } // Long description of the configuration property that should be available on demand
+        public bool Hidden { get; }        // Indicates if this property should be hidden in the configuration UI
 
-        public ConfigurationPropertyAttribute(string name, string description)
+        public ConfigurationPropertyAttribute(string name, string description, bool hidden = false)
         {
             Name = name;
             Description = description;
+            Hidden = hidden;
         }
     }
 

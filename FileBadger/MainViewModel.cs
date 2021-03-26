@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using FileBadger.Comparers;
+using FileBadger.Commands;
 
 namespace FileBadger
 {
@@ -37,50 +34,63 @@ namespace FileBadger
         }
     }
 
-    internal class FileInclusionConfig : NotifyPropertyChanged
-    {
-        #region File size inclusion parameters
-        public enum SizeUnits { Bytes, Kilobytes, Megabytes, Gigabytes }
-        public SizeUnits SizeUnit { get; set; }
-        public int MinFileSize { get; set; }
-        public int MaxFileSize { get; set; }
-        #endregion
-
-        #region  File extension inclusion parameters
-        public InclusionType ExtensionInclusionType { get; set; }
-        public ObservableCollection<string> Extensions { get; } = new ObservableCollection<string>();
-        #endregion
-    }
-
     internal class MainViewModel : NotifyPropertyChanged
     {
-        public Configuration.ConfigurationManager Configuration { get; } = new Configuration.ConfigurationManager();
-        private DuplicatesEngine Duplicates { get; } = new DuplicatesEngine();
+        private FileComparerAttribute _selectedFileComparer;
+
+        public Configuration.ApplicationConfig Config { get; }
         public ObservableCollection<SearchPath> SearchPaths { get; } = new ObservableCollection<SearchPath>();
-        public FileInclusionConfig FileInclusion { get; } = new FileInclusionConfig();
-        private List<ComparableFileFactory> FileComparers { get; }
+        public IReadOnlyCollection<FileComparerAttribute> FileComparers { get; }
+        public FileComparerAttribute SelectedFileComparer
+        {
+            get => _selectedFileComparer;
+            set
+            {
+                _selectedFileComparer = value;
+                UpdateSelectedFileComparerGuid(value);
+                OnPropertyChanged();
+            }
+        }
+        
+        public FindDuplicatesCommand FindDuplicates { get; }
 
         public MainViewModel()
         {
-            FileComparers = new List<ComparableFileFactory>
-            {
-                new ComparableFileHash.Factory(new ComparableFileHashConfig())
-                // Add more file comparers here
-            };
+            Config = new Configuration.ApplicationConfig();
+            FileComparers = Config.FileComparers;
+            InitializeSelectedFileComparer();
 
-            //Duplicates.FindDuplicates();
+            //SelectedComparer
+            //SearchPaths
+            //SearchConfig
 
-            //IReadOnlyCollection<string> searchPaths,
+            FindDuplicates = new FindDuplicatesCommand();
+        }
 
-            //TODO
-            //Func<FileData, bool> inclusionPredicate, 
-            //Constraints: Min file size, Max file size, Include/Exclude extensions, Modified/Created dates From-To
+        private void InitializeSelectedFileComparer()
+        {
+            Debug.Assert(Config != null, "Initializing the selected file comparer while the Config object is null");
+            Debug.Assert(Config.SearchConfig != null, "Initializing the selected file comparer while the Config.SearchConfig object is null");
+            Debug.Assert(FileComparers != null, "Initializing the selected file comparer while the Config.FileComparers list is null");
 
-            //Func<FileData, FileData, bool> duplicateCandidatePredicate,
+            var searchConfig = Config?.SearchConfig; 
+            if (searchConfig == null)
+                return;
 
-
-            //ComparableFileFactory comparableFileFactory,
-            //CancellationToken cancellationToken
+            FileComparerAttribute selectedComparer;
+            SelectedFileComparer = !string.IsNullOrEmpty(searchConfig.SelectedFileComparerGuid)
+                ? FileComparers.Count != 0 && (selectedComparer = FileComparers.FirstOrDefault(comparer => comparer.Guid == searchConfig.SelectedFileComparerGuid)) != null ? selectedComparer : null
+                : FileComparers.FirstOrDefault();
+        }
+        
+        private void UpdateSelectedFileComparerGuid(FileComparerAttribute value)
+        {
+            if (Config?.SearchConfig == null)
+                return;
+            if (value != null)
+                Config.SearchConfig.SelectedFileComparerGuid = value.Guid;
+            else if (Config.SearchConfig.SelectedFileComparerGuid != null)
+                Config.SearchConfig.SelectedFileComparerGuid = null;
         }
     }
 }

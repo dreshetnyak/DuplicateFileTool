@@ -87,16 +87,19 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Commands\FindDuplicatesCommand.cs" />
     <Compile Include="Configuration\AppConfig.cs" />
     <Compile Include="Attributes.cs" />
     <Compile Include="Configuration\ConfigurationManager.cs" />
-    <Compile Include="Configuration\Configuration.cs" />
+    <Compile Include="Configuration\ApplicationConfig.cs" />
+    <Compile Include="Configuration\SearchConfiguration.cs" />
     <Compile Include="DirectoryEnumeration.cs" />
     <Compile Include="Drives.cs" />
     <Compile Include="DuplicateCandidates.cs" />
     <Compile Include="DuplicatesEngine.cs" />
     <Compile Include="DuplicatesSearch.cs" />
-    <Compile Include="Extensions.cs" />
+    <Compile Include="InterfaceSwitch.cs" />
+    <Compile Include="Utility.cs" />
     <Compile Include="ComparableFile.cs" />
     <Compile Include="FileData.cs" />
     <Compile Include="Comparers\ComparableFileHash.cs" />
@@ -105,6 +108,7 @@
     <Compile Include="FileSystem.cs" />
     <Compile Include="FileTreeItem.cs" />
     <Compile Include="FileSystemIcon.cs" />
+    <Compile Include="Logger.cs" />
     <Compile Include="MainViewModel.cs" />
     <Compile Include="NotifyPropertyChanged.cs" />
     <Compile Include="Properties\Annotations.cs" />

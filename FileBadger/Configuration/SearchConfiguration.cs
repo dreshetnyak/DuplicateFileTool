@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.ObjectModel;
 
 namespace FileBadger.Configuration
 {
@@ -15,6 +9,11 @@ namespace FileBadger.Configuration
         private bool _excludeSystemFiles;
         private bool _excludeHiddenFiles;
         private bool _excludeOsFiles;
+        private string _selectedFileComparerGuid;
+        private SizeUnits _sizeUnit;
+        private int _minFileSize;
+        private int _maxFileSize;
+        private InclusionType _extensionInclusionType;
 
         #endregion
 
@@ -66,67 +65,67 @@ namespace FileBadger.Configuration
                 OnPropertyChanged();
             }
         }
-    }
 
-    internal class Configuration : NotifyPropertyChanged
-    {
-        public string ApplicationName { get; } = ConfigurationManager.GetAppName();
-
-        private bool _hasUnsavedChanges;
-        public bool HasUnsavedChanges
+        [DefaultValue("56E94DDC-1021-49D5-8DB1-FF1C92710978")]
+        [ConfigurationProperty("Selected file comparer", "The file comparer that should be used to compare files during the duplicates search.")]
+        public string SelectedFileComparerGuid
         {
-            get => _hasUnsavedChanges;
-            private set
+            get => _selectedFileComparerGuid;
+            set
             {
-                _hasUnsavedChanges = value;
+                _selectedFileComparerGuid = value;
+                OnPropertyChanged();
+            }
+        }
+        
+        #region File size inclusion parameters
+        public enum SizeUnits { Bytes, Kilobytes, Megabytes, Gigabytes }
+
+        public SizeUnits SizeUnit
+        {
+            get => _sizeUnit;
+            set
+            {
+                _sizeUnit = value; 
                 OnPropertyChanged();
             }
         }
 
-        public SearchConfiguration SearchConfig { get; } = new SearchConfiguration();
-
-        public Configuration()
+        public int MinFileSize
         {
-            //This property is specific to ComparableFileHash
-            //HashChunkSize = AppConfig.Get("ComparableFileHash.HashChunkSize", 65535);
-
-            SearchConfig.LoadFromAppConfig();
-            SearchConfig.PropertyChanged += OnSearchConfigChanged;
-
-
-
-            HasUnsavedChanges = false;
-        }
-
-        private void OnSearchConfigChanged(object sender, PropertyChangedEventArgs args)
-        {
-            if (args.PropertyName == nameof(SearchConfiguration.HasChanged))
-                HasUnsavedChanges = SearchConfig.HasChanged;
-        }
-
-        
-
-
-
-        private static List<string> GetComparers(string nameSpace)
-        {
-            var assembly = Assembly.GetExecutingAssembly();
-            var assemblyTypes = assembly.GetTypes();
-            var comparersNamespaceTypes = assemblyTypes.Where(type => type.Namespace == nameof(Comparers)); //TODO test
-
-            foreach (var type in comparersNamespaceTypes)
+            get => _minFileSize;
+            set
             {
-                var attributes type.GetCustomAttributes(true);
+                _minFileSize = value; 
+                OnPropertyChanged();
             }
-
-
-            //if (comparersNamespace == default)
-            //    return null;
-
-            //Get all with the attribute FileComparer
-            
         }
 
+        public int MaxFileSize
+        {
+            get => _maxFileSize;
+            set
+            {
+                _maxFileSize = value; 
+                OnPropertyChanged();
+            }
+        }
 
+        #endregion
+
+        #region  File extension inclusion parameters
+        public InclusionType ExtensionInclusionType
+        {
+            get => _extensionInclusionType;
+            set
+            {
+                _extensionInclusionType = value; 
+                OnPropertyChanged();
+            }
+        }
+
+        public ObservableCollection<string> Extensions { get; } = new ObservableCollection<string>();
+
+        #endregion
     }
 }

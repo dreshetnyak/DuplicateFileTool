@@ -30,5 +30,15 @@ namespace FileBadger
                 .GetProperties(bindingFlags)
                 .FirstOrDefault(property => property.Name == propertyName && property.GetCustomAttributes(true).Any(attribute => attribute.GetType() == attributeType));
         }
+
+        public static T GetAttribute<T>(this Type objectType) where T : class
+        {
+            return objectType.GetCustomAttributes(true).FirstOrDefault(attribute => attribute is T) as T;
+        }
+
+        public static bool DerivedFrom(this Type checkType, Type searchType)
+        {
+            return checkType == searchType || checkType.BaseType != null && checkType.BaseType.DerivedFrom(searchType);
+        }
     }
 }
