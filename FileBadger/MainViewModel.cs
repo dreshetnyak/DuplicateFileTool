@@ -51,20 +51,17 @@ namespace FileBadger
                 OnPropertyChanged();
             }
         }
-        
         public FindDuplicatesCommand FindDuplicates { get; }
+        private DuplicatesEngine Duplicates { get; }
 
         public MainViewModel()
         {
             Config = new Configuration.ApplicationConfig();
+            Duplicates = new DuplicatesEngine();
             FileComparers = Config.FileComparers;
             InitializeSelectedFileComparer();
 
-            //SelectedComparer
-            //SearchPaths
-            //SearchConfig
-
-            FindDuplicates = new FindDuplicatesCommand();
+            FindDuplicates = new FindDuplicatesCommand(Duplicates, Config.SearchConfig, () => SearchPaths, () => SelectedFileComparer);
         }
 
         private void InitializeSelectedFileComparer()

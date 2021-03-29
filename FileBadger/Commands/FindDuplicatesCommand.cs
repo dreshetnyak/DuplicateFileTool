@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Windows.Input;
+using FileBadger.Annotations;
+using FileBadger.Configuration;
 
 namespace FileBadger.Commands
 {
@@ -37,16 +40,34 @@ namespace FileBadger.Commands
 
     internal class FindDuplicatesCommand : CommandBase
     {
-        private DuplicatesEngine Duplicates { get; } = new DuplicatesEngine();
+        public DuplicatesEngine DuplicatesEngine { get; }
+        public SearchConfiguration SearchConfig { get; }
+        public Func<IEnumerable<SearchPath>> GetSearchPaths { get; }
+        public Func<FileComparerAttribute> GetSelectedComparer { get; }
         
-        public FindDuplicatesCommand( )
+        public FindDuplicatesCommand([NotNull] DuplicatesEngine duplicatesEngine, [NotNull] SearchConfiguration searchConfig, [NotNull] Func<IEnumerable<SearchPath>> getSearchPaths, [NotNull] Func<FileComparerAttribute> getSelectedComparer)
         {
-            
+            DuplicatesEngine = duplicatesEngine;
+            SearchConfig = searchConfig;
+            GetSearchPaths = getSearchPaths;
+            GetSelectedComparer = getSelectedComparer;
         }
 
         public override void Execute(object parameter)
         {
-            throw new NotImplementedException();
+            try
+            {
+                Enabled = false;
+
+
+                Duplicates.
+
+
+
+
+            }
+            finally
+            { Enabled = true; }
         }
     }
 }
