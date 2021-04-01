@@ -32,14 +32,14 @@ namespace FileBadger
     {
         public event CandidatesSearchProgressEventHandler CandidatesSearchProgress;
 
-        public async Task<List<ComparableFile[]>> Find(IReadOnlyCollection<FileData> srcFiles, Func<FileData, FileData, bool> duplicateCandidatePredicate, ComparableFileFactory comparableFileFactory, CancellationToken cancellationToken)
+        public async Task<List<ComparableFile[]>> Find(IReadOnlyCollection<FileData> srcFiles, ICandidatePredicate duplicateCandidatePredicate, ComparableFileFactory comparableFileFactory, CancellationToken cancellationToken)
         {
             return await Task.Run(() => FindSync(srcFiles, duplicateCandidatePredicate, comparableFileFactory, cancellationToken), cancellationToken);
         }
 
         private List<ComparableFile[]> FindSync(
             IReadOnlyCollection<FileData> srcFiles,
-            Func<FileData, FileData, bool> duplicateCandidatePredicate, 
+            ICandidatePredicate duplicateCandidatePredicate, 
             ComparableFileFactory comparableFileFactory,
             CancellationToken cancellationToken)
         {
@@ -56,7 +56,7 @@ namespace FileBadger
                     if (duplicateCandidates.AsParallel().Any(candidatesSet => candidatesSet.Any(candidateFile => ReferenceEquals(candidateFile.FileData, currentFile))))
                         continue; //File already in the list
 
-                    var candidates = srcFiles.AsParallel().WithCancellation(cancellationToken).Where(file => duplicateCandidatePredicate(file, currentFile)).ToArray();
+                    var candidates = srcFiles.AsParallel().WithCancellation(cancellationToken).Where(file => duplicateCandidatePredicate.IsCandidate(file, currentFile)).ToArray();
                     if (candidates.Length < 2)
                         continue;
                     

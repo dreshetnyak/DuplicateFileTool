@@ -18,6 +18,8 @@ namespace FileBadger
         public int MatchThreshold { get; protected set; } = ComparableFile.CompleteMatch;
     }
 
+    //TODO change to an interface?
+
     internal abstract class ComparableFile
     {
         public const int CompleteMatch = 10000;

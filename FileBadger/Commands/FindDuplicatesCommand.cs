@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Windows.Input;
 using FileBadger.Annotations;
-using FileBadger.Configuration;
 
 namespace FileBadger.Commands
 {
@@ -41,15 +41,19 @@ namespace FileBadger.Commands
     internal class FindDuplicatesCommand : CommandBase
     {
         public DuplicatesEngine DuplicatesEngine { get; }
-        public SearchConfiguration SearchConfig { get; }
-        public Func<IEnumerable<SearchPath>> GetSearchPaths { get; }
+        public IReadOnlyCollection<SearchPath> SearchPaths { get; }
+        public Func<IInclusionPredicate> GetInclusionPredicate { get; }
         public Func<FileComparerAttribute> GetSelectedComparer { get; }
         
-        public FindDuplicatesCommand([NotNull] DuplicatesEngine duplicatesEngine, [NotNull] SearchConfiguration searchConfig, [NotNull] Func<IEnumerable<SearchPath>> getSearchPaths, [NotNull] Func<FileComparerAttribute> getSelectedComparer)
+        public FindDuplicatesCommand(
+            [NotNull] DuplicatesEngine duplicatesEngine,
+            [NotNull] IReadOnlyCollection<SearchPath> searchPaths,
+            [NotNull] Func<IInclusionPredicate> getGetInclusionPredicate,
+            [NotNull] Func<FileComparerAttribute> getSelectedComparer)
         {
             DuplicatesEngine = duplicatesEngine;
-            SearchConfig = searchConfig;
-            GetSearchPaths = getSearchPaths;
+            SearchPaths = searchPaths;
+            GetInclusionPredicate = getGetInclusionPredicate;
             GetSelectedComparer = getSelectedComparer;
         }
 
@@ -59,12 +63,12 @@ namespace FileBadger.Commands
             {
                 Enabled = false;
 
+                var selectedComparer = GetSelectedComparer();
 
-                Duplicates.
+                //TODO
 
-
-
-
+                var duplicates = DuplicatesEngine.FindDuplicates(SearchPaths, null, null, selectedComparer, CancellationToken.None);
+                
             }
             finally
             { Enabled = true; }

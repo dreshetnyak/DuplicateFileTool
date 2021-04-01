@@ -10,6 +10,7 @@ namespace FileBadger
     {
         internal enum SearchStep { StandBy, SearchingFiles, SearchingCandidates, SearchingDuplicates, Done }
 
+        #region Backing Fields
         private SearchStep _currentStep;
         private string _currentPath = "";
         private int _includedFilesCount;
@@ -22,6 +23,8 @@ namespace FileBadger
         private int _duplicateGroupsCount;
         private int _duplicateFilesCount;
         private long _duplicatedTotalSize;
+
+        #endregion
 
         private FilesSearch Files { get; }
         private DuplicateCandidates Candidates { get; }
@@ -157,9 +160,9 @@ namespace FileBadger
         }
 
         public async Task<List<List<MatchResult>>> FindDuplicates(
-            IReadOnlyCollection<string> searchPaths, 
-            Func<FileData, bool> inclusionPredicate, 
-            Func<FileData, FileData, bool> duplicateCandidatePredicate,
+            IReadOnlyCollection<SearchPath> searchPaths, 
+            IInclusionPredicate inclusionPredicate, 
+            ICandidatePredicate duplicateCandidatePredicate,
             ComparableFileFactory comparableFileFactory,
             CancellationToken cancellationToken)
         {

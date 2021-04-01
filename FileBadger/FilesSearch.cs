@@ -20,14 +20,14 @@ namespace FileBadger
         public event FilesSearchProgressEventHandler FilesSearchProgress;
         public event FileSystemErrorEventHandler FileSystemError;
 
-        public async Task<List<FileData>> Find(IReadOnlyCollection<string> paths, Func<FileData, bool> inclusionPredicate, CancellationToken cancellationToken)
+        public async Task<List<FileData>> Find(IReadOnlyCollection<SearchPath> paths, IInclusionPredicate inclusionPredicate, CancellationToken cancellationToken)
         {
             var fileSearchResults = new List<Task<List<FileData>>>();
-            var pathsArray = paths as string[] ?? paths.ToArray();
+            //var pathsArray = paths as SearchPath[] ?? paths.ToArray();
 
             foreach (var physicalDrivePartitions in FileSystem.GetDrivesInfo().GroupBy(drive => drive.PhysicalDriveNumber)) //Split the work by physical drives
             {
-                var physicalDrivePaths = pathsArray.Where(path =>
+                var physicalDrivePaths = paths.Where(path =>
                     physicalDrivePartitions.Any(driveInfo =>
                         driveInfo.DriveLetter == new DirectoryInfo(path).Root.FullName)).ToArray();
 
@@ -41,7 +41,7 @@ namespace FileBadger
             return searchResults;
         }
 
-        private List<FileData> FindFiles(IEnumerable<string> paths, Func<FileData, bool> inclusionPredicate, CancellationToken cancellationToken)
+        private List<FileData> FindFiles(IEnumerable<string> paths, IInclusionPredicate inclusionPredicate, CancellationToken cancellationToken)
         {
             var foundFiles = new List<FileData>();
 
@@ -52,7 +52,7 @@ namespace FileBadger
                     cancellationToken.ThrowIfCancellationRequested();
                     foreach (var foundPath in FindPathFiles(path, foundFiles.Count, inclusionPredicate, cancellationToken))
                     {
-                        if (inclusionPredicate(foundPath))
+                        if (inclusionPredicate.IsFileIncluded(foundPath))
                             foundFiles.Add(foundPath);
                     }
                 }
@@ -65,13 +65,13 @@ namespace FileBadger
             return foundFiles;
         }
 
-        private IEnumerable<FileData> FindPathFiles(string targetPath, int foundFilesCount, Func<FileData, bool> inclusionPredicate, CancellationToken cancellationToken)
+        private IEnumerable<FileData> FindPathFiles(string targetPath, int foundFilesCount, IInclusionPredicate inclusionPredicate, CancellationToken cancellationToken)
         {
             foreach (var fileData in new DirectoryEnumeration(targetPath)) //DirectoryEnumeration throws
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                if (!inclusionPredicate(fileData))
+                if (!inclusionPredicate.IsFileIncluded(fileData))
                     continue;
 
                 if (!fileData.Attributes.IsDirectory)

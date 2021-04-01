@@ -13,14 +13,16 @@ namespace FileBadger
         public string Description { get; }
         public Type ConfigurationType { get; }
         public Type ComparableFileFactoryType { get; }
+        public Type CandidatePredicateType { get; }
 
-        public FileComparerAttribute(string guid, string name, string description, Type configurationType, Type comparableFileFactoryType)
+        public FileComparerAttribute(string guid, string name, string description, Type configurationType, Type comparableFileFactoryType, Type candidatePredicateType)
         {
             Guid = guid;
             Name = name;
             Description = description;
             ConfigurationType = configurationType;
             ComparableFileFactoryType = comparableFileFactoryType;
+            CandidatePredicateType = candidatePredicateType;
         }
     }
 

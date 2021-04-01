@@ -25,7 +25,8 @@ namespace FileBadger.Comparers
         "File Hash Comparer", 
         "Calculates file hash while read files, compares the hash values. The hash is cached to prevent reading files twice.", 
         typeof(ComparableFileHashConfig), 
-        typeof(Factory))]
+        typeof(Factory),
+        typeof(CandidatePredicate))]
     internal class ComparableFileHash : ComparableFile, IDisposable
     {
         #region Abstract Factory Implementation
@@ -35,6 +36,18 @@ namespace FileBadger.Comparers
 
             public override ComparableFile Create(FileData file) => new ComparableFileHash(file, ComparerConfig);
         }
+        
+        #endregion
+
+        #region Candidate Predicate Implementation
+        public class CandidatePredicate : ICandidatePredicate
+        {
+            public bool IsCandidate(FileData firstFile, FileData secondFile)
+            {
+                return firstFile.Size == secondFile.Size;
+            }
+        }
+
         #endregion
 
         private int HashChunkSize { get; }

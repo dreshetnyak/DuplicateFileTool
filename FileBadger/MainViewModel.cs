@@ -61,7 +61,7 @@ namespace FileBadger
             FileComparers = Config.FileComparers;
             InitializeSelectedFileComparer();
 
-            FindDuplicates = new FindDuplicatesCommand(Duplicates, Config.SearchConfig, () => SearchPaths, () => SelectedFileComparer);
+            FindDuplicates = new FindDuplicatesCommand(Duplicates, Config.SearchConfig, () => SearchPaths, , () => SelectedFileComparer);
         }
 
         private void InitializeSelectedFileComparer()

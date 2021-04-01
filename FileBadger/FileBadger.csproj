@@ -87,6 +87,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="CandidatePredicate.cs" />
     <Compile Include="Commands\FindDuplicatesCommand.cs" />
     <Compile Include="Configuration\AppConfig.cs" />
     <Compile Include="Attributes.cs" />
@@ -98,6 +99,7 @@
     <Compile Include="DuplicateCandidates.cs" />
     <Compile Include="DuplicatesEngine.cs" />
     <Compile Include="DuplicatesSearch.cs" />
+    <Compile Include="InclusionPredicate.cs" />
     <Compile Include="InterfaceSwitch.cs" />
     <Compile Include="Utility.cs" />
     <Compile Include="ComparableFile.cs" />
