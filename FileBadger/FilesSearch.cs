@@ -20,16 +20,18 @@ namespace FileBadger
         public event FilesSearchProgressEventHandler FilesSearchProgress;
         public event FileSystemErrorEventHandler FileSystemError;
 
-        public async Task<List<FileData>> Find(IReadOnlyCollection<SearchPath> paths, IInclusionPredicate inclusionPredicate, CancellationToken cancellationToken)
+        public async Task<IReadOnlyCollection<FileData>> Find(IReadOnlyCollection<SearchPath> searchPaths, IInclusionPredicate inclusionPredicate, CancellationToken cancellationToken)
         {
-            var fileSearchResults = new List<Task<List<FileData>>>();
-            //var pathsArray = paths as SearchPath[] ?? paths.ToArray();
+            var fileSearchResults = new List<Task<IReadOnlyCollection<FileData>>>();
 
             foreach (var physicalDrivePartitions in FileSystem.GetDrivesInfo().GroupBy(drive => drive.PhysicalDriveNumber)) //Split the work by physical drives
             {
-                var physicalDrivePaths = paths.Where(path =>
+                var physicalDrivePaths = searchPaths.Where(searchPath =>
                     physicalDrivePartitions.Any(driveInfo =>
-                        driveInfo.DriveLetter == new DirectoryInfo(path).Root.FullName)).ToArray();
+                        driveInfo.DriveLetter == new DirectoryInfo(searchPath.Path).Root.FullName)).ToArray();
+
+                if (physicalDrivePaths.Length == 0)
+                    continue;
 
                 fileSearchResults.Add(Task.Run(() => FindFiles(physicalDrivePaths, inclusionPredicate, cancellationToken), cancellationToken));
             }
@@ -41,16 +43,20 @@ namespace FileBadger
             return searchResults;
         }
 
-        private List<FileData> FindFiles(IEnumerable<string> paths, IInclusionPredicate inclusionPredicate, CancellationToken cancellationToken)
+        private IReadOnlyCollection<FileData> FindFiles(IEnumerable<SearchPath> searchPaths, IInclusionPredicate inclusionPredicate, CancellationToken cancellationToken)
         {
             var foundFiles = new List<FileData>();
 
+            var searchPathsList = searchPaths.ToList();
+            var includePaths = GetPaths(searchPathsList, InclusionType.Include);
+            var excludePaths = GetPaths(searchPathsList, InclusionType.Exclude);
+
             try
             {
-                foreach (var path in paths)
+                foreach (var path in includePaths)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
-                    foreach (var foundPath in FindPathFiles(path, foundFiles.Count, inclusionPredicate, cancellationToken))
+                    foreach (var foundPath in FindPathFiles(path, excludePaths, foundFiles.Count, inclusionPredicate, cancellationToken))
                     {
                         if (inclusionPredicate.IsFileIncluded(foundPath))
                             foundFiles.Add(foundPath);
@@ -65,12 +71,24 @@ namespace FileBadger
             return foundFiles;
         }
 
-        private IEnumerable<FileData> FindPathFiles(string targetPath, int foundFilesCount, IInclusionPredicate inclusionPredicate, CancellationToken cancellationToken)
+        private static IReadOnlyCollection<string> GetPaths(IEnumerable<SearchPath> searchPaths, InclusionType inclusionType)
         {
-            foreach (var fileData in new DirectoryEnumeration(targetPath)) //DirectoryEnumeration throws
+            var paths = searchPaths
+                .Where(searchPath => searchPath.PathInclusionType == inclusionType)
+                .Select(searchPath => searchPath.Path)
+                .ToList();
+
+            paths.RemoveAll(path1 => paths.Any(path2 => !ReferenceEquals(path1, path2) && path1.StartsWith(path2, StringComparison.OrdinalIgnoreCase)));
+
+            return paths;
+        }
+
+        private IEnumerable<FileData> FindPathFiles(string path, IReadOnlyCollection<string> excludePaths, int foundFilesCount, IInclusionPredicate inclusionPredicate, CancellationToken cancellationToken)
+        {
+            foreach (var fileData in new DirectoryEnumeration(path)) //DirectoryEnumeration throws
             {
                 cancellationToken.ThrowIfCancellationRequested();
-
+                
                 if (!inclusionPredicate.IsFileIncluded(fileData))
                     continue;
 
@@ -80,8 +98,11 @@ namespace FileBadger
                     yield return fileData;
                     continue;
                 }
-                
-                foreach (var subDirFileData in FindPathFiles(fileData.FullName, foundFilesCount, inclusionPredicate, cancellationToken))
+
+                if (excludePaths.Any(excludePath => fileData.FullName.StartsWith(excludePath, StringComparison.OrdinalIgnoreCase)))
+                    continue;
+
+                foreach (var subDirFileData in FindPathFiles(fileData.FullName, excludePaths, foundFilesCount, inclusionPredicate, cancellationToken))
                 {
                     OnFilesSearchProgress(fileData.FullName, foundFilesCount++);
                     yield return subDirFileData;

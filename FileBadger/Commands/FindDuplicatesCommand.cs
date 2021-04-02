@@ -64,10 +64,12 @@ namespace FileBadger.Commands
                 Enabled = false;
 
                 var selectedComparer = GetSelectedComparer();
+                var comparableFileFactory = Activator.CreateInstance(selectedComparer.ComparableFileFactoryType) as ComparableFileFactory; //TODO to interface
+                var candidatePredicate = Activator.CreateInstance(selectedComparer.CandidatePredicateType) as ICandidatePredicate;
 
                 //TODO
 
-                var duplicates = DuplicatesEngine.FindDuplicates(SearchPaths, null, null, selectedComparer, CancellationToken.None);
+                var duplicates = DuplicatesEngine.FindDuplicates(SearchPaths, GetInclusionPredicate(), candidatePredicate, comparableFileFactory, CancellationToken.None);
                 
             }
             finally

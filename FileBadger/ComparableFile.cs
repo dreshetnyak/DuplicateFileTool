@@ -18,7 +18,25 @@ namespace FileBadger
         public int MatchThreshold { get; protected set; } = ComparableFile.CompleteMatch;
     }
 
-    //TODO change to an interface?
+    //TODO change to an interface
+
+    /*
+    internal interface IComparableFile
+    {
+        FileData FileData { get; }
+
+        int CompareTo(ComparableFile otherFile, CancellationToken cancellationToken);
+    }
+
+    internal class ComparableFileImpl : IComparableFile
+    {
+        public FileData FileData { get; }
+        public int CompareTo(ComparableFile otherFile, CancellationToken cancellationToken)
+        {
+            throw new System.NotImplementedException();
+        }
+    }
+    */
 
     internal abstract class ComparableFile
     {

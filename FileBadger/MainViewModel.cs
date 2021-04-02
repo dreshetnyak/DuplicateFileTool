@@ -40,6 +40,7 @@ namespace FileBadger
 
         public Configuration.ApplicationConfig Config { get; }
         public ObservableCollection<SearchPath> SearchPaths { get; } = new ObservableCollection<SearchPath>();
+        public IInclusionPredicate InclusionPredicate { get; }
         public IReadOnlyCollection<FileComparerAttribute> FileComparers { get; }
         public FileComparerAttribute SelectedFileComparer
         {
@@ -57,11 +58,12 @@ namespace FileBadger
         public MainViewModel()
         {
             Config = new Configuration.ApplicationConfig();
-            Duplicates = new DuplicatesEngine();
+            InclusionPredicate = new InclusionPredicate(Config.SearchConfig);
             FileComparers = Config.FileComparers;
+            Duplicates = new DuplicatesEngine();
             InitializeSelectedFileComparer();
 
-            FindDuplicates = new FindDuplicatesCommand(Duplicates, Config.SearchConfig, () => SearchPaths, , () => SelectedFileComparer);
+            FindDuplicates = new FindDuplicatesCommand(Duplicates, SearchPaths, () => InclusionPredicate, () => SelectedFileComparer);
         }
 
         private void InitializeSelectedFileComparer()
