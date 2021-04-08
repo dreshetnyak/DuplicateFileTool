@@ -30,7 +30,7 @@ namespace FileBadger
 
     internal class MatchResult
     {
-        public ComparableFile ComparableFile { get; set; }
+        public IComparableFile ComparableFile { get; set; }
         public int MatchValue { get; set; }
     }
 
@@ -49,14 +49,16 @@ namespace FileBadger
         public event DuplicatesSearchProgressEventHandler DuplicatesSearchProgress;
         public event FileSystemErrorEventHandler FileSystemError;
 
-        public async Task<List<List<MatchResult>>> Find(IReadOnlyCollection<ComparableFile[]> duplicateCandidates, IComparerConfig comparerConfig, CancellationToken cancellationToken)
+        public async Task<List<List<MatchResult>>> Find(IReadOnlyCollection<IComparableFile[]> duplicateCandidates, IComparerConfig comparerConfig, CancellationToken cancellationToken)
         {
             return await Task.Run(() => GetDuplicatesFromCandidates(duplicateCandidates, comparerConfig, cancellationToken), cancellationToken);
         }
 
-        private List<List<MatchResult>> GetDuplicatesFromCandidates(IReadOnlyCollection<ComparableFile[]> duplicateCandidates, IComparerConfig comparerConfig, CancellationToken cancellationToken)
+        private List<List<MatchResult>> GetDuplicatesFromCandidates(IReadOnlyCollection<IComparableFile[]> duplicateCandidates, IComparerConfig comparerConfig, CancellationToken cancellationToken)
         {
             var context = new SearchContext { ComparerConfig = comparerConfig, TotalFilesCount = duplicateCandidates.AsParallel().Sum(group => group.Length) };
+
+            //TODO take ObservableCollection as a parameter, that collection will be receiving the results. The method should return void
 
             var duplicates = new List<List<MatchResult>>();
             foreach (var duplicateCandidateGroup in duplicateCandidates)
@@ -86,7 +88,7 @@ namespace FileBadger
             return size;
         }
 
-        private List<List<MatchResult>> GetDuplicatesFromGroup(IReadOnlyCollection<ComparableFile> fileGroup, SearchContext context, CancellationToken cancellationToken)
+        private List<List<MatchResult>> GetDuplicatesFromGroup(IReadOnlyCollection<IComparableFile> fileGroup, SearchContext context, CancellationToken cancellationToken)
         {
             var duplicates = new List<List<MatchResult>>();
             foreach (var fileFromGroup in fileGroup)
@@ -106,10 +108,11 @@ namespace FileBadger
             return duplicates;
         }
 
-        private List<MatchResult> GetFileDuplicates(ComparableFile fileToFind, IEnumerable<ComparableFile> fileGroup, SearchContext context, CancellationToken cancellationToken)
+        private List<MatchResult> GetFileDuplicates(IComparableFile fileToFind, IEnumerable<IComparableFile> fileGroup, SearchContext context, CancellationToken cancellationToken)
         {
             var duplicates = new List<MatchResult>();
             var matchThreshold = context.ComparerConfig.MatchThreshold;
+            var completeMatch = context.ComparerConfig.CompleteMatch;
             foreach (var fileFromGroup in fileGroup)
             {
                 if (ReferenceEquals(fileFromGroup, fileToFind)) 
@@ -133,14 +136,14 @@ namespace FileBadger
                 }
 
                 if (duplicates.Count == 0)
-                    duplicates.Add(new MatchResult { ComparableFile = fileToFind, MatchValue = ComparableFile.CompleteMatch});
+                    duplicates.Add(new MatchResult { ComparableFile = fileToFind, MatchValue = completeMatch });
                 duplicates.Add(new MatchResult { ComparableFile = fileToFind, MatchValue = matchValue });
             }
 
             return duplicates;
         }
 
-        private static bool ContainsFile(IEnumerable<List<MatchResult>> filesWhereToLook, ComparableFile fileToFind)
+        private static bool ContainsFile(IEnumerable<List<MatchResult>> filesWhereToLook, IComparableFile fileToFind)
         {
             return filesWhereToLook.Any(fileGroupFromFiles => fileGroupFromFiles.Any(fileFromGroup => ReferenceEquals(fileToFind, fileFromGroup.ComparableFile)));
         }

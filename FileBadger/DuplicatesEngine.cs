@@ -163,7 +163,7 @@ namespace FileBadger
             IReadOnlyCollection<SearchPath> searchPaths, 
             IInclusionPredicate inclusionPredicate, 
             ICandidatePredicate duplicateCandidatePredicate,
-            ComparableFileFactory comparableFileFactory,
+            IComparableFileFactory comparableFileFactory,
             CancellationToken cancellationToken)
         {
             CurrentStep = SearchStep.SearchingFiles;

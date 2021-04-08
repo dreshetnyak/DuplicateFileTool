@@ -27,14 +27,21 @@ namespace FileBadger.Comparers
         typeof(ComparableFileHashConfig), 
         typeof(Factory),
         typeof(CandidatePredicate))]
-    internal class ComparableFileHash : ComparableFile, IDisposable
+    internal class ComparableFileHash : IComparableFile, IDisposable
     {
-        #region Abstract Factory Implementation
-        public class Factory : ComparableFileFactory
-        {
-            public Factory(IComparerConfig comparerConfig) : base(comparerConfig) { }
+        public FileData FileData { get; private set; }
 
-            public override ComparableFile Create(FileData file) => new ComparableFileHash(file, ComparerConfig);
+        #region Abstract Factory Implementation
+        public class Factory : IComparableFileFactory
+        {
+            public IComparerConfig ComparerConfig { get; }
+
+            public Factory(IComparerConfig comparerConfig)
+            {
+                ComparerConfig = comparerConfig;
+            }
+
+            public IComparableFile Create(FileData file) => new ComparableFileHash(file, ComparerConfig);
         }
         
         #endregion
@@ -50,8 +57,11 @@ namespace FileBadger.Comparers
 
         #endregion
 
-        private int HashChunkSize { get; }
-        private List<byte[]> Cache { get; }
+        private static int HashChunkSize { get; set; }
+        private static int CompleteMatch { get; set; }
+        private static int CompleteMismatch { get; set; }
+
+        private List<byte[]> Cache { get; set; }
         private FileReader FileReader { get; }
         private int TotalFragments { get; }
 
@@ -63,15 +73,17 @@ namespace FileBadger.Comparers
             var fileFullName = file.FullName;
             if (!Win32.PathFileExists(fileFullName))
                 throw new FileNotFoundException($"The file '{fileFullName}' does not exist");
-
-            var hashChunkSize = fileHashComparerConfig.HashChunkSize;
-            Debug.Assert(hashChunkSize > 0, "Invalid fragment size");
+            
+            HashChunkSize = fileHashComparerConfig.HashChunkSize;
+            Debug.Assert(HashChunkSize > 0, "Invalid fragment size");
+            CompleteMatch = fileHashComparerConfig.CompleteMatch;
+            CompleteMismatch = fileHashComparerConfig.CompleteMismatch;
+            Debug.Assert(CompleteMatch > CompleteMismatch, "CompleteMatch and CompleteMismatch is defined incorrectly, CompleteMatch must be greater than CompleteMismatch");
 
             FileData = file;
-            HashChunkSize = hashChunkSize;
             Cache = new List<byte[]>();
             FileReader = new FileReader(fileFullName);
-            TotalFragments = CalculateTotalFragments(file.Size, hashChunkSize);
+            TotalFragments = CalculateTotalFragments(file.Size, HashChunkSize);
         }
 
         public void Dispose()
@@ -87,7 +99,7 @@ namespace FileBadger.Comparers
             return totalFragments;
         }
 
-        public override int CompareTo(ComparableFile otherFile, CancellationToken cancellationToken)
+        public int CompareTo(IComparableFile otherFile, CancellationToken cancellationToken)
         {
             if (!(otherFile is ComparableFileHash otherFileHashComparer))
                 throw new ArgumentException("File comparer type mismatch", nameof(otherFile));

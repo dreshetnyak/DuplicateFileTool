@@ -32,18 +32,18 @@ namespace FileBadger
     {
         public event CandidatesSearchProgressEventHandler CandidatesSearchProgress;
 
-        public async Task<List<ComparableFile[]>> Find(IReadOnlyCollection<FileData> srcFiles, ICandidatePredicate duplicateCandidatePredicate, ComparableFileFactory comparableFileFactory, CancellationToken cancellationToken)
+        public async Task<List<IComparableFile[]>> Find(IReadOnlyCollection<FileData> srcFiles, ICandidatePredicate duplicateCandidatePredicate, IComparableFileFactory comparableFileFactory, CancellationToken cancellationToken)
         {
             return await Task.Run(() => FindSync(srcFiles, duplicateCandidatePredicate, comparableFileFactory, cancellationToken), cancellationToken);
         }
 
-        private List<ComparableFile[]> FindSync(
+        private List<IComparableFile[]> FindSync(
             IReadOnlyCollection<FileData> srcFiles,
             ICandidatePredicate duplicateCandidatePredicate, 
-            ComparableFileFactory comparableFileFactory,
+            IComparableFileFactory comparableFileFactory,
             CancellationToken cancellationToken)
         {
-            var duplicateCandidates = new List<ComparableFile[]>();
+            var duplicateCandidates = new List<IComparableFile[]>();
 
             var fileIndex = 0;
             var filesCount = srcFiles.Count;

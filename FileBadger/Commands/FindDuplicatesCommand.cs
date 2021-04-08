@@ -1,43 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
-using System.Windows.Input;
+using System.Threading.Tasks;
 using FileBadger.Annotations;
 
 namespace FileBadger.Commands
 {
-    internal abstract class CommandBase : ICommand
-    {
-        private bool _enabled;
-
-        public bool Enabled
-        {
-            get => _enabled;
-            set
-            {
-                if (_enabled == value)
-                    return;
-                _enabled = value;
-                OnCanExecuteChanged();
-            }
-        }
-
-        public bool CanExecute(object parameter) { return Enabled; }
-        public event EventHandler CanExecuteChanged;
-
-        protected CommandBase(bool enabled = true)
-        {
-            _enabled = Enabled;
-        }
-
-        public abstract void Execute(object parameter);
-
-        protected virtual void OnCanExecuteChanged()
-        {
-            CanExecuteChanged?.Invoke(this, EventArgs.Empty);
-        }
-    }
-
     internal class FindDuplicatesCommand : CommandBase
     {
         public DuplicatesEngine DuplicatesEngine { get; }
@@ -57,19 +25,20 @@ namespace FileBadger.Commands
             GetSelectedComparer = getSelectedComparer;
         }
 
-        public override void Execute(object parameter)
+        public override async void Execute(object parameter)
         {
             try
             {
                 Enabled = false;
 
                 var selectedComparer = GetSelectedComparer();
-                var comparableFileFactory = Activator.CreateInstance(selectedComparer.ComparableFileFactoryType) as ComparableFileFactory; //TODO to interface
+                var comparableFileFactory = Activator.CreateInstance(selectedComparer.ComparableFileFactoryType) as IComparableFileFactory;
                 var candidatePredicate = Activator.CreateInstance(selectedComparer.CandidatePredicateType) as ICandidatePredicate;
 
-                //TODO
+                //TODO: Cancellation
 
-                var duplicates = DuplicatesEngine.FindDuplicates(SearchPaths, GetInclusionPredicate(), candidatePredicate, comparableFileFactory, CancellationToken.None);
+
+                List<List<MatchResult>> duplicates = await DuplicatesEngine.FindDuplicates(SearchPaths, GetInclusionPredicate(), candidatePredicate, comparableFileFactory, CancellationToken.None);
                 
             }
             finally

@@ -8,55 +8,31 @@ namespace FileBadger
         string ComparerName { get; }
         string ComparerDescription { get; }
         int MatchThreshold { get; }
+        int CompleteMatch { get; }
+        int CompleteMismatch { get; }
     }
 
-    internal abstract class ComparerConfig
+    internal abstract class ComparerConfig : IComparerConfig
     {
         public string ComparerId { get; protected set; } 
         public string ComparerName { get; protected set; } 
-        public string ComparerDescription { get; protected set; } 
-        public int MatchThreshold { get; protected set; } = ComparableFile.CompleteMatch;
+        public string ComparerDescription { get; protected set; }
+        public int MatchThreshold { get; protected set; } = 10000;
+        public int CompleteMatch { get; protected set; } = 10000;
+        public int CompleteMismatch { get; protected set; } = 0;
     }
 
-    //TODO change to an interface
-
-    /*
     internal interface IComparableFile
     {
         FileData FileData { get; }
 
-        int CompareTo(ComparableFile otherFile, CancellationToken cancellationToken);
+        int CompareTo(IComparableFile otherFile, CancellationToken cancellationToken);
     }
 
-    internal class ComparableFileImpl : IComparableFile
-    {
-        public FileData FileData { get; }
-        public int CompareTo(ComparableFile otherFile, CancellationToken cancellationToken)
-        {
-            throw new System.NotImplementedException();
-        }
-    }
-    */
-
-    internal abstract class ComparableFile
-    {
-        public const int CompleteMatch = 10000;
-        public const int CompleteMismatch = 0;
-
-        public FileData FileData { get; protected set; }
-
-        public abstract int CompareTo(ComparableFile otherFile, CancellationToken cancellationToken);
-    }
-
-    internal abstract class ComparableFileFactory
+    internal interface IComparableFileFactory
     {
         public IComparerConfig ComparerConfig { get; }
 
-        protected ComparableFileFactory(IComparerConfig comparerConfig)
-        {
-            ComparerConfig = comparerConfig;
-        }
-
-        public abstract ComparableFile Create(FileData file);
+        public IComparableFile Create(FileData file);
     }
 }

@@ -88,6 +88,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="CandidatePredicate.cs" />
+    <Compile Include="Commands\CommandBase.cs" />
     <Compile Include="Commands\FindDuplicatesCommand.cs" />
     <Compile Include="Configuration\AppConfig.cs" />
     <Compile Include="Attributes.cs" />

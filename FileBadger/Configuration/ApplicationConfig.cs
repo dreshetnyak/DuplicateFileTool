@@ -49,7 +49,7 @@ namespace FileBadger.Configuration
             foreach (var type in Assembly.GetExecutingAssembly().GetTypes().Where(type => type.Namespace?.EndsWith(nameof(Comparers)) ?? false))
             {
                 //Check if implements ComparableFile
-                if (!type.DerivedFrom(typeof(ComparableFile)))
+                if (!type.DerivedFrom(typeof(IComparableFile)))
                     continue;
 
                 //Check if marked with FileComparer attribute
