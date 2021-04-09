@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using System.Windows.Input;
 
 namespace FileBadger.Commands
@@ -8,10 +7,10 @@ namespace FileBadger.Commands
     {
         bool CanCancel { get; }
 
-        void Cancel(object parameter);
+        void Cancel();
     }
 
-    internal abstract class CommandBase : NotifyPropertyChanged, ICommand, ICancellable, IDisposable
+    internal abstract class CommandBase : NotifyPropertyChanged, ICommand, ICancellable
     {
         #region Can Execute Implementation
 
@@ -40,9 +39,6 @@ namespace FileBadger.Commands
 
         #region Can Cancel Implementation
 
-        private AutoResetEvent _cancelEvent;
-        private AutoResetEvent CancelEvent => _cancelEvent ??= new AutoResetEvent(false);
-
         private bool _canCancel;
         public bool CanCancel
         {
@@ -56,21 +52,13 @@ namespace FileBadger.Commands
             }
         }
 
-        public void Cancel(object parameter)
-        {
-            if (CanCancel)
-                CancelEvent.Set();
-        }
+        public virtual void Cancel() { }
 
         #endregion
 
         protected CommandBase(bool enabled = true)
         {
             _enabled = Enabled;
-        }
-        public void Dispose()
-        {
-            _cancelEvent?.Dispose();
         }
 
         public abstract void Execute(object parameter);

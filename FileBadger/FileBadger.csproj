@@ -90,11 +90,15 @@
     <Compile Include="CandidatePredicate.cs" />
     <Compile Include="Commands\CommandBase.cs" />
     <Compile Include="Commands\FindDuplicatesCommand.cs" />
+    <Compile Include="Commands\ToggleDeletionMarkCommand.cs" />
     <Compile Include="Configuration\AppConfig.cs" />
     <Compile Include="Attributes.cs" />
     <Compile Include="Configuration\ConfigurationManager.cs" />
     <Compile Include="Configuration\ApplicationConfig.cs" />
     <Compile Include="Configuration\SearchConfiguration.cs" />
+    <Compile Include="Converters\BooleanToVisibilityConverter.cs" />
+    <Compile Include="Converters\DataConversion.cs" />
+    <Compile Include="Converters\EnumBooleanConverter.cs" />
     <Compile Include="DirectoryEnumeration.cs" />
     <Compile Include="Drives.cs" />
     <Compile Include="DuplicateCandidates.cs" />
@@ -182,7 +186,9 @@
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Images\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>if exist "$(ProjectDir)..\BuildVersionIncrement.exe" $(ProjectDir)..\BuildVersionIncrement.exe $(ProjectDir)Properties\AssemblyInfo.cs</PreBuildEvent>

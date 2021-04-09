@@ -1,17 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
-using System.Threading.Tasks;
 using FileBadger.Annotations;
 
 namespace FileBadger.Commands
 {
     internal class FindDuplicatesCommand : CommandBase
     {
-        public DuplicatesEngine DuplicatesEngine { get; }
-        public IReadOnlyCollection<SearchPath> SearchPaths { get; }
-        public Func<IInclusionPredicate> GetInclusionPredicate { get; }
-        public Func<FileComparerAttribute> GetSelectedComparer { get; }
+        private DuplicatesEngine DuplicatesEngine { get; }
+        private IReadOnlyCollection<SearchPath> SearchPaths { get; }
+        private Func<IInclusionPredicate> GetInclusionPredicate { get; }
+        private Func<FileComparerAttribute> GetSelectedComparer { get; }
+        private CancellationTokenSource Cts { get; set; }
         
         public FindDuplicatesCommand(
             [NotNull] DuplicatesEngine duplicatesEngine,
@@ -35,14 +35,21 @@ namespace FileBadger.Commands
                 var comparableFileFactory = Activator.CreateInstance(selectedComparer.ComparableFileFactoryType) as IComparableFileFactory;
                 var candidatePredicate = Activator.CreateInstance(selectedComparer.CandidatePredicateType) as ICandidatePredicate;
 
-                //TODO: Cancellation
-
-
-                List<List<MatchResult>> duplicates = await DuplicatesEngine.FindDuplicates(SearchPaths, GetInclusionPredicate(), candidatePredicate, comparableFileFactory, CancellationToken.None);
-                
+                using (Cts = new CancellationTokenSource()) 
+                    await DuplicatesEngine.FindDuplicates(SearchPaths, GetInclusionPredicate(), candidatePredicate, comparableFileFactory, Cts.Token);
             }
+            catch (OperationCanceledException) { /* ignore */ }
             finally
-            { Enabled = true; }
+            {
+                Cts = null;
+                Enabled = true;
+            }
+        }
+
+        public override void Cancel()
+        {
+            if (CanCancel)
+                Cts?.Cancel();
         }
     }
 }

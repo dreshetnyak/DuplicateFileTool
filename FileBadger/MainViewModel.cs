@@ -37,6 +37,7 @@ namespace FileBadger
     internal class MainViewModel : NotifyPropertyChanged
     {
         private FileComparerAttribute _selectedFileComparer;
+        private long _toBeDeletedSize;
 
         public Configuration.ApplicationConfig Config { get; }
         public ObservableCollection<SearchPath> SearchPaths { get; } = new ObservableCollection<SearchPath>();
@@ -54,6 +55,18 @@ namespace FileBadger
         }
         public FindDuplicatesCommand FindDuplicates { get; }
         private DuplicatesEngine Duplicates { get; }
+        public long ToBeDeletedSize
+        {
+            get => _toBeDeletedSize;
+            set
+            {
+                _toBeDeletedSize = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ToggleDeletionMarkCommand ToggleDeletionMark { get; }
+
 
         public MainViewModel()
         {
@@ -64,6 +77,7 @@ namespace FileBadger
             InitializeSelectedFileComparer();
 
             FindDuplicates = new FindDuplicatesCommand(Duplicates, SearchPaths, () => InclusionPredicate, () => SelectedFileComparer);
+            ToggleDeletionMark = new ToggleDeletionMarkCommand(sizeDelta => ToBeDeletedSize += sizeDelta);
         }
 
         private void InitializeSelectedFileComparer()

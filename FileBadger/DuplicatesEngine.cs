@@ -1,11 +1,122 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using FileBadger.Converters;
 
 namespace FileBadger
 {
+    internal class DuplicateFile : NotifyPropertyChanged
+    {
+        private bool _isMarkedForDeletion;
+
+        private DuplicateGroup ParentGroup { get; }
+        public FileData FileData { get; }
+        public int MatchValue { get; }
+        public int CompleteMatch { get; }
+        public int CompleteMismatch { get; }
+
+        public string FileFullName => FileData.FullName;
+        public string FileSize => FileData.Size.BytesLengthToString();
+        public bool IsMarkForDeletionVisible => !IsMarkedForDeletion && ParentGroup.DuplicateFiles.Count(file => !file.IsMarkedForDeletion) > 1;
+
+        public bool IsMarkedForDeletion
+        {
+            get => _isMarkedForDeletion;
+            set
+            {
+                if (_isMarkedForDeletion == value)
+                    return;
+                _isMarkedForDeletion = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public DuplicateFile(DuplicateGroup parentGroup, MatchResult matchResult)
+        {
+            ParentGroup = parentGroup;
+            FileData = matchResult.ComparableFile.FileData;
+            MatchValue = matchResult.MatchValue;
+            CompleteMatch = matchResult.CompleteMatch;
+            CompleteMismatch = matchResult.CompleteMismatch;
+        }
+    }
+
+    internal class DuplicateGroup : NotifyPropertyChanged
+    {
+        private int _groupNumber;
+        private int _filesCount;
+        private string _duplicatedSize;
+
+        public int GroupNumber
+        {
+            get => _groupNumber;
+            set
+            {
+                if (_groupNumber == value)
+                    return;
+                _groupNumber = value;
+                OnPropertyChanged();
+            }
+        }
+        public int FilesCount
+        {
+            get => _filesCount;
+            set
+            {
+                if (_filesCount == value)
+                    return;
+                _filesCount = value; 
+                OnPropertyChanged();
+            }
+        }
+        public string DuplicatedSize
+        {
+            get => _duplicatedSize;
+            set
+            {
+                if (_duplicatedSize == value)
+                    return;
+                _duplicatedSize = value; 
+                OnPropertyChanged();
+            }
+        }
+
+        public ObservableCollection<DuplicateFile> DuplicateFiles { get; }
+
+        public DuplicateGroup(IEnumerable<MatchResult> duplicateFiles)
+        {
+            DuplicateFiles = new ObservableCollection<DuplicateFile>();
+            foreach (var duplicateFile in duplicateFiles)
+                DuplicateFiles.Add(new DuplicateFile(this, duplicateFile));
+            OnDuplicateFilesCollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add));
+            DuplicateFiles.CollectionChanged += OnDuplicateFilesCollectionChanged;
+        }
+
+        private void OnDuplicateFilesCollectionChanged(object sender, NotifyCollectionChangedEventArgs eventArgs)
+        {
+            FilesCount = DuplicateFiles.Count;
+            DuplicatedSize = GetDuplicatedSize().BytesLengthToString();
+        }
+
+        private long GetDuplicatedSize()
+        {
+            var size = 0L;
+            var matchExcluded = false;
+            foreach (var duplicateFile in DuplicateFiles)
+            {
+                if (!matchExcluded && duplicateFile.MatchValue == duplicateFile.CompleteMatch)
+                    matchExcluded = true;
+                else
+                    size += duplicateFile.FileData.Size;
+            }
+
+            return size;
+        }
+    }
+
     internal class DuplicatesEngine : NotifyPropertyChanged
     {
         internal enum SearchStep { StandBy, SearchingFiles, SearchingCandidates, SearchingDuplicates, Done }
@@ -142,7 +253,8 @@ namespace FileBadger
         }
 
         public ObservableCollection<FileSystemErrorEventArgs> FileSystemErrors { get; }
-        
+        public ObservableCollection<DuplicateGroup> DuplicateGroups { get; }
+
         public DuplicatesEngine()
         {
             FileSystemErrors = new ObservableCollection<FileSystemErrorEventArgs>();
@@ -157,15 +269,18 @@ namespace FileBadger
             Duplicates = new DuplicatesSearch();
             Duplicates.DuplicatesSearchProgress += OnDuplicatesSearchProgress;
             Duplicates.FileSystemError += OnFileSystemError;
+            Duplicates.DuplicatesGroupFound += (sender, args) => DuplicateGroups.Add(new DuplicateGroup(args.DuplicatesGroup));
         }
 
-        public async Task<List<List<MatchResult>>> FindDuplicates(
+        public async Task FindDuplicates(
             IReadOnlyCollection<SearchPath> searchPaths, 
             IInclusionPredicate inclusionPredicate, 
             ICandidatePredicate duplicateCandidatePredicate,
             IComparableFileFactory comparableFileFactory,
             CancellationToken cancellationToken)
         {
+            DuplicateGroups.Clear();
+
             CurrentStep = SearchStep.SearchingFiles;
             var files = await Files.Find(searchPaths, inclusionPredicate, cancellationToken);
 
@@ -173,12 +288,10 @@ namespace FileBadger
             var duplicateCandidates = await Candidates.Find(files, duplicateCandidatePredicate, comparableFileFactory, cancellationToken);
 
             CurrentStep = SearchStep.SearchingDuplicates;
-            var duplicates = await Duplicates.Find(duplicateCandidates, comparableFileFactory.ComparerConfig, cancellationToken);
+            await Duplicates.Find(duplicateCandidates, comparableFileFactory.ComparerConfig, cancellationToken);
 
             CurrentStep = SearchStep.Done;
             CurrentStep = SearchStep.StandBy;
-
-            return duplicates;
         }
 
         private void OnFilesSearchProgress(object sender, FilesSearchProgressEventArgs eventArgs)

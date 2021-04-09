@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 
 namespace FileBadger
 {
+    #region DuplicatesSearchProgress Implementation
+
     internal class DuplicatesSearchProgressEventArgs : EventArgs
     {
         public string FilePath { get; }
@@ -28,10 +30,30 @@ namespace FileBadger
 
     internal delegate void DuplicatesSearchProgressEventHandler(object sender, DuplicatesSearchProgressEventArgs eventArgs);
 
+    #endregion
+
+    #region DuplicatesGroupFound Implementation
+
+    internal class DuplicatesGroupFoundEventArgs : EventArgs
+    {
+        public List<MatchResult> DuplicatesGroup { get; }
+
+        public DuplicatesGroupFoundEventArgs(List<MatchResult> duplicatesGroup)
+        {
+            DuplicatesGroup = duplicatesGroup;
+        }
+    }
+
+    internal delegate void DuplicatesGroupFoundEventHandler(object sender, DuplicatesGroupFoundEventArgs eventArgs);
+
+    #endregion
+
     internal class MatchResult
     {
         public IComparableFile ComparableFile { get; set; }
         public int MatchValue { get; set; }
+        public int CompleteMatch { get; set; }
+        public int CompleteMismatch { get; set; }
     }
 
     internal class DuplicatesSearch
@@ -46,21 +68,19 @@ namespace FileBadger
             public long DuplicatedTotalSize { get; set; }
         }
 
+        public event DuplicatesGroupFoundEventHandler DuplicatesGroupFound;
         public event DuplicatesSearchProgressEventHandler DuplicatesSearchProgress;
         public event FileSystemErrorEventHandler FileSystemError;
 
-        public async Task<List<List<MatchResult>>> Find(IReadOnlyCollection<IComparableFile[]> duplicateCandidates, IComparerConfig comparerConfig, CancellationToken cancellationToken)
+        public async Task Find(IReadOnlyCollection<IComparableFile[]> duplicateCandidates, IComparerConfig comparerConfig, CancellationToken cancellationToken)
         {
-            return await Task.Run(() => GetDuplicatesFromCandidates(duplicateCandidates, comparerConfig, cancellationToken), cancellationToken);
+            await Task.Run(() => GetDuplicatesFromCandidates(duplicateCandidates, comparerConfig, cancellationToken), cancellationToken);
         }
 
-        private List<List<MatchResult>> GetDuplicatesFromCandidates(IReadOnlyCollection<IComparableFile[]> duplicateCandidates, IComparerConfig comparerConfig, CancellationToken cancellationToken)
+        private void GetDuplicatesFromCandidates(IReadOnlyCollection<IComparableFile[]> duplicateCandidates, IComparerConfig comparerConfig, CancellationToken cancellationToken)
         {
             var context = new SearchContext { ComparerConfig = comparerConfig, TotalFilesCount = duplicateCandidates.AsParallel().Sum(group => group.Length) };
 
-            //TODO take ObservableCollection as a parameter, that collection will be receiving the results. The method should return void
-
-            var duplicates = new List<List<MatchResult>>();
             foreach (var duplicateCandidateGroup in duplicateCandidates)
             {
                 var groupDuplicates = GetDuplicatesFromGroup(duplicateCandidateGroup, context, cancellationToken);
@@ -70,10 +90,10 @@ namespace FileBadger
                 context.DuplicateGroupsCount += groupDuplicates.Count;
                 context.DuplicateFilesCount += groupDuplicates.Sum(group => group.Count);
                 context.DuplicatedTotalSize += GetGroupDuplicatedSize(groupDuplicates);
-                duplicates.AddRange(groupDuplicates);
-            }
 
-            return duplicates;
+                foreach (var group in groupDuplicates) 
+                    OnDuplicatesGroupFound(group);
+            }
         }
 
         private static long GetGroupDuplicatedSize(IEnumerable<List<MatchResult>> duplicateGroups)
@@ -113,6 +133,7 @@ namespace FileBadger
             var duplicates = new List<MatchResult>();
             var matchThreshold = context.ComparerConfig.MatchThreshold;
             var completeMatch = context.ComparerConfig.CompleteMatch;
+            var completeMismatch = context.ComparerConfig.CompleteMismatch;
             foreach (var fileFromGroup in fileGroup)
             {
                 if (ReferenceEquals(fileFromGroup, fileToFind)) 
@@ -136,8 +157,8 @@ namespace FileBadger
                 }
 
                 if (duplicates.Count == 0)
-                    duplicates.Add(new MatchResult { ComparableFile = fileToFind, MatchValue = completeMatch });
-                duplicates.Add(new MatchResult { ComparableFile = fileToFind, MatchValue = matchValue });
+                    duplicates.Add(new MatchResult { ComparableFile = fileToFind, MatchValue = completeMatch, CompleteMatch = completeMatch, CompleteMismatch = completeMismatch });
+                duplicates.Add(new MatchResult { ComparableFile = fileToFind, MatchValue = matchValue, CompleteMatch = completeMatch, CompleteMismatch = completeMismatch });
             }
 
             return duplicates;
@@ -148,6 +169,11 @@ namespace FileBadger
             return filesWhereToLook.Any(fileGroupFromFiles => fileGroupFromFiles.Any(fileFromGroup => ReferenceEquals(fileToFind, fileFromGroup.ComparableFile)));
         }
 
+        private void OnDuplicatesGroupFound(List<MatchResult> duplicatesGroup)
+        {
+            DuplicatesGroupFound?.Invoke(this, new DuplicatesGroupFoundEventArgs(duplicatesGroup));
+        }
+        
         private void OnDuplicatesSearchProgress(string filePath, SearchContext context)
         {
             DuplicatesSearchProgress?.Invoke(this, new DuplicatesSearchProgressEventArgs(filePath, context.CurrentFileIndex, context.TotalFilesCount, context.DuplicateGroupsCount, context.DuplicateFilesCount, context.DuplicatedTotalSize));
