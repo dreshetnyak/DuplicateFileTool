@@ -107,7 +107,7 @@
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
                         <ToolBar Grid.Row="0" Margin="0,0,0,3" >
-                            <Button Height="24" Background="Transparent" IsEnabled="True" Command="{Binding AddPathToList}">
+                            <Button Height="24" Background="Transparent" IsEnabled="True" Command="{Binding AddPath}">
                                 <Image Source="Images/Add.ico" Margin="5,0,5,0" ToolTip="Add selected to the list" />
                             </Button>
                             <TextBlock VerticalAlignment="Center" Margin="5,0,5,0" Text="{Binding SelectedFileSystemItem.ItemPath}" />
@@ -120,7 +120,7 @@
                               AutoGenerateColumns="False" 
                               MinRowHeight="25"
                               AlternatingRowBackground="Bisque" 
-                              ItemsSource="{Binding SelectedPaths}">
+                              ItemsSource="{Binding SearchPaths}">
                             <DataGrid.Resources>
                                 <Style x:Key="TextBoxStyle" TargetType="{x:Type DataGridCell}">
                                     <Setter Property="Template">
@@ -135,7 +135,7 @@
                                 </Style>
                             </DataGrid.Resources>
                             <DataGrid.Columns>
-                                <DataGridComboBoxColumn Header="Inclusion" SelectedValueBinding="{Binding Inclusion}">
+                                <DataGridComboBoxColumn Header="Inclusion" SelectedValueBinding="{Binding PathInclusionType}">
                                     <DataGridComboBoxColumn.ElementStyle>
                                         <Style TargetType="{x:Type ComboBox}">
                                             <Setter Property="ItemsSource" Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.PathComparisonTypes}" />
@@ -171,11 +171,10 @@
                                     <RowDefinition Height="*" />
                                     <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
-                                <DataGrid Grid.Row="0" HeadersVisibility="None" MinHeight="80" AlternationCount="2" AlternatingRowBackground="Bisque" ItemsSource="{Binding SearchExtensions, Mode=TwoWay}">
-                                </DataGrid>
+                                <DataGrid Grid.Row="0" HeadersVisibility="None" MinHeight="80" AlternationCount="2" AlternatingRowBackground="Bisque" ItemsSource="{Binding SearchConfig.Extensions, Mode=TwoWay}" />
                                 <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" >
-                                    <RadioButton Content="Include" Margin="0,5,5,2" ToolTip="Only the files with the listed extensions will be included in the search" IsChecked="{Binding Path=SelectedExtensionInclusion, Mode=TwoWay, Converter={StaticResource EnumBoolConverter}, ConverterParameter=Include}" />
-                                    <RadioButton Content="Exclude" Margin="5,5,0,2" ToolTip="The files with the listed extensions will be excluded from the search" IsChecked="{Binding Path=SelectedExtensionInclusion, Mode=TwoWay, Converter={StaticResource EnumBoolConverter}, ConverterParameter=Exclude}" />
+                                    <RadioButton Content="Include" Margin="0,5,5,2" ToolTip="Only the files with the listed extensions will be included in the search" IsChecked="{Binding Path=SearchConfig.ExtensionInclusionType, Mode=TwoWay, Converter={StaticResource EnumBoolConverter}, ConverterParameter=Include}" />
+                                    <RadioButton Content="Exclude" Margin="5,5,0,2" ToolTip="The files with the listed extensions will be excluded from the search" IsChecked="{Binding Path=SearchConfig.ExtensionInclusionType, Mode=TwoWay, Converter={StaticResource EnumBoolConverter}, ConverterParameter=Exclude}" />
                                 </StackPanel>
                             </Grid>
                         </GroupBox>
@@ -192,14 +191,14 @@
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
                                 <Label Grid.Column="0" Grid.Row="0">Minimum:</Label>
-                                <TextBox Grid.Column="1" Grid.Row="0" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" Text="{Binding MinimumSize}" />
+                                <TextBox Grid.Column="1" Grid.Row="0" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" Text="{Binding SearchConfig.MinFileSize}" />
                                 <Label Grid.Column="0" Grid.Row="1" Margin="0,5,0,2">Maximum:</Label>
-                                <TextBox Grid.Column="1" Grid.Row="1" Margin="0,5,0,2" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" Text="{Binding MaximumSize}" />
+                                <TextBox Grid.Column="1" Grid.Row="1" Margin="0,5,0,2" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" Text="{Binding SearchConfig.MaxFileSize}" />
                                 <StackPanel Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" >
-                                    <RadioButton Content="Bytes" Margin="0,5,5,2" ToolTip="Count the entered size in Bytes" IsChecked="{Binding Path=SelectedSizeType, Mode=TwoWay, Converter={StaticResource EnumBoolConverter}, ConverterParameter=Bytes}" />
-                                    <RadioButton Content="KB" Margin="5,5,5,2" ToolTip="Count the entered size in Kilobytes" IsChecked="{Binding Path=SelectedSizeType, Mode=TwoWay, Converter={StaticResource EnumBoolConverter}, ConverterParameter=Kilobytes}" />
-                                    <RadioButton Content="MB" Margin="5,5,5,2" ToolTip="Count the entered size in Megabytes" IsChecked="{Binding Path=SelectedSizeType, Mode=TwoWay, Converter={StaticResource EnumBoolConverter}, ConverterParameter=Megabytes}" />
-                                    <RadioButton Content="GB" Margin="5,5,0,2" ToolTip="Count the entered size in Gigabytes" IsChecked="{Binding Path=SelectedSizeType, Mode=TwoWay, Converter={StaticResource EnumBoolConverter}, ConverterParameter=Gigabytes}" />
+                                    <RadioButton Content="Bytes" Margin="0,5,5,2" ToolTip="Count the entered size in Bytes" IsChecked="{Binding Path=SearchConfig.ByteSizeUnit, Mode=TwoWay, Converter={StaticResource EnumBoolConverter}, ConverterParameter=Bytes}" />
+                                    <RadioButton Content="KB" Margin="5,5,5,2" ToolTip="Count the entered size in Kilobytes" IsChecked="{Binding Path=SearchConfig.ByteSizeUnit, Mode=TwoWay, Converter={StaticResource EnumBoolConverter}, ConverterParameter=Kilobytes}" />
+                                    <RadioButton Content="MB" Margin="5,5,5,2" ToolTip="Count the entered size in Megabytes" IsChecked="{Binding Path=SearchConfig.ByteSizeUnit, Mode=TwoWay, Converter={StaticResource EnumBoolConverter}, ConverterParameter=Megabytes}" />
+                                    <RadioButton Content="GB" Margin="5,5,0,2" ToolTip="Count the entered size in Gigabytes" IsChecked="{Binding Path=SearchConfig.ByteSizeUnit, Mode=TwoWay, Converter={StaticResource EnumBoolConverter}, ConverterParameter=Gigabytes}" />
                                 </StackPanel>
                             </Grid>
                         </GroupBox>
@@ -211,7 +210,7 @@
                                     <TextBlock Text="Cancel" Margin="0,0,5,0" />
                                 </StackPanel>
                             </Button>
-                            <Button MinHeight="28" Margin="3,5,1,5" Command="{Binding SearchDuplicates}">
+                            <Button MinHeight="28" Margin="3,5,1,5" Command="{Binding FindDuplicates}">
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="Images/Play.ico "  Height="16" Margin="5,0,5,0" />
                                     <TextBlock Text="Search Duplicates" Margin="0,0,5,0" />
@@ -228,7 +227,7 @@
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
-                    <TreeView Grid.Column="0" ItemsSource="{Binding DuplicateFiles}" Margin="0,0,3,0" />
+                    <TreeView Grid.Column="0" ItemsSource="{Binding Duplicates.DuplicateGroups}" Margin="0,0,3,0" />
                     <Grid Grid.Column="1">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
@@ -250,9 +249,9 @@
                                     <RowDefinition />
                                 </Grid.RowDefinitions>
                                 <Label Grid.Column="0" Grid.Row="0" Content="File Groups:" HorizontalAlignment="Right"/>
-                                <TextBox  Grid.Column="1" Grid.Row="0" MinWidth="100" TextAlignment="Right" IsReadOnly="True" Text="{Binding DuplicatedGroupsCount, Mode=OneWay, StringFormat={}{0:#,#}}" VerticalContentAlignment="Center" Margin="0,2" />
+                                <TextBox  Grid.Column="1" Grid.Row="0" MinWidth="100" TextAlignment="Right" IsReadOnly="True" Text="{Binding Duplicates.DuplicateGroupsCount, Mode=OneWay, StringFormat={}{0:#,#}}" VerticalContentAlignment="Center" Margin="0,2" />
                                 <Label Grid.Column="0" Grid.Row="1" Content="Duplicated Bytes:" HorizontalAlignment="Right"/>
-                                <TextBox  Grid.Column="1" Grid.Row="1" TextAlignment="Right" IsReadOnly="True" Text="{Binding TotalDuplicatedSize, Mode=OneWay, StringFormat={}{0:#,#}}" VerticalContentAlignment="Center"  Margin="0,2"/>
+                                <TextBox  Grid.Column="1" Grid.Row="1" TextAlignment="Right" IsReadOnly="True" Text="{Binding Duplicates.DuplicatedTotalSize, Mode=OneWay, StringFormat={}{0:#,#}}" VerticalContentAlignment="Center"  Margin="0,2"/>
                                 <Label Grid.Column="0" Grid.Row="2" Content="To be Deleted:" HorizontalAlignment="Right"/>
                                 <TextBox  Grid.Column="1" Grid.Row="2" TextAlignment="Right" IsReadOnly="True" Text="{Binding ToBeDeletedSize, Mode=OneWay, StringFormat={}{0:#,#}}" VerticalContentAlignment="Center" Margin="0,2" />
                             </Grid>

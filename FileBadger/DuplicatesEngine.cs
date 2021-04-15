@@ -258,6 +258,7 @@ namespace FileBadger
         public DuplicatesEngine()
         {
             FileSystemErrors = new ObservableCollection<FileSystemErrorEventArgs>();
+            DuplicateGroups = new ObservableCollection<DuplicateGroup>();
 
             Files = new FilesSearch();
             Files.FilesSearchProgress += OnFilesSearchProgress;

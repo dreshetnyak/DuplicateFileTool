@@ -69,6 +69,7 @@
     <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.3\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -88,8 +89,13 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="CandidatePredicate.cs" />
+    <Compile Include="Commands\AddPathCommand.cs" />
+    <Compile Include="Commands\AutoSelectByPathCommand.cs" />
     <Compile Include="Commands\CommandBase.cs" />
+    <Compile Include="Commands\DeleteMarkedFilesCommand.cs" />
     <Compile Include="Commands\FindDuplicatesCommand.cs" />
+    <Compile Include="Commands\RelayCommand.cs" />
+    <Compile Include="Commands\ResetSelectionCommand.cs" />
     <Compile Include="Commands\ToggleDeletionMarkCommand.cs" />
     <Compile Include="Configuration\AppConfig.cs" />
     <Compile Include="Attributes.cs" />

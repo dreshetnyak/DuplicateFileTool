@@ -10,7 +10,7 @@ namespace FileBadger.Configuration
         private bool _excludeHiddenFiles;
         private bool _excludeOsFiles;
         private string _selectedFileComparerGuid;
-        private SizeUnits _sizeUnit;
+        private ByteSizeUnits _byteSizeUnit;
         private int _minFileSize;
         private int _maxFileSize;
         private InclusionType _extensionInclusionType;
@@ -79,14 +79,12 @@ namespace FileBadger.Configuration
         }
         
         #region File size inclusion parameters
-        public enum SizeUnits { Bytes, Kilobytes, Megabytes, Gigabytes }
-
-        public SizeUnits SizeUnit
+        public ByteSizeUnits ByteSizeUnit
         {
-            get => _sizeUnit;
+            get => _byteSizeUnit;
             set
             {
-                _sizeUnit = value; 
+                _byteSizeUnit = value; 
                 OnPropertyChanged();
             }
         }

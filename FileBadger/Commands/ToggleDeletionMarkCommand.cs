@@ -4,11 +4,11 @@ namespace FileBadger.Commands
 {
     internal class ToggleDeletionMarkCommand : CommandBase
     {
-        private Action<long> UpdateSizeToBeDeleted { get; }
+        private Action<long> UpdateToDeleteSize { get; }
 
-        public ToggleDeletionMarkCommand(Action<long> updateSizeToBeDeleted)
+        public ToggleDeletionMarkCommand(Action<long> updateToDeleteSize)
         {
-            UpdateSizeToBeDeleted = updateSizeToBeDeleted;
+            UpdateToDeleteSize = updateToDeleteSize;
         }
 
         public override void Execute(object parameter)
@@ -22,7 +22,7 @@ namespace FileBadger.Commands
 
                 duplicateFile.IsMarkedForDeletion = !duplicateFile.IsMarkedForDeletion;
                 var sizeDelta = duplicateFile.IsMarkedForDeletion ? duplicateFile.FileData.Size : -duplicateFile.FileData.Size;
-                UpdateSizeToBeDeleted?.Invoke(sizeDelta);
+                UpdateToDeleteSize?.Invoke(sizeDelta);
             }
             finally
             {

@@ -36,7 +36,7 @@ namespace FileBadger
                 return true;
 
             var fileSize = fileData.Size;
-            var sizeUnit = SearchConfig.SizeUnit;
+            var sizeUnit = SearchConfig.ByteSizeUnit;
             var maxSize = GetSizeInBytes(SearchConfig.MaxFileSize, sizeUnit);
             if (fileSize > maxSize)
                 return false;
@@ -62,19 +62,19 @@ namespace FileBadger
             }
         }
 
-        private static long GetSizeInBytes(long size, SearchConfiguration.SizeUnits sizeUnits)
+        private static long GetSizeInBytes(long size, ByteSizeUnits byteSizeUnits)
         {
             try
             {
                 checked 
                 {
-                    return sizeUnits switch
+                    return byteSizeUnits switch
                     {
-                        SearchConfiguration.SizeUnits.Bytes => size,
-                        SearchConfiguration.SizeUnits.Kilobytes => size * 1_024L,
-                        SearchConfiguration.SizeUnits.Megabytes => size * 1_048_576L,
-                        SearchConfiguration.SizeUnits.Gigabytes => size * 1_073_741_824L,
-                        _ => throw new ArgumentOutOfRangeException(nameof(sizeUnits), sizeUnits, "Unable to convert the size to bytes, unknown SizeUnits parameter")
+                        ByteSizeUnits.Bytes => size,
+                        ByteSizeUnits.Kilobytes => size * 1_024L,
+                        ByteSizeUnits.Megabytes => size * 1_048_576L,
+                        ByteSizeUnits.Gigabytes => size * 1_073_741_824L,
+                        _ => throw new ArgumentOutOfRangeException(nameof(byteSizeUnits), byteSizeUnits, "Unable to convert the size to bytes, unknown SizeUnits parameter")
                     };
                 }
             }
