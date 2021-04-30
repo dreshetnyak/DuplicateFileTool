@@ -46,7 +46,7 @@
     
     mimetype: application/x-microsoft.net.object.binary.base64
     value   : The object must be serialized with 
-            : System.Serialization.Formatters.Binary.BinaryFormatter
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
     
     mimetype: application/x-microsoft.net.object.soap.base64
@@ -60,6 +60,7 @@
             : and then encoded with base64 encoding.
     -->
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
       <xsd:complexType>
         <xsd:choice maxOccurs="unbounded">
@@ -68,9 +69,10 @@
               <xsd:sequence>
                 <xsd:element name="value" type="xsd:string" minOccurs="0" />
               </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" />
+              <xsd:attribute name="name" use="required" type="xsd:string" />
               <xsd:attribute name="type" type="xsd:string" />
               <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
           <xsd:element name="assembly">
@@ -85,9 +87,10 @@
                 <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
                 <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
               </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
           <xsd:element name="resheader">
@@ -109,9 +112,135 @@
     <value>2.0</value>
   </resheader>
   <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Error_File_not_found" xml:space="preserve">
+    <value>File not found</value>
+  </data>
+  <data name="Error_The_value_is_not_a_valid_number" xml:space="preserve">
+    <value>The value is not a valid number</value>
+  </data>
+  <data name="Error_Unable_to_set_the_file_offset" xml:space="preserve">
+    <value>Unable to set the file offset</value>
+  </data>
+  <data name="Error_The_value_is_not_a_an_integer" xml:space="preserve">
+    <value>The value is not a an integer</value>
+  </data>
+  <data name="Warning_The_value_is_less_than_the_allowed_minimum" xml:space="preserve">
+    <value>The value is less than the allowed minimum of {0:N0}</value>
+  </data>
+  <data name="Warning_The_value_is_greater_than_the_allowed_maximum" xml:space="preserve">
+    <value>The value is greater than the allowed maximum of {0:N0}</value>
+  </data>
+  <data name="Error_Unknown_file_extension_inclusion_type" xml:space="preserve">
+    <value>Unknown file extension inclusion type</value>
+  </data>
+  <data name="Error_Unable_to_convert_the_size_to_bytes_unknown_SizeUnits" xml:space="preserve">
+    <value>Unable to convert the size to bytes, unknown SizeUnits parameter</value>
+  </data>
+  <data name="Warning_Encountered_a_group_with_all_files_selected" xml:space="preserve">
+    <value>Invalid selection, encountered a group with all files selected, at leas one file should be left unselected. The group will be ignored.</value>
+  </data>
+  <data name="Log_Files_deleted_Count" xml:space="preserve">
+    <value>Files deleted: {0}</value>
+  </data>
+  <data name="Log_Deleted_Size" xml:space="preserve">
+    <value>Deleted size: {0:N0} Bytes</value>
+  </data>
+  <data name="Log_Deleting_Name_Size" xml:space="preserve">
+    <value>Deleting: {0}; {1}</value>
+  </data>
+  <data name="Log_Error_Deleting_failed_Name" xml:space="preserve">
+    <value>Deleting failed: {0}</value>
+  </data>
+  <data name="Log_Error_Deleting_failed_Exception" xml:space="preserve">
+    <value>Error: {0}</value>
+  </data>
+  <data name="Log_Performing_deletion_of_the_marked_duplicates" xml:space="preserve">
+    <value>Performing deletion of the marked duplicates:</value>
+  </data>
+  <data name="Error_Failed_to_close_the_file_search_handle" xml:space="preserve">
+    <value>Failed to close the file search handle. </value>
+  </data>
+  <data name="Error_Failed_to_find_the_next_file" xml:space="preserve">
+    <value>Failed to find the next file. </value>
+  </data>
+  <data name="Error_Compute_Hash_Compute_is_called_with_an_invalid_parameter" xml:space="preserve">
+    <value>Hash.Compute is called with an invalid parameter 'dataForHash' that is null</value>
+  </data>
+  <data name="Ui_Cancel_Search_Button_Text" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Ui_Count_size_in_Bytes" xml:space="preserve">
+    <value>Count the entered size in Bytes</value>
+  </data>
+  <data name="Ui_Count_size_in_Gigabytes" xml:space="preserve">
+    <value>Count the entered size in Gigabytes</value>
+  </data>
+  <data name="Ui_Count_size_in_Kilobytes" xml:space="preserve">
+    <value>Count the entered size in Kilobytes</value>
+  </data>
+  <data name="Ui_Count_size_in_Megabytes" xml:space="preserve">
+    <value>Count the entered size in Megabytes</value>
+  </data>
+  <data name="Ui_Duplicated_size" xml:space="preserve">
+    <value>, Duplicated size:</value>
+  </data>
+  <data name="Ui_Results_Duplicates_Information_GroupBox_Header" xml:space="preserve">
+    <value>Duplicates Information</value>
+  </data>
+  <data name="Ui_Duplicate_files_group_N" xml:space="preserve">
+    <value>Duplicate files group #</value>
+  </data>
+  <data name="Ui_Extensions_GroupBox_Header" xml:space="preserve">
+    <value>Extensions</value>
+  </data>
+  <data name="Ui_Files" xml:space="preserve">
+    <value>, Files:</value>
+  </data>
+  <data name="Ui_Logs_Tab_Header" xml:space="preserve">
+    <value>Logs</value>
+  </data>
+  <data name="Ui_Results_Duplicate_Groups_Count" xml:space="preserve">
+    <value>File Groups:</value>
+  </data>
+  <data name="Ui_Results_Tab_Header" xml:space="preserve">
+    <value>Results</value>
+  </data>
+  <data name="Ui_Search_Button_Text" xml:space="preserve">
+    <value>Search Duplicates</value>
+  </data>
+  <data name="Ui_Search_Tab_Header" xml:space="preserve">
+    <value>Search</value>
+  </data>
+  <data name="Ui_Size_GroupBox_Header" xml:space="preserve">
+    <value>Size</value>
+  </data>
+  <data name="Ui_ToolTip_Add_selected_to_the_list" xml:space="preserve">
+    <value>Add selected to the list</value>
+  </data>
+  <data name="Ui_ToolTip_Files_with_the_listed_extensions_will_be_excluded" xml:space="preserve">
+    <value>The files with the listed extensions will be excluded from the search</value>
+  </data>
+  <data name="Ui_ToolTip_Only_the_files_with_the_listed_extensions_included" xml:space="preserve">
+    <value>Only the files with the listed extensions will be included in the search</value>
+  </data>
+  <data name="Ui_Results_Duplicated_Size" xml:space="preserve">
+    <value>Duplicated Bytes:</value>
+  </data>
+  <data name="Ui_Results_Selected_for_deletion_size" xml:space="preserve">
+    <value>To be Deleted:</value>
+  </data>
+  <data name="Ui_Results_Auto_select_by_path" xml:space="preserve">
+    <value>Auto Select by Path</value>
+  </data>
+  <data name="Ui_Results_Reset_selection" xml:space="preserve">
+    <value>Reset Selection</value>
+  </data>
+  <data name="Ui_Results_Delete_Marked_Files" xml:space="preserve">
+    <value>Delete Marked Files</value>
+  </data>
 </root>

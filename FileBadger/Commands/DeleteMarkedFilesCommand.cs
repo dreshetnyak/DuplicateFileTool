@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
+using FileBadger.Properties;
 
 namespace FileBadger.Commands
 {
+    [Localizable(true)]
     internal class DeleteMarkedFilesCommand : CommandBase
     {
         private Action<string> WriteLog { get; }
@@ -26,7 +29,7 @@ namespace FileBadger.Commands
                 Enabled = false;
                 TotalDeletedFileCount = 0;
                 TotalDeletedSize = 0;
-                WriteLog(Environment.NewLine + "Performing deletion of the marked duplicates:" + Environment.NewLine);
+                WriteLog(Environment.NewLine + Resources.Log_Performing_deletion_of_the_marked_duplicates + Environment.NewLine);
                 DeleteSelectedFilesInGroupsCollection();
             }
             finally
@@ -44,7 +47,7 @@ namespace FileBadger.Commands
 
                 if (unmarkedFilesCount < 1)
                 {
-                    WriteLog("Invalid selection, encountered a group with all files selected, at leas one file should be left unselected. The group will be ignored." + Environment.NewLine);
+                    WriteLog(Resources.Warning_Encountered_a_group_with_all_files_selected + Environment.NewLine);
                     UnselectAll(duplicateFileGroup);
                     continue;
                 }
@@ -55,7 +58,7 @@ namespace FileBadger.Commands
                     DuplicateFiles.RemoveAt(index);
             }
 
-            WriteLog(Environment.NewLine + $"Files deleted: {TotalDeletedFileCount}" + Environment.NewLine + $"Deleted size: {TotalDeletedSize:N0} Bytes" + Environment.NewLine);
+            WriteLog(Environment.NewLine + string.Format(Resources.Log_Files_deleted_Count, TotalDeletedFileCount) + Environment.NewLine + string.Format(Resources.Log_Deleted_Size, TotalDeletedSize) + Environment.NewLine);
         }
 
         private static int GetUnmarkedFilesCount(DuplicateGroup duplicateFileGroup)
@@ -87,7 +90,7 @@ namespace FileBadger.Commands
 
                 var fileSize = duplicatedFile.FileData.Size;
 
-                WriteLog($"Deleting: {duplicatedFile.FileFullName}; {duplicatedFile.FileSize}" + Environment.NewLine);
+                WriteLog(string.Format(Resources.Log_Deleting_Name_Size, duplicatedFile.FileFullName, duplicatedFile.FileSize) + Environment.NewLine);
                 TotalDeletedSize += fileSize;
                 TotalDeletedFileCount++;
 
@@ -99,7 +102,7 @@ namespace FileBadger.Commands
                 }
                 catch (FileSystemException ex)
                 {
-                    WriteLog($"Deleting failed: {ex.FileFullName}" + Environment.NewLine + $"Error: {ex.Message}" + Environment.NewLine);
+                    WriteLog(string.Format(Resources.Log_Error_Deleting_failed_Name, ex.FileFullName) + Environment.NewLine + string.Format(Resources.Log_Error_Deleting_failed_Exception, ex.Message) + Environment.NewLine);
                     //continue;
                 }
 

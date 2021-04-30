@@ -27,7 +27,7 @@ namespace FileBadger
         }
 
         private static dynamic _shellObject;
-        private static dynamic ShellObject => _shellObject ?? (_shellObject = Activator.CreateInstance(Type.GetTypeFromProgID("Shell.Application")));
+        private static dynamic ShellObject => _shellObject ??= Activator.CreateInstance(Type.GetTypeFromProgID("Shell.Application"));
 
         public static IEnumerable<DriveNameInfo> Get()
         {

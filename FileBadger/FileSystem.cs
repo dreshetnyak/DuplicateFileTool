@@ -16,6 +16,7 @@ namespace FileBadger
     }
     internal delegate void FileSystemErrorEventHandler(object sender, FileSystemErrorEventArgs eventArgs);
 
+    [Localizable(true)]
     internal sealed class FileSystemException : Exception
     {
         public string FileFullName { get; }
@@ -56,7 +57,7 @@ namespace FileBadger
                 return Handle;
 
             if (!Win32.PathFileExists(FileFullName))
-                throw new FileSystemException(FileFullName, "File not found");
+                throw new FileSystemException(FileFullName, Properties.Resources.Error_File_not_found);
 
             Handle = FileSystem.OpenRead(FileFullName);
 

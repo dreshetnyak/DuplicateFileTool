@@ -8,10 +8,10 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace FileBadger.Properties
-{
-
-
+namespace FileBadger.Properties {
+    using System;
+    
+    
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
     /// </summary>
@@ -19,52 +19,422 @@ namespace FileBadger.Properties
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Resources
-    {
-
+    public class Resources {
+        
         private static global::System.Resources.ResourceManager resourceMan;
-
+        
         private static global::System.Globalization.CultureInfo resourceCulture;
-
+        
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal Resources()
-        {
+        internal Resources() {
         }
-
+        
         /// <summary>
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager
-        {
-            get
-            {
-                if ((resourceMan == null))
-                {
+        public static global::System.Resources.ResourceManager ResourceManager {
+            get {
+                if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("FileBadger.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
             }
         }
-
+        
         /// <summary>
         ///   Overrides the current thread's CurrentUICulture property for all
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture
-        {
-            get
-            {
+        public static global::System.Globalization.CultureInfo Culture {
+            get {
                 return resourceCulture;
             }
-            set
-            {
+            set {
                 resourceCulture = value;
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hash.Compute is called with an invalid parameter &apos;dataForHash&apos; that is null.
+        /// </summary>
+        public static string Error_Compute_Hash_Compute_is_called_with_an_invalid_parameter {
+            get {
+                return ResourceManager.GetString("Error_Compute_Hash_Compute_is_called_with_an_invalid_parameter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to close the file search handle. .
+        /// </summary>
+        public static string Error_Failed_to_close_the_file_search_handle {
+            get {
+                return ResourceManager.GetString("Error_Failed_to_close_the_file_search_handle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to find the next file. .
+        /// </summary>
+        public static string Error_Failed_to_find_the_next_file {
+            get {
+                return ResourceManager.GetString("Error_Failed_to_find_the_next_file", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to File not found.
+        /// </summary>
+        public static string Error_File_not_found {
+            get {
+                return ResourceManager.GetString("Error_File_not_found", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The value is not a an integer.
+        /// </summary>
+        public static string Error_The_value_is_not_a_an_integer {
+            get {
+                return ResourceManager.GetString("Error_The_value_is_not_a_an_integer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The value is not a valid number.
+        /// </summary>
+        public static string Error_The_value_is_not_a_valid_number {
+            get {
+                return ResourceManager.GetString("Error_The_value_is_not_a_valid_number", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to convert the size to bytes, unknown SizeUnits parameter.
+        /// </summary>
+        public static string Error_Unable_to_convert_the_size_to_bytes_unknown_SizeUnits {
+            get {
+                return ResourceManager.GetString("Error_Unable_to_convert_the_size_to_bytes_unknown_SizeUnits", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to set the file offset.
+        /// </summary>
+        public static string Error_Unable_to_set_the_file_offset {
+            get {
+                return ResourceManager.GetString("Error_Unable_to_set_the_file_offset", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unknown file extension inclusion type.
+        /// </summary>
+        public static string Error_Unknown_file_extension_inclusion_type {
+            get {
+                return ResourceManager.GetString("Error_Unknown_file_extension_inclusion_type", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Deleted size: {0:N0} Bytes.
+        /// </summary>
+        public static string Log_Deleted_Size {
+            get {
+                return ResourceManager.GetString("Log_Deleted_Size", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Deleting: {0}; {1}.
+        /// </summary>
+        public static string Log_Deleting_Name_Size {
+            get {
+                return ResourceManager.GetString("Log_Deleting_Name_Size", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error: {0}.
+        /// </summary>
+        public static string Log_Error_Deleting_failed_Exception {
+            get {
+                return ResourceManager.GetString("Log_Error_Deleting_failed_Exception", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Deleting failed: {0}.
+        /// </summary>
+        public static string Log_Error_Deleting_failed_Name {
+            get {
+                return ResourceManager.GetString("Log_Error_Deleting_failed_Name", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Files deleted: {0}.
+        /// </summary>
+        public static string Log_Files_deleted_Count {
+            get {
+                return ResourceManager.GetString("Log_Files_deleted_Count", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Performing deletion of the marked duplicates:.
+        /// </summary>
+        public static string Log_Performing_deletion_of_the_marked_duplicates {
+            get {
+                return ResourceManager.GetString("Log_Performing_deletion_of_the_marked_duplicates", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cancel.
+        /// </summary>
+        public static string Ui_Cancel_Search_Button_Text {
+            get {
+                return ResourceManager.GetString("Ui_Cancel_Search_Button_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Count the entered size in Bytes.
+        /// </summary>
+        public static string Ui_Count_size_in_Bytes {
+            get {
+                return ResourceManager.GetString("Ui_Count_size_in_Bytes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Count the entered size in Gigabytes.
+        /// </summary>
+        public static string Ui_Count_size_in_Gigabytes {
+            get {
+                return ResourceManager.GetString("Ui_Count_size_in_Gigabytes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Count the entered size in Kilobytes.
+        /// </summary>
+        public static string Ui_Count_size_in_Kilobytes {
+            get {
+                return ResourceManager.GetString("Ui_Count_size_in_Kilobytes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Count the entered size in Megabytes.
+        /// </summary>
+        public static string Ui_Count_size_in_Megabytes {
+            get {
+                return ResourceManager.GetString("Ui_Count_size_in_Megabytes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Duplicate files group #.
+        /// </summary>
+        public static string Ui_Duplicate_files_group_N {
+            get {
+                return ResourceManager.GetString("Ui_Duplicate_files_group_N", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to , Duplicated size:.
+        /// </summary>
+        public static string Ui_Duplicated_size {
+            get {
+                return ResourceManager.GetString("Ui_Duplicated_size", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Extensions.
+        /// </summary>
+        public static string Ui_Extensions_GroupBox_Header {
+            get {
+                return ResourceManager.GetString("Ui_Extensions_GroupBox_Header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to , Files:.
+        /// </summary>
+        public static string Ui_Files {
+            get {
+                return ResourceManager.GetString("Ui_Files", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Logs.
+        /// </summary>
+        public static string Ui_Logs_Tab_Header {
+            get {
+                return ResourceManager.GetString("Ui_Logs_Tab_Header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Auto Select by Path.
+        /// </summary>
+        public static string Ui_Results_Auto_select_by_path {
+            get {
+                return ResourceManager.GetString("Ui_Results_Auto_select_by_path", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Delete Marked Files.
+        /// </summary>
+        public static string Ui_Results_Delete_Marked_Files {
+            get {
+                return ResourceManager.GetString("Ui_Results_Delete_Marked_Files", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to File Groups:.
+        /// </summary>
+        public static string Ui_Results_Duplicate_Groups_Count {
+            get {
+                return ResourceManager.GetString("Ui_Results_Duplicate_Groups_Count", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Duplicated Bytes:.
+        /// </summary>
+        public static string Ui_Results_Duplicated_Size {
+            get {
+                return ResourceManager.GetString("Ui_Results_Duplicated_Size", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Duplicates Information.
+        /// </summary>
+        public static string Ui_Results_Duplicates_Information_GroupBox_Header {
+            get {
+                return ResourceManager.GetString("Ui_Results_Duplicates_Information_GroupBox_Header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Reset Selection.
+        /// </summary>
+        public static string Ui_Results_Reset_selection {
+            get {
+                return ResourceManager.GetString("Ui_Results_Reset_selection", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to To be Deleted:.
+        /// </summary>
+        public static string Ui_Results_Selected_for_deletion_size {
+            get {
+                return ResourceManager.GetString("Ui_Results_Selected_for_deletion_size", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Results.
+        /// </summary>
+        public static string Ui_Results_Tab_Header {
+            get {
+                return ResourceManager.GetString("Ui_Results_Tab_Header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Search Duplicates.
+        /// </summary>
+        public static string Ui_Search_Button_Text {
+            get {
+                return ResourceManager.GetString("Ui_Search_Button_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Search.
+        /// </summary>
+        public static string Ui_Search_Tab_Header {
+            get {
+                return ResourceManager.GetString("Ui_Search_Tab_Header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Size.
+        /// </summary>
+        public static string Ui_Size_GroupBox_Header {
+            get {
+                return ResourceManager.GetString("Ui_Size_GroupBox_Header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add selected to the list.
+        /// </summary>
+        public static string Ui_ToolTip_Add_selected_to_the_list {
+            get {
+                return ResourceManager.GetString("Ui_ToolTip_Add_selected_to_the_list", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The files with the listed extensions will be excluded from the search.
+        /// </summary>
+        public static string Ui_ToolTip_Files_with_the_listed_extensions_will_be_excluded {
+            get {
+                return ResourceManager.GetString("Ui_ToolTip_Files_with_the_listed_extensions_will_be_excluded", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Only the files with the listed extensions will be included in the search.
+        /// </summary>
+        public static string Ui_ToolTip_Only_the_files_with_the_listed_extensions_included {
+            get {
+                return ResourceManager.GetString("Ui_ToolTip_Only_the_files_with_the_listed_extensions_included", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid selection, encountered a group with all files selected, at leas one file should be left unselected. The group will be ignored..
+        /// </summary>
+        public static string Warning_Encountered_a_group_with_all_files_selected {
+            get {
+                return ResourceManager.GetString("Warning_Encountered_a_group_with_all_files_selected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The value is greater than the allowed maximum of {0:N0}.
+        /// </summary>
+        public static string Warning_The_value_is_greater_than_the_allowed_maximum {
+            get {
+                return ResourceManager.GetString("Warning_The_value_is_greater_than_the_allowed_maximum", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The value is less than the allowed minimum of {0:N0}.
+        /// </summary>
+        public static string Warning_The_value_is_less_than_the_allowed_minimum {
+            get {
+                return ResourceManager.GetString("Warning_The_value_is_less_than_the_allowed_minimum", resourceCulture);
             }
         }
     }

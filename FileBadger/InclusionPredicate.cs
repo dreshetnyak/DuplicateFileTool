@@ -1,7 +1,9 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Linq;
 using FileBadger.Annotations;
 using FileBadger.Configuration;
+using FileBadger.Properties;
 
 namespace FileBadger
 {
@@ -10,6 +12,7 @@ namespace FileBadger
         bool IsFileIncluded(FileData fileData);
     }
 
+    [Localizable(true)]
     internal class InclusionPredicate : IInclusionPredicate
     {
         public SearchConfiguration SearchConfig { get; }
@@ -58,7 +61,7 @@ namespace FileBadger
             {
                 case InclusionType.Include: return extensions.Any(ext => ext.Equals(fileExtension, StringComparison.OrdinalIgnoreCase));
                 case InclusionType.Exclude: return extensions.All(ext => !ext.Equals(fileExtension, StringComparison.OrdinalIgnoreCase));
-                default: throw new ApplicationException("Unknown file extension inclusion type");
+                default: throw new ApplicationException(Resources.Error_Unknown_file_extension_inclusion_type);
             }
         }
 
@@ -74,7 +77,7 @@ namespace FileBadger
                         ByteSizeUnits.Kilobytes => size * 1_024L,
                         ByteSizeUnits.Megabytes => size * 1_048_576L,
                         ByteSizeUnits.Gigabytes => size * 1_073_741_824L,
-                        _ => throw new ArgumentOutOfRangeException(nameof(byteSizeUnits), byteSizeUnits, "Unable to convert the size to bytes, unknown SizeUnits parameter")
+                        _ => throw new ArgumentOutOfRangeException(nameof(byteSizeUnits), byteSizeUnits, Resources.Error_Unable_to_convert_the_size_to_bytes_unknown_SizeUnits)
                     };
                 }
             }

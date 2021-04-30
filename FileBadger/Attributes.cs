@@ -1,5 +1,7 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using FileBadger.Properties;
 
 namespace FileBadger
 {
@@ -63,6 +65,7 @@ namespace FileBadger
         (bool IsValid, string Message) IsValid(object value);
     }
 
+    [Localizable(true)]
     internal abstract class IntValidationRule : Attribute, IValidationRule
     {
         public abstract (bool IsValid, string Message) IsValid(object value);
@@ -73,14 +76,14 @@ namespace FileBadger
             if (ReferenceEquals(value, null))
             {
                 parsedIntValue = 0;
-                message = "The value is not a valid number";
+                message = Resources.Error_The_value_is_not_a_valid_number;
                 return false;
             }
 
             if (!(value is int))
             {
                 parsedIntValue = 0;
-                message = "The value is not a an integer";
+                message = Resources.Error_The_value_is_not_a_an_integer;
                 return false;
             }
 
@@ -108,9 +111,9 @@ namespace FileBadger
                 return (false, message);
 
             if (intValue < MinValue)
-                return (false, $"The value is less than the allowed minimum of {MinValue:N0}");
+                return (false, string.Format(Resources.Warning_The_value_is_less_than_the_allowed_minimum, MinValue));
             return intValue > MaxValue 
-                ? (false, $"The value is greater than the allowed maximum of {MaxValue:N0}") 
+                ? (false, string.Format(Resources.Warning_The_value_is_greater_than_the_allowed_maximum, MaxValue)) 
                 : (true, "");
         }
     }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using FileBadger.Properties;
 
 namespace FileBadger
 {
@@ -13,8 +14,8 @@ namespace FileBadger
     internal class FileReader : IDisposable
     {
         public static int MaxFileHandlesCount { get; set; } = 255; //512 is the limit set by Windows
-        private ReaderWriterLockSlim OpenFilesCacheLock { get; } = new ReaderWriterLockSlim();
-        private static List<FileHandle> OpenFilesCache { get; } = new List<FileHandle>();
+        private ReaderWriterLockSlim OpenFilesCacheLock { get; } = new();
+        private static List<FileHandle> OpenFilesCache { get; } = new();
 
         private FileHandle File { get; }
         private long Offset { get; set; }
@@ -60,7 +61,7 @@ namespace FileBadger
                 OpenFilesCache.Add(File);
 
                 if (!FileSystem.SetFilePointer(File, Offset))
-                    throw new FileSystemException(File.FileFullName, "Unable to set the file offset");
+                    throw new FileSystemException(File.FileFullName, Resources.Error_Unable_to_set_the_file_offset);
             }
             finally
             {

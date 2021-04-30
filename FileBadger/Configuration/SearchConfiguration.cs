@@ -1,7 +1,9 @@
 ﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
 
 namespace FileBadger.Configuration
 {
+    [Localizable(true)]
     internal class SearchConfiguration : TrackedChangeNotifier<ConfigurationPropertyAttribute>
     {
         #region Backing Fields
