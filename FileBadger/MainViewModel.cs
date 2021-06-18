@@ -72,7 +72,7 @@ namespace FileBadger
         }
         public DuplicatesEngine Duplicates { get; }
 
-        public ObservableCollection<SearchPath> SearchPaths { get; } = new ObservableCollection<SearchPath>();
+        public ObservableCollection<SearchPath> SearchPaths { get; } = new();
         public ObservableCollection<FileTreeItem> FileTree { get; }
         public FileTreeItem SelectedFileSystemItem
         {
@@ -149,7 +149,7 @@ namespace FileBadger
             //Duplicates.FileSystemErrors
             
             FindDuplicates = new FindDuplicatesCommand(Duplicates, SearchPaths, () => InclusionPredicate, () => SelectedFileComparer);
-            CancelDuplicatesSearch = new RelayCommand(param => FindDuplicates.Cancel());
+            CancelDuplicatesSearch = new RelayCommand(_ => FindDuplicates.Cancel());
 
             ToggleDeletionMark = new ToggleDeletionMarkCommand(sizeDelta => ToBeDeletedSize += sizeDelta);
             AutoSelectByPath = new AutoSelectByPathCommand(Duplicates.DuplicateGroups, sizeDelta => ToBeDeletedSize += sizeDelta);
@@ -169,7 +169,7 @@ namespace FileBadger
             var fileTreeContent = FileTreeItem.GetFileSystemItemsForDrives();
             foreach (var fileSystemItem in fileTreeContent)
                 FileTree.Add(fileSystemItem);
-            FileTreeItem.ItemSelected += (sender, args) => { SelectedFileSystemItem = (FileTreeItem)sender; };
+            FileTreeItem.ItemSelected += (sender, _) => { SelectedFileSystemItem = (FileTreeItem)sender; };
         }
 
         private void InitializeSelectedFileComparer()

@@ -270,7 +270,7 @@ namespace FileBadger
             Duplicates = new DuplicatesSearch();
             Duplicates.DuplicatesSearchProgress += OnDuplicatesSearchProgress;
             Duplicates.FileSystemError += OnFileSystemError;
-            Duplicates.DuplicatesGroupFound += (sender, args) => DuplicateGroups.Add(new DuplicateGroup(args.DuplicatesGroup));
+            Duplicates.DuplicatesGroupFound += (_, args) => DuplicateGroups.Add(new DuplicateGroup(args.DuplicatesGroup));
         }
 
         public async Task FindDuplicates(

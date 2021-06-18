@@ -8,6 +8,7 @@ namespace FileBadger
 {
     internal class InterfaceSwitch : NotifyPropertyChanged
     {
+        //TODO
         //public bool SearchParametersEnabled
     }
 }

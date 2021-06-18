@@ -7,6 +7,7 @@ namespace FileBadger
     {
         private Win32.FileAttributes Attributes { get; }
 
+        // ReSharper disable UnusedMember.Global
         public bool IsReadonly => (Attributes & Win32.FileAttributes.Readonly) == Win32.FileAttributes.Readonly;
         public bool IsHidden => (Attributes & Win32.FileAttributes.Hidden) == Win32.FileAttributes.Hidden;
         public bool IsSystem => (Attributes & Win32.FileAttributes.System) == Win32.FileAttributes.System;
@@ -32,6 +33,7 @@ namespace FileBadger
         public bool IsOpenReparsePoint => (Attributes & Win32.FileAttributes.OpenReparsePoint) == Win32.FileAttributes.OpenReparsePoint;
         public bool IsOpenNoRecall => (Attributes & Win32.FileAttributes.OpenNoRecall) == Win32.FileAttributes.OpenNoRecall;
         public bool IsFirstPipeInstance => (Attributes & Win32.FileAttributes.FirstPipeInstance) == Win32.FileAttributes.FirstPipeInstance;
+        // ReSharper restore UnusedMember.Global
 
         internal FileAttributes(Win32.FileAttributes attributes)
         {
