@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows.Media;
 
-namespace FileBadger
+namespace DuplicateFileTool
 {
     internal class FileTreeItem : NotifyPropertyChanged
     {

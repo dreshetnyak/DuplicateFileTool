@@ -3,7 +3,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Forms;
 
-namespace FileBadger.Commands
+namespace DuplicateFileTool.Commands
 {
     internal class AutoSelectByPathCommand : CommandBase
     {

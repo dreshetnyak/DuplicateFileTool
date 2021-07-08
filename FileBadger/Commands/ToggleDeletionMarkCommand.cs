@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace FileBadger.Commands
+namespace DuplicateFileTool.Commands
 {
     internal class ToggleDeletionMarkCommand : CommandBase
     {

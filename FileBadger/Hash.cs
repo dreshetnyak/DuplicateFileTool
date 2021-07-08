@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
 using System.Security.Cryptography;
-using FileBadger.Properties;
+using DuplicateFileTool.Properties;
 
-namespace FileBadger
+namespace DuplicateFileTool
 {
     [Localizable(true)]
     static class Hash

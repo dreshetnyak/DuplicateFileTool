@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Configuration;
 
-namespace FileBadger.Configuration
+namespace DuplicateFileTool.Configuration
 {
     internal static class AppConfig
     {

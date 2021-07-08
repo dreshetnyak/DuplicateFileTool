@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace FileBadger.Commands
+namespace DuplicateFileTool.Commands
 {
     internal class AddPathCommand : CommandBase
     {
@@ -14,23 +14,22 @@ namespace FileBadger.Commands
 
         public override void Execute(object parameter)
         {
-            if (AppViewModel.SelectedFileSystemItem == null)
+            if (AppViewModel.SelectedFileTreeItem == null)
                 return;
 
             try
             {
                 Enabled = false;
                 
-                var itemPath = AppViewModel.SelectedFileSystemItem.ItemPath;
+                var itemPath = AppViewModel.SelectedFileTreeItem.ItemPath;
                 var pathIsNotYetAdded = AppViewModel.SearchPaths.All(existingPath => !existingPath.Path.Equals(itemPath, StringComparison.Ordinal));
                 if (pathIsNotYetAdded)
-                    AppViewModel.SearchPaths.Add(new SearchPath(AppViewModel.SelectedFileSystemItem.ItemPath, InclusionType.Include));
+                    AppViewModel.SearchPaths.Add(new SearchPath(AppViewModel.SelectedFileTreeItem.ItemPath, InclusionType.Include));
             }
             finally
             {
                 Enabled = true;
             }
-
         }
     }
 }

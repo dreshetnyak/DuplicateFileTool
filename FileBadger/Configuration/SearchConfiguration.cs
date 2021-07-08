@@ -1,7 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 
-namespace FileBadger.Configuration
+namespace DuplicateFileTool.Configuration
 {
     [Localizable(true)]
     internal class SearchConfiguration : TrackedChangeNotifier<ConfigurationPropertyAttribute>
@@ -124,7 +124,7 @@ namespace FileBadger.Configuration
             }
         }
 
-        public ObservableCollection<string> Extensions { get; } = new ObservableCollection<string>();
+        public ObservableCollection<ObservableString> Extensions { get; set; } = new();
 
         #endregion
     }

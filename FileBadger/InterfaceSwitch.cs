@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FileBadger
+namespace DuplicateFileTool
 {
     internal class InterfaceSwitch : NotifyPropertyChanged
     {

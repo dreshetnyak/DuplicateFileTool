@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Windows;
 
-namespace FileBadger
+namespace DuplicateFileTool
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml

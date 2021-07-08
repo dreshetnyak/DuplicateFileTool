@@ -2,9 +2,9 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using FileBadger.Properties;
+using DuplicateFileTool.Properties;
 
-namespace FileBadger.Commands
+namespace DuplicateFileTool.Commands
 {
     [Localizable(true)]
     internal class DeleteMarkedFilesCommand : CommandBase

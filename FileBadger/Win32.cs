@@ -4,7 +4,7 @@ using System.Runtime.Versioning;
 using System.Text;
 using Microsoft.Win32.SafeHandles;
 
-namespace FileBadger
+namespace DuplicateFileTool
 {
     internal class Win32
     {

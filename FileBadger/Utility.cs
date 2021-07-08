@@ -2,7 +2,7 @@
 using System.IO;
 using System.Reflection;
 
-namespace FileBadger
+namespace DuplicateFileTool
 {
     internal static class Utility
     {

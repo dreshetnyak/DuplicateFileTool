@@ -5,7 +5,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using Microsoft.Win32.SafeHandles;
 
-namespace FileBadger
+namespace DuplicateFileTool
 {
     internal sealed class FileSystemErrorEventArgs : EventArgs
     {

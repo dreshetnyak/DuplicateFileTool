@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
-using FileBadger.Commands;
-using FileBadger.Configuration;
+using DuplicateFileTool.Commands;
+using DuplicateFileTool.Configuration;
 
-namespace FileBadger
+namespace DuplicateFileTool
 {
     public enum InclusionType { Include, Exclude }
     public enum ByteSizeUnits { Bytes, Kilobytes, Megabytes, Gigabytes }
@@ -74,7 +74,7 @@ namespace FileBadger
 
         public ObservableCollection<SearchPath> SearchPaths { get; } = new();
         public ObservableCollection<FileTreeItem> FileTree { get; }
-        public FileTreeItem SelectedFileSystemItem
+        public FileTreeItem SelectedFileTreeItem
         {
             get => _selectedFileTreeItem;
             set
@@ -169,7 +169,7 @@ namespace FileBadger
             var fileTreeContent = FileTreeItem.GetFileSystemItemsForDrives();
             foreach (var fileSystemItem in fileTreeContent)
                 FileTree.Add(fileSystemItem);
-            FileTreeItem.ItemSelected += (sender, _) => { SelectedFileSystemItem = (FileTreeItem)sender; };
+            FileTreeItem.ItemSelected += (sender, _) => { SelectedFileTreeItem = (FileTreeItem)sender; };
         }
 
         private void InitializeSelectedFileComparer()

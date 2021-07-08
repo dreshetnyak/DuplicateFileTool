@@ -1,11 +1,11 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Linq;
-using FileBadger.Annotations;
-using FileBadger.Configuration;
-using FileBadger.Properties;
+using DuplicateFileTool.Annotations;
+using DuplicateFileTool.Configuration;
+using DuplicateFileTool.Properties;
 
-namespace FileBadger
+namespace DuplicateFileTool
 {
     internal interface IInclusionPredicate
     {
@@ -59,8 +59,8 @@ namespace FileBadger
 
             switch (SearchConfig.ExtensionInclusionType)
             {
-                case InclusionType.Include: return extensions.Any(ext => ext.Equals(fileExtension, StringComparison.OrdinalIgnoreCase));
-                case InclusionType.Exclude: return extensions.All(ext => !ext.Equals(fileExtension, StringComparison.OrdinalIgnoreCase));
+                case InclusionType.Include: return extensions.Any(ext => ext.Value.Equals(fileExtension, StringComparison.OrdinalIgnoreCase));
+                case InclusionType.Exclude: return extensions.All(ext => !ext.Value.Equals(fileExtension, StringComparison.OrdinalIgnoreCase));
                 default: throw new ApplicationException(Resources.Error_Unknown_file_extension_inclusion_type);
             }
         }

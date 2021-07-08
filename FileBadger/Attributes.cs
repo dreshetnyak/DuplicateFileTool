@@ -1,9 +1,9 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using FileBadger.Properties;
+using DuplicateFileTool.Properties;
 
-namespace FileBadger
+namespace DuplicateFileTool
 {
     //TODO organize this file
 

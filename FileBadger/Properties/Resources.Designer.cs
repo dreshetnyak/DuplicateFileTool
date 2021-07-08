@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace FileBadger.Properties {
+namespace DuplicateFileTool.Properties {
     using System;
     
     

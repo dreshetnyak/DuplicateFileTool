@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 
-namespace FileBadger.Configuration
+namespace DuplicateFileTool.Configuration
 {
     internal class ApplicationConfig : NotifyPropertyChanged
     {

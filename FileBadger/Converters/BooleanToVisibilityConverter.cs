@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
-namespace FileBadger.Converters
+namespace DuplicateFileTool.Converters
 {
     public class BooleanToVisibilityConverter : IValueConverter
     {

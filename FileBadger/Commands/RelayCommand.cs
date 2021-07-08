@@ -1,7 +1,7 @@
 ﻿using System;
-using FileBadger.Annotations;
+using DuplicateFileTool.Annotations;
 
-namespace FileBadger.Commands
+namespace DuplicateFileTool.Commands
 {
     internal class RelayCommand : CommandBase
     {

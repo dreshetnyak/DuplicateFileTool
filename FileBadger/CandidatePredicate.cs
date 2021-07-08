@@ -1,4 +1,4 @@
-﻿namespace FileBadger
+﻿namespace DuplicateFileTool
 {
     internal interface ICandidatePredicate
     {

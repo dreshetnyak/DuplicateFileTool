@@ -112,6 +112,7 @@
     <Compile Include="DuplicatesSearch.cs" />
     <Compile Include="InclusionPredicate.cs" />
     <Compile Include="InterfaceSwitch.cs" />
+    <Compile Include="Observable.cs" />
     <Compile Include="Utility.cs" />
     <Compile Include="ComparableFile.cs" />
     <Compile Include="FileData.cs" />
@@ -193,7 +194,10 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Images\" />
+    <Resource Include="Images\AddGray.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Add.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

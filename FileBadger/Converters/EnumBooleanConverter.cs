@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.Windows.Data;
 
-namespace FileBadger.Converters
+namespace DuplicateFileTool.Converters
 {
     public class EnumBooleanConverter : IValueConverter
     {

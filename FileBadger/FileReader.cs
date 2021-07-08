@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
-using FileBadger.Properties;
+using DuplicateFileTool.Properties;
 
-namespace FileBadger
+namespace DuplicateFileTool
 {
     /// <summary>
     /// FileReader class is wrapper over a single file handle, it implements functionality for reading from the file in a

@@ -7,7 +7,7 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-namespace FileBadger
+namespace DuplicateFileTool
 {
     internal static class FileSystemIcon
     {

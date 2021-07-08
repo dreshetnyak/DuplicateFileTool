@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace FileBadger
+namespace DuplicateFileTool
 {
     internal abstract class NotifyPropertyChanged : INotifyPropertyChanged
     {

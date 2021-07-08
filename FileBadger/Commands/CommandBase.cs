@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Input;
 
-namespace FileBadger.Commands
+namespace DuplicateFileTool.Commands
 {
     internal interface ICancellable
     {

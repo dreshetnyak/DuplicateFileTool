@@ -6,7 +6,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
 
-namespace FileBadger.Comparers
+namespace DuplicateFileTool.Comparers
 {
     internal class ComparableFileHashConfig : ComparerConfig
     {

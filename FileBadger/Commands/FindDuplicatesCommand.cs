@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
-using FileBadger.Annotations;
+using DuplicateFileTool.Annotations;
 
-namespace FileBadger.Commands
+namespace DuplicateFileTool.Commands
 {
     internal class FindDuplicatesCommand : CommandBase
     {

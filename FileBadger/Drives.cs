@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using Shell32;
 
-namespace FileBadger
+namespace DuplicateFileTool
 {
     internal static class Drives
     {

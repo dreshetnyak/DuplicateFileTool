@@ -4,9 +4,9 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using FileBadger.Converters;
+using DuplicateFileTool.Converters;
 
-namespace FileBadger
+namespace DuplicateFileTool
 {
     internal class DuplicateFile : NotifyPropertyChanged
     {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 
-namespace FileBadger
+namespace DuplicateFileTool
 {
     public class FileAttributes
     {

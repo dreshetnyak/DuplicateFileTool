@@ -3,9 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
-using FileBadger.Properties;
+using DuplicateFileTool.Properties;
 
-namespace FileBadger
+namespace DuplicateFileTool
 {
     public class DirectoryAccessFailedException : Exception
     {

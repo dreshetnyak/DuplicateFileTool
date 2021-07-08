@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
-using FileBadger.Annotations;
+using DuplicateFileTool.Annotations;
 
-namespace FileBadger
+namespace DuplicateFileTool
 {
     internal class Reflected
     {

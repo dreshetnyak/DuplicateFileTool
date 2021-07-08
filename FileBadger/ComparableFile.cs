@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 
-namespace FileBadger
+namespace DuplicateFileTool
 {
     internal interface IComparerConfig
     {

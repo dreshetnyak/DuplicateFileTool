@@ -1,4 +1,4 @@
-﻿namespace FileBadger.Converters
+﻿namespace DuplicateFileTool.Converters
 {
     internal static class DataConversion
     {
