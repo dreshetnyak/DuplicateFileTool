@@ -12,7 +12,9 @@ namespace DuplicateFileTool.Commands
         private Func<IInclusionPredicate> GetInclusionPredicate { get; }
         private Func<IFileComparer> GetSelectedComparer { get; }
         private CancellationTokenSource Cts { get; set; }
-        
+
+        public event EventHandler FindDuplicatesFinished;
+
         public FindDuplicatesCommand(
             [NotNull] DuplicatesEngine duplicatesEngine,
             [NotNull] IReadOnlyCollection<SearchPath> searchPaths,
@@ -34,6 +36,9 @@ namespace DuplicateFileTool.Commands
                 var selectedComparer = GetSelectedComparer();
                 using (Cts = new CancellationTokenSource()) 
                     await DuplicatesEngine.FindDuplicates(SearchPaths, GetInclusionPredicate(), selectedComparer.CandidatePredicate, selectedComparer.ComparableFileFactory, Cts.Token);
+
+                if (!Cts.IsCancellationRequested)
+                    OnFindDuplicatesFinished();
             }
             catch (OperationCanceledException) { /* ignore */ }
             finally
@@ -47,6 +52,11 @@ namespace DuplicateFileTool.Commands
         {
             if (CanCancel)
                 Cts?.Cancel();
+        }
+
+        protected virtual void OnFindDuplicatesFinished()
+        {
+            FindDuplicatesFinished?.Invoke(this, EventArgs.Empty);
         }
     }
 }

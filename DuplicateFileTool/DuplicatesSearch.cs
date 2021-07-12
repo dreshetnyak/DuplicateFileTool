@@ -90,8 +90,9 @@ namespace DuplicateFileTool
                 context.DuplicateGroupsCount += groupDuplicates.Count;
                 context.DuplicateFilesCount += groupDuplicates.Sum(group => group.Count);
                 context.DuplicatedTotalSize += GetGroupDuplicatedSize(groupDuplicates);
+                OnDuplicatesSearchProgress(groupDuplicates.First().First().ComparableFile.FileData.FullName, context);
 
-                foreach (var group in groupDuplicates) 
+                foreach (var group in groupDuplicates)
                     OnDuplicatesGroupFound(group);
             }
         }
@@ -113,16 +114,20 @@ namespace DuplicateFileTool
             var duplicates = new List<List<MatchResult>>();
             foreach (var fileFromGroup in fileGroup)
             {
-                if (ContainsFile(duplicates, fileFromGroup))
-                    continue;
+                try
+                {
+                    if (ContainsFile(duplicates, fileFromGroup))
+                        continue;
 
-                OnDuplicatesSearchProgress(fileFromGroup.FileData.FileName, context);
-                context.CurrentFileIndex++;
+                    OnDuplicatesSearchProgress(fileFromGroup.FileData.FileName, context);
+                
+                    var fileFromGroupDuplicates = GetFileDuplicates(fileFromGroup, fileGroup, context, cancellationToken);
 
-                var fileFromGroupDuplicates = GetFileDuplicates(fileFromGroup, fileGroup, context, cancellationToken);
-
-                if (fileFromGroupDuplicates.Count != 0)
-                    duplicates.Add(fileFromGroupDuplicates);
+                    if (fileFromGroupDuplicates.Count != 0)
+                       duplicates.Add(fileFromGroupDuplicates);
+                }
+                finally
+                { context.CurrentFileIndex++; }
             }
 
             return duplicates;
@@ -158,7 +163,7 @@ namespace DuplicateFileTool
 
                 if (duplicates.Count == 0)
                     duplicates.Add(new MatchResult { ComparableFile = fileToFind, MatchValue = completeMatch, CompleteMatch = completeMatch, CompleteMismatch = completeMismatch });
-                duplicates.Add(new MatchResult { ComparableFile = fileToFind, MatchValue = matchValue, CompleteMatch = completeMatch, CompleteMismatch = completeMismatch });
+                duplicates.Add(new MatchResult { ComparableFile = fileFromGroup, MatchValue = matchValue, CompleteMatch = completeMatch, CompleteMismatch = completeMismatch });
             }
 
             return duplicates;

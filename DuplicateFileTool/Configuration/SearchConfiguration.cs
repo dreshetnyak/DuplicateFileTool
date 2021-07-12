@@ -5,8 +5,13 @@ using DuplicateFileTool.Properties;
 
 namespace DuplicateFileTool.Configuration
 {
+    internal interface IChangeable
+    {
+        bool HasChanged { get; }
+    }
+
     [Localizable(true)]
-    internal class SearchConfiguration : NotifyPropertyChanged
+    internal class SearchConfiguration : NotifyPropertyChanged, IChangeable
     {
         public ConfigurationProperty<int> MaximumFilesOpenedAtOnce { get; } = new(
             Resources.Config_MaximumFilesOpenedAtOnce_Name,

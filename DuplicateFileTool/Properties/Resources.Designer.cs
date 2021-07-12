@@ -629,7 +629,7 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to , Duplicated size:.
+        ///   Looks up a localized string similar to , Duplicated size: .
         /// </summary>
         public static string Ui_Duplicated_size {
             get {
@@ -647,7 +647,7 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to , Files:.
+        ///   Looks up a localized string similar to , Files: .
         /// </summary>
         public static string Ui_Files {
             get {

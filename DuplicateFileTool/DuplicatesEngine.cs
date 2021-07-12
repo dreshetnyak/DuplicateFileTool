@@ -21,7 +21,6 @@ namespace DuplicateFileTool
         public string FileFullName => FileData.FullName;
         public string FileSize => FileData.Size.BytesLengthToString();
         public bool IsMarkForDeletionVisible => !IsMarkedForDeletion && ParentGroup.DuplicateFiles.Count(file => !file.IsMarkedForDeletion) > 1;
-
         public bool IsMarkedForDeletion
         {
             get => _isMarkedForDeletion;
@@ -31,6 +30,15 @@ namespace DuplicateFileTool
                     return;
                 _isMarkedForDeletion = value;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(IsMarkForDeletionVisible));
+
+                foreach (var duplicatedFile in ParentGroup.DuplicateFiles)
+                {
+                    if (duplicatedFile == this)
+                        continue;
+                    duplicatedFile.OnPropertyChanged();
+                    duplicatedFile.OnPropertyChanged(nameof(IsMarkForDeletionVisible));
+                }
             }
         }
 
@@ -79,7 +87,7 @@ namespace DuplicateFileTool
             {
                 if (_duplicatedSize == value)
                     return;
-                _duplicatedSize = value; 
+                _duplicatedSize = value;
                 OnPropertyChanged();
             }
         }
@@ -91,11 +99,11 @@ namespace DuplicateFileTool
             DuplicateFiles = new ObservableCollection<DuplicateFile>();
             foreach (var duplicateFile in duplicateFiles)
                 DuplicateFiles.Add(new DuplicateFile(this, duplicateFile));
-            OnDuplicateFilesCollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add));
+            OnDuplicateFilesCollectionChanged(this);
             DuplicateFiles.CollectionChanged += OnDuplicateFilesCollectionChanged;
         }
 
-        private void OnDuplicateFilesCollectionChanged(object sender, NotifyCollectionChangedEventArgs eventArgs)
+        private void OnDuplicateFilesCollectionChanged(object sender, NotifyCollectionChangedEventArgs eventArgs = null)
         {
             FilesCount = DuplicateFiles.Count;
             DuplicatedSize = GetDuplicatedSize().BytesLengthToString();
@@ -270,7 +278,7 @@ namespace DuplicateFileTool
             Duplicates = new DuplicatesSearch();
             Duplicates.DuplicatesSearchProgress += OnDuplicatesSearchProgress;
             Duplicates.FileSystemError += OnFileSystemError;
-            Duplicates.DuplicatesGroupFound += (_, args) => DuplicateGroups.Add(new DuplicateGroup(args.DuplicatesGroup));
+            Duplicates.DuplicatesGroupFound += (_, args) => System.Windows.Application.Current.Dispatcher.Invoke(() => DuplicateGroups.Add(new DuplicateGroup(args.DuplicatesGroup)));
         }
 
         public async Task FindDuplicates(

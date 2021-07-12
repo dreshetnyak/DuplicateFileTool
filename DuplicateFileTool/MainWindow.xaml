@@ -76,7 +76,7 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <TabControl Grid.Row="0">
+        <TabControl Grid.Row="0" SelectedIndex="{Binding SelectedTabIndex}">
             <TabItem Header="{x:Static resx:Resources.Ui_Search_Tab_Header}" MinHeight="24" MinWidth="80">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -196,8 +196,8 @@
                                 </DataGrid>
 
                                 <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" >
-                                    <RadioButton Content="Include" Margin="0,5,5,2" ToolTip="{x:Static resx:Resources.Ui_ToolTip_Only_the_files_with_the_listed_extensions_included}" IsChecked="{Binding Path=SearchConfig.ExtensionInclusionType, Mode=TwoWay, Converter={StaticResource EnumBoolConverter}, ConverterParameter=Include}" />
-                                    <RadioButton Content="Exclude" Margin="5,5,0,2" ToolTip="{x:Static resx:Resources.Ui_ToolTip_Files_with_the_listed_extensions_will_be_excluded}" IsChecked="{Binding Path=SearchConfig.ExtensionInclusionType, Mode=TwoWay, Converter={StaticResource EnumBoolConverter}, ConverterParameter=Exclude}" />
+                                    <RadioButton Content="Include" Margin="0,5,5,2" ToolTip="{x:Static resx:Resources.Ui_ToolTip_Only_the_files_with_the_listed_extensions_included}" IsChecked="{Binding Path=SearchConfig.ExtensionInclusionType.Value, Mode=TwoWay, Converter={StaticResource EnumBoolConverter}, ConverterParameter=Include}" />
+                                    <RadioButton Content="Exclude" Margin="5,5,0,2" ToolTip="{x:Static resx:Resources.Ui_ToolTip_Files_with_the_listed_extensions_will_be_excluded}" IsChecked="{Binding Path=SearchConfig.ExtensionInclusionType.Value, Mode=TwoWay, Converter={StaticResource EnumBoolConverter}, ConverterParameter=Exclude}" />
                                 </StackPanel>
                             </Grid>
                         </GroupBox>
@@ -214,14 +214,14 @@
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
                                 <Label Grid.Column="0" Grid.Row="0">Minimum:</Label>
-                                <TextBox Grid.Column="1" Grid.Row="0" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" Text="{Binding SearchConfig.MinFileSize}" />
+                                <TextBox Grid.Column="1" Grid.Row="0" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" Text="{Binding SearchConfig.MinFileSize.Value}" />
                                 <Label Grid.Column="0" Grid.Row="1" Margin="0,5,0,2">Maximum:</Label>
-                                <TextBox Grid.Column="1" Grid.Row="1" Margin="0,5,0,2" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" Text="{Binding SearchConfig.MaxFileSize}" />
+                                <TextBox Grid.Column="1" Grid.Row="1" Margin="0,5,0,2" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" Text="{Binding SearchConfig.MaxFileSize.Value}" />
                                 <StackPanel Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" >
-                                    <RadioButton Content="Bytes" Margin="0,5,5,2" ToolTip="{x:Static resx:Resources.Ui_Count_size_in_Bytes}" IsChecked="{Binding Path=SearchConfig.ByteSizeUnit, Mode=TwoWay, Converter={StaticResource EnumBoolConverter}, ConverterParameter=Bytes}" />
-                                    <RadioButton Content="KB" Margin="5,5,5,2" ToolTip="{x:Static resx:Resources.Ui_Count_size_in_Kilobytes}" IsChecked="{Binding Path=SearchConfig.ByteSizeUnit, Mode=TwoWay, Converter={StaticResource EnumBoolConverter}, ConverterParameter=Kilobytes}" />
-                                    <RadioButton Content="MB" Margin="5,5,5,2" ToolTip="{x:Static resx:Resources.Ui_Count_size_in_Megabytes}" IsChecked="{Binding Path=SearchConfig.ByteSizeUnit, Mode=TwoWay, Converter={StaticResource EnumBoolConverter}, ConverterParameter=Megabytes}" />
-                                    <RadioButton Content="GB" Margin="5,5,0,2" ToolTip="{x:Static resx:Resources.Ui_Count_size_in_Gigabytes}" IsChecked="{Binding Path=SearchConfig.ByteSizeUnit, Mode=TwoWay, Converter={StaticResource EnumBoolConverter}, ConverterParameter=Gigabytes}" />
+                                    <RadioButton Content="Bytes" Margin="0,5,5,2" ToolTip="{x:Static resx:Resources.Ui_Count_size_in_Bytes}" IsChecked="{Binding Path=SearchConfig.ByteSizeUnit.Value, Mode=TwoWay, Converter={StaticResource EnumBoolConverter}, ConverterParameter=Bytes}" />
+                                    <RadioButton Content="KB" Margin="5,5,5,2" ToolTip="{x:Static resx:Resources.Ui_Count_size_in_Kilobytes}" IsChecked="{Binding Path=SearchConfig.ByteSizeUnit.Value, Mode=TwoWay, Converter={StaticResource EnumBoolConverter}, ConverterParameter=Kilobytes}" />
+                                    <RadioButton Content="MB" Margin="5,5,5,2" ToolTip="{x:Static resx:Resources.Ui_Count_size_in_Megabytes}" IsChecked="{Binding Path=SearchConfig.ByteSizeUnit.Value, Mode=TwoWay, Converter={StaticResource EnumBoolConverter}, ConverterParameter=Megabytes}" />
+                                    <RadioButton Content="GB" Margin="5,5,0,2" ToolTip="{x:Static resx:Resources.Ui_Count_size_in_Gigabytes}" IsChecked="{Binding Path=SearchConfig.ByteSizeUnit.Value, Mode=TwoWay, Converter={StaticResource EnumBoolConverter}, ConverterParameter=Gigabytes}" />
                                 </StackPanel>
                             </Grid>
                         </GroupBox>
@@ -272,11 +272,11 @@
                                     <RowDefinition />
                                 </Grid.RowDefinitions>
                                 <Label Grid.Column="0" Grid.Row="0" Content="{x:Static resx:Resources.Ui_Results_Duplicate_Groups_Count}" HorizontalAlignment="Right"/>
-                                <TextBox  Grid.Column="1" Grid.Row="0" MinWidth="100" TextAlignment="Right" IsReadOnly="True" Text="{Binding Duplicates.DuplicateGroupsCount, Mode=OneWay, StringFormat={}{0:#,#}}" VerticalContentAlignment="Center" Margin="0,2" />
+                                <TextBox  Grid.Column="1" Grid.Row="0" MinWidth="100" TextAlignment="Right" IsReadOnly="True" Text="{Binding Duplicates.DuplicateGroupsCount, Mode=OneWay, StringFormat={}{0:#,#}}" FontFamily="Consolas" FontSize="14" VerticalContentAlignment="Center" Margin="0,2" />
                                 <Label Grid.Column="0" Grid.Row="1" Content="{x:Static resx:Resources.Ui_Results_Duplicated_Size}" HorizontalAlignment="Right"/>
-                                <TextBox  Grid.Column="1" Grid.Row="1" TextAlignment="Right" IsReadOnly="True" Text="{Binding Duplicates.DuplicatedTotalSize, Mode=OneWay, StringFormat={}{0:#,#}}" VerticalContentAlignment="Center"  Margin="0,2"/>
+                                <TextBox  Grid.Column="1" Grid.Row="1" TextAlignment="Right" IsReadOnly="True" Text="{Binding Duplicates.DuplicatedTotalSize, Mode=OneWay, StringFormat={}{0:#,#}}" FontFamily="Consolas" FontSize="14" VerticalContentAlignment="Center"  Margin="0,2"/>
                                 <Label Grid.Column="0" Grid.Row="2" Content="{x:Static resx:Resources.Ui_Results_Selected_for_deletion_size}" HorizontalAlignment="Right"/>
-                                <TextBox  Grid.Column="1" Grid.Row="2" TextAlignment="Right" IsReadOnly="True" Text="{Binding ToBeDeletedSize, Mode=OneWay, StringFormat={}{0:#,#}}" VerticalContentAlignment="Center" Margin="0,2" />
+                                <TextBox  Grid.Column="1" Grid.Row="2" TextAlignment="Right" IsReadOnly="True" Text="{Binding ToBeDeletedSize, Mode=OneWay, StringFormat={}{0:#,#}}" FontFamily="Consolas" FontSize="14" VerticalContentAlignment="Center" Margin="0,2" />
                             </Grid>
                         </GroupBox>
 

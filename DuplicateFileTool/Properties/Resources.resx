@@ -181,7 +181,7 @@
     <value>Count the entered size in Megabytes</value>
   </data>
   <data name="Ui_Duplicated_size" xml:space="preserve">
-    <value>, Duplicated size:</value>
+    <value>, Duplicated size: </value>
   </data>
   <data name="Ui_Results_Duplicates_Information_GroupBox_Header" xml:space="preserve">
     <value>Duplicates Information</value>
@@ -193,7 +193,7 @@
     <value>Extensions</value>
   </data>
   <data name="Ui_Files" xml:space="preserve">
-    <value>, Files:</value>
+    <value>, Files: </value>
   </data>
   <data name="Ui_Logs_Tab_Header" xml:space="preserve">
     <value>Logs</value>

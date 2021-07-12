@@ -26,25 +26,25 @@ namespace DuplicateFileTool
         public bool IsFileIncluded(FileData fileData)
         {
             var fileAttributes = fileData.Attributes;
-            if (SearchConfig.ExcludeSystemFiles && fileAttributes.IsSystem || 
-                SearchConfig.ExcludeHiddenFiles && fileAttributes.IsHidden ||
-                SearchConfig.ExcludeOsFiles && fileData.FullName.StartsWith(WindowsOsPath, StringComparison.OrdinalIgnoreCase))
+            if (SearchConfig.ExcludeSystemFiles.Value && fileAttributes.IsSystem || 
+                SearchConfig.ExcludeHiddenFiles.Value && fileAttributes.IsHidden ||
+                SearchConfig.ExcludeOsFiles.Value && fileData.FullName.StartsWith(WindowsOsPath, StringComparison.OrdinalIgnoreCase))
                 return false;
 
             if (!IsFileExtensionIncluded(fileData.Extension))
                 return false;
 
-            var maxFileSize = SearchConfig.MaxFileSize;
+            var maxFileSize = SearchConfig.MaxFileSize.Value;
             if (maxFileSize == 0)
                 return true;
 
             var fileSize = fileData.Size;
-            var sizeUnit = SearchConfig.ByteSizeUnit;
-            var maxSize = GetSizeInBytes(SearchConfig.MaxFileSize, sizeUnit);
+            var sizeUnit = SearchConfig.ByteSizeUnit.Value;
+            var maxSize = GetSizeInBytes(SearchConfig.MaxFileSize.Value, sizeUnit);
             if (fileSize > maxSize)
                 return false;
 
-            var minSize = GetSizeInBytes(SearchConfig.MinFileSize, sizeUnit);
+            var minSize = GetSizeInBytes(SearchConfig.MinFileSize.Value, sizeUnit);
             if (fileSize > minSize)
                 return false;
 
@@ -57,7 +57,7 @@ namespace DuplicateFileTool
             if (extensions.Count == 0)
                 return true;
 
-            switch (SearchConfig.ExtensionInclusionType)
+            switch (SearchConfig.ExtensionInclusionType.Value)
             {
                 case InclusionType.Include: return extensions.Any(ext => ext.Value.Equals(fileExtension, StringComparison.OrdinalIgnoreCase));
                 case InclusionType.Exclude: return extensions.All(ext => !ext.Value.Equals(fileExtension, StringComparison.OrdinalIgnoreCase));

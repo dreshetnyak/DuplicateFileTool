@@ -51,6 +51,7 @@ namespace DuplicateFileTool
     {
         private IFileComparer _selectedFileComparer;
         private FileTreeItem _selectedFileTreeItem;
+        private int _selectedTabIndex;
         private long _toBeDeletedSize;
         private string _output;
         private int _progressPercentage;
@@ -84,6 +85,15 @@ namespace DuplicateFileTool
             set
             {
                 _selectedFileTreeItem = value;
+                OnPropertyChanged();
+            }
+        }
+        public int SelectedTabIndex
+        {
+            get => _selectedTabIndex;
+            set
+            {
+                _selectedTabIndex = value; 
                 OnPropertyChanged();
             }
         }
@@ -155,6 +165,7 @@ namespace DuplicateFileTool
             //Duplicates.FileSystemErrors
             
             FindDuplicates = new FindDuplicatesCommand(Duplicates, SearchPaths, () => InclusionPredicate, () => SelectedFileComparer);
+            FindDuplicates.FindDuplicatesFinished += (_, _) => SelectedTabIndex = 1;
             CancelDuplicatesSearch = new RelayCommand(_ => FindDuplicates.Cancel());
 
             ToggleDeletionMark = new ToggleDeletionMarkCommand(sizeDelta => ToBeDeletedSize += sizeDelta);

@@ -28,6 +28,7 @@ namespace DuplicateFileTool.Comparers
     }
 
     [Localizable(true)]
+    [DebuggerDisplay("{FileData.FullName,nq}")]
     internal class ComparableFileHash : IComparableFile, IDisposable
     {
         #region Candidate Predicate Implementation

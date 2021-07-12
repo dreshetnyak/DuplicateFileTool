@@ -31,6 +31,14 @@ namespace DuplicateFileTool
             return true;
         }
 
+        public bool TryGetValue(string name, out object value)
+        {
+            if (TryGet(name, out var obj) && new Reflected(obj).TryGet("Value", out value))
+                return true;
+            value = null;
+            return false;
+        }
+
         public bool TrySet(string name, object value)
         {
             var property = GetPropertyInfo(name);
@@ -45,6 +53,13 @@ namespace DuplicateFileTool
             catch { return false; }
 
             return true;
+        }
+
+        public bool TrySetValue(string name, string stringValue)
+        {
+            return TryGet(name, out var obj) && 
+                   !ReferenceEquals(obj, null) && 
+                   new Reflected(obj).TrySet("Value", stringValue);
         }
 
         private PropertyInfo GetPropertyInfo(string name)
