@@ -289,7 +289,7 @@ namespace DuplicateFileTool
             var duplicateCandidates = await Candidates.Find(files, duplicateCandidatePredicate, comparableFileFactory, cancellationToken);
 
             CurrentStep = SearchStep.SearchingDuplicates;
-            await Duplicates.Find(duplicateCandidates, comparableFileFactory.ComparerConfig, cancellationToken);
+            await Duplicates.Find(duplicateCandidates, comparableFileFactory.Config, cancellationToken);
 
             CurrentStep = SearchStep.Done;
             CurrentStep = SearchStep.StandBy;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using DuplicateFileTool.Commands;
@@ -48,7 +49,7 @@ namespace DuplicateFileTool
 
     internal class MainViewModel : NotifyPropertyChanged
     {
-        private FileComparerAttribute _selectedFileComparer;
+        private IFileComparer _selectedFileComparer;
         private FileTreeItem _selectedFileTreeItem;
         private long _toBeDeletedSize;
         private string _output;
@@ -59,14 +60,17 @@ namespace DuplicateFileTool
 
         public InclusionType[] PathComparisonTypes { get; }
         public IInclusionPredicate InclusionPredicate { get; }
-        public IReadOnlyCollection<FileComparerAttribute> FileComparers { get; }
-        public FileComparerAttribute SelectedFileComparer
+        public IReadOnlyCollection<IFileComparer> FileComparers { get; }
+        public IFileComparer SelectedFileComparer
         {
             get => _selectedFileComparer;
             set
             {
+                if (ReferenceEquals(_selectedFileComparer, value))
+                    return;
                 _selectedFileComparer = value;
-                UpdateSelectedFileComparerGuid(value);
+                if (Config?.SearchConfig != null)
+                    Config.SearchConfig.SelectedFileComparerGuid.Value = value.Guid;
                 OnPropertyChanged();
             }
         }
@@ -136,6 +140,8 @@ namespace DuplicateFileTool
 
         public MainViewModel()
         {
+            PropertyChanged += OnPropertyChanged;
+
             Config = new ApplicationConfig();
             SearchConfig = Config.SearchConfig;
             PathComparisonTypes = Enum.GetValues(typeof(InclusionType)).OfType<object>().Cast<InclusionType>().ToArray();
@@ -143,7 +149,7 @@ namespace DuplicateFileTool
             InclusionPredicate = new InclusionPredicate(Config.SearchConfig);
             FileComparers = Config.FileComparers;
             Duplicates = new DuplicatesEngine();
-            InitializeSelectedFileComparer(); //Initializes SelectedFileComparer
+            InitializeSelectedFileComparer(); 
 
             //TODO Need to display this 
             //Duplicates.FileSystemErrors
@@ -155,11 +161,30 @@ namespace DuplicateFileTool
             AutoSelectByPath = new AutoSelectByPathCommand(Duplicates.DuplicateGroups, sizeDelta => ToBeDeletedSize += sizeDelta);
             ResetSelection = new ResetSelectionCommand(Duplicates.DuplicateGroups, sizeDelta => ToBeDeletedSize += sizeDelta);
             DeleteMarkedFiles = new DeleteMarkedFilesCommand(Duplicates.DuplicateGroups, sizeDelta => ToBeDeletedSize += sizeDelta, message => { Output += message; });
+            AddPath = new AddPathCommand(SearchPaths, () => SelectedFileTreeItem);
 
-            AddPath = new AddPathCommand(this); //TODO change initialization to reduce dependencies
-            
             FileTree = new ObservableCollection<FileTreeItem>();
             UpdateFileTree();
+        }
+
+        private void OnPropertyChanged(object sender, PropertyChangedEventArgs eventArgs)
+        {
+            if (eventArgs.PropertyName == nameof(SelectedFileTreeItem))
+                OnSelectedFileTreeItemChanged();
+        }
+        
+        private void OnSelectedFileTreeItemChanged()
+        {
+            if (AddPath == null)
+                return;
+
+            var currentAddPathState = AddPath.Enabled;
+            var itemPath = SelectedFileTreeItem.ItemPath;
+            var newAddPathState = AddPath.CanAddPath(itemPath);
+            if (currentAddPathState == newAddPathState)
+                return;
+
+            AddPath.Enabled = newAddPathState;
         }
 
         private void UpdateFileTree()
@@ -178,24 +203,14 @@ namespace DuplicateFileTool
             Debug.Assert(Config.SearchConfig != null, "Initializing the selected file comparer while the Config.SearchConfig object is null");
             Debug.Assert(FileComparers != null, "Initializing the selected file comparer while the Config.FileComparers list is null");
 
-            var searchConfig = Config?.SearchConfig; 
+            var searchConfig = Config?.SearchConfig;
             if (searchConfig == null)
                 return;
 
-            FileComparerAttribute selectedComparer;
-            SelectedFileComparer = !string.IsNullOrEmpty(searchConfig.SelectedFileComparerGuid)
-                ? FileComparers.Count != 0 && (selectedComparer = FileComparers.FirstOrDefault(comparer => comparer.Guid == searchConfig.SelectedFileComparerGuid)) != null ? selectedComparer : null
-                : FileComparers.FirstOrDefault();
-        }
-        
-        private void UpdateSelectedFileComparerGuid(FileComparerAttribute value)
-        {
-            if (Config?.SearchConfig == null)
-                return;
-            if (value != null)
-                Config.SearchConfig.SelectedFileComparerGuid = value.Guid;
-            else if (Config.SearchConfig.SelectedFileComparerGuid != null)
-                Config.SearchConfig.SelectedFileComparerGuid = null;
+            IFileComparer selectedComparer;
+            SelectedFileComparer = FileComparers.Count != 0 && (selectedComparer = FileComparers.FirstOrDefault(comparer => comparer.Guid == searchConfig.SelectedFileComparerGuid.Value)) != null
+                ? selectedComparer
+                : null;
         }
     }
 }

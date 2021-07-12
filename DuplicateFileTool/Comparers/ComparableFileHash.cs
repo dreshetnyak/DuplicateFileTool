@@ -5,47 +5,31 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
+using DuplicateFileTool.Properties;
 
 namespace DuplicateFileTool.Comparers
 {
-    internal class ComparableFileHashConfig : ComparerConfig
+    internal class ComparableFileHashConfig : FileComparerConfig
     {
-        [DefaultValue(65535)]
-        [IntRangeValidationRule(512, int.MaxValue)]
-        [ConfigurationProperty("Hash chunk size", 
-            "This file comparing algorithm does not compare the files byte to byte, but divides the file to chunks and calculates " +
-            "the hash of the chunks and then compares the hash, this parameter specifies the size of the chunk to be used. A smaller " +
-            "value will lead to a faster comparison but will consume more memory, a bigger value will lead to slower comparison, " +
-            "but will require less memory.")]
-        public int HashChunkSize { get; set; }
+        public IConfigurationProperty<int> HashChunkSize { get; } = new ConfigurationProperty<int>(
+            Resources.Config_ComparableFileHash_HashChunkSize_Name,
+            Resources.Config_ComparableFileHash_HashChunkSize_Description,
+            65535, new IntValidationRule(512, int.MaxValue));
     }
 
-    [DebuggerDisplay("{FileData.FullName}")]
-    [FileComparer("56E94DDC-1021-49D5-8DB1-FF1C92710978", 
-        "File Hash Comparer", 
-        "Calculates file hash while read files, compares the hash values. The hash is cached to prevent reading files twice.", 
-        typeof(ComparableFileHashConfig), 
-        typeof(Factory),
-        typeof(CandidatePredicate))]
+    internal class FileHashComparer : FileComparer
+    {
+        public FileHashComparer() : base(Guid.Parse(@"56E94DDC-1021-49D5-8DB1-FF1C92710978"), Resources.FileHashComparer_Name, Resources.FileHashComparer_Description)
+        {
+            Config = new ComparableFileHashConfig();
+            ComparableFileFactory = new ComparableFileHash.Factory(Config);
+            CandidatePredicate = new ComparableFileHash.CandidatePredicate();
+        }
+    }
+
+    [Localizable(true)]
     internal class ComparableFileHash : IComparableFile, IDisposable
     {
-        public FileData FileData { get; private set; }
-
-        #region Abstract Factory Implementation
-        public class Factory : IComparableFileFactory
-        {
-            public IComparerConfig ComparerConfig { get; }
-
-            public Factory(IComparerConfig comparerConfig)
-            {
-                ComparerConfig = comparerConfig;
-            }
-
-            public IComparableFile Create(FileData file) => new ComparableFileHash(file, ComparerConfig);
-        }
-        
-        #endregion
-
         #region Candidate Predicate Implementation
         public class CandidatePredicate : ICandidatePredicate
         {
@@ -57,28 +41,40 @@ namespace DuplicateFileTool.Comparers
 
         #endregion
 
+        #region ComparableFileHash Factory
+
+        internal class Factory : IComparableFileFactory
+        {
+            public IFileComparerConfig Config { get; }
+
+            public Factory(IFileComparerConfig config) { Config = config; }
+
+            public IComparableFile Create(FileData file) => new ComparableFileHash(file, (ComparableFileHashConfig)Config);
+        }
+
+        #endregion
+
+        public FileData FileData { get; }
+
         private static int HashChunkSize { get; set; }
         private static int CompleteMatch { get; set; }
         private static int CompleteMismatch { get; set; }
 
-        private List<byte[]> Cache { get; set; }
+        private List<byte[]> Cache { get; }
         private FileReader FileReader { get; }
         private int TotalFragments { get; }
 
-        private ComparableFileHash(FileData file, IComparerConfig config)
+        private ComparableFileHash(FileData file, ComparableFileHashConfig config)
         {
-            if (!(config is ComparableFileHashConfig fileHashComparerConfig))
-                throw new ArgumentException("File hash comparer configuration object is of an invalid type", nameof(config));
-
             var fileFullName = file.FullName;
-            if (!Win32.PathFileExists(fileFullName))
-                throw new FileNotFoundException($"The file '{fileFullName}' does not exist");
+            if (!FileSystem.PathExists(fileFullName))
+                throw new FileNotFoundException(string.Format(Resources.Error_File_x_not_found, fileFullName));
             
-            HashChunkSize = fileHashComparerConfig.HashChunkSize;
-            Debug.Assert(HashChunkSize > 0, "Invalid fragment size");
-            CompleteMatch = fileHashComparerConfig.CompleteMatch;
-            CompleteMismatch = fileHashComparerConfig.CompleteMismatch;
-            Debug.Assert(CompleteMatch > CompleteMismatch, "CompleteMatch and CompleteMismatch is defined incorrectly, CompleteMatch must be greater than CompleteMismatch");
+            HashChunkSize = config.HashChunkSize.Value;
+            Debug.Assert(HashChunkSize > 0, Resources.Error_ComparableFileHash_Invalid_fragment_size);
+            CompleteMatch = config.CompleteMatch.Value;
+            CompleteMismatch = config.CompleteMismatch.Value;
+            Debug.Assert(CompleteMatch > CompleteMismatch, Resources.Error_ComparableFileHash_CompleteMatch_and_CompleteMismatch_is_defined_incorrectly);
 
             FileData = file;
             Cache = new List<byte[]>();
@@ -102,9 +98,9 @@ namespace DuplicateFileTool.Comparers
         public int CompareTo(IComparableFile otherFile, CancellationToken cancellationToken)
         {
             if (!(otherFile is ComparableFileHash otherFileHashComparer))
-                throw new ArgumentException("File comparer type mismatch", nameof(otherFile));
+                throw new ArgumentException(Resources.Error_ComparableFileHash_CompareTo_File_Comparer_type_mismatch, nameof(otherFile));
             if (FileData.Size != otherFileHashComparer.FileData.Size)
-                throw new ArgumentException("Comparing with the file hash object that has a different fragment size", nameof(otherFile));
+                throw new ArgumentException(Resources.Error_ComparableFileHash_CompareTo_Fragment_Size_Mismatch, nameof(otherFile));
 
             if (TotalFragments != otherFileHashComparer.TotalFragments)
                 return CompleteMismatch;
@@ -124,18 +120,18 @@ namespace DuplicateFileTool.Comparers
         private byte[] GetFragmentHash(int fragmentIndex)
         {
             if (fragmentIndex >= TotalFragments || fragmentIndex < 0)
-                throw new ArgumentOutOfRangeException(nameof(fragmentIndex), $"Fragment index '{fragmentIndex:N0}' is out of bounds, there is '{TotalFragments:N0}' fragments in the file");
+                throw new ArgumentOutOfRangeException(nameof(fragmentIndex), string.Format(Resources.Error_ComparableFileHash_Fragment_index_is_out_of_bounds, fragmentIndex, TotalFragments));
 
             if (fragmentIndex < Cache.Count)
                 return Cache[fragmentIndex];
 
             if (fragmentIndex != Cache.Count)
-                throw new ApplicationException("The random access for hashing is not supported");
+                throw new ApplicationException(Resources.Error_ComparableFileHash_The_random_access_for_hashing_is_not_supported);
 
             var fragmentForHash = new byte[HashChunkSize];
             var bytesRead = FileReader.ReadNext(fragmentForHash);
             if (bytesRead == -1)
-                throw new ApplicationException($"Can't read the file '{FileData.FullName}'. " + new Win32Exception(Marshal.GetLastWin32Error()).Message);
+                throw new ApplicationException(string.Format(Resources.Error_ComparableFileHash_Cant_read_the_file, FileData.FullName) + new Win32Exception(Marshal.GetLastWin32Error()).Message);
 
             var hash = Hash.Compute(fragmentForHash.SubArray(0, bytesRead));
             Cache.Add(hash);

@@ -88,7 +88,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="CandidatePredicate.cs" />
     <Compile Include="Commands\AddPathCommand.cs" />
     <Compile Include="Commands\AutoSelectByPathCommand.cs" />
     <Compile Include="Commands\CommandBase.cs" />
@@ -98,7 +97,6 @@
     <Compile Include="Commands\ResetSelectionCommand.cs" />
     <Compile Include="Commands\ToggleDeletionMarkCommand.cs" />
     <Compile Include="Configuration\AppConfig.cs" />
-    <Compile Include="Attributes.cs" />
     <Compile Include="Configuration\ConfigurationManager.cs" />
     <Compile Include="Configuration\ApplicationConfig.cs" />
     <Compile Include="Configuration\SearchConfiguration.cs" />
@@ -114,7 +112,7 @@
     <Compile Include="InterfaceSwitch.cs" />
     <Compile Include="Observable.cs" />
     <Compile Include="Utility.cs" />
-    <Compile Include="ComparableFile.cs" />
+    <Compile Include="FileComparer.cs" />
     <Compile Include="FileData.cs" />
     <Compile Include="Comparers\ComparableFileHash.cs" />
     <Compile Include="FileReader.cs" />
@@ -160,6 +158,7 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
@@ -194,10 +193,24 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\AddGray.png" />
+    <Resource Include="Images\AddPathGray.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\AddPath.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Delete.png" />
+    <Resource Include="Images\Undo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Cancel.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Start.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\Add.png" />
+    <Resource Include="Images\Recycle.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

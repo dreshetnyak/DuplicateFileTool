@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 
@@ -22,8 +23,8 @@ namespace DuplicateFileTool.Configuration
             }
         }
 
-        public SearchConfiguration SearchConfig { get; } = new SearchConfiguration();
-        public List<FileComparerAttribute> FileComparers { get; }
+        public SearchConfiguration SearchConfig { get; } = new();
+        public IReadOnlyCollection<IFileComparer> FileComparers { get; }
 
         public ApplicationConfig()
         {
@@ -33,7 +34,7 @@ namespace DuplicateFileTool.Configuration
             catch (Exception ex) { Log.Write("Error: Loading search configuration from app config failed with the exception: " + ex); throw; }
             SearchConfig.PropertyChanged += OnSearchConfigChanged;
 
-            FileComparers = GetFileComparerAttributes().ToList();
+            FileComparers = GetFileComparers().ToArray();
 
             HasUnsavedChanges = false;
         }
@@ -44,24 +45,20 @@ namespace DuplicateFileTool.Configuration
                 HasUnsavedChanges = SearchConfig.HasChanged;
         }
 
-        private static IEnumerable<FileComparerAttribute> GetFileComparerAttributes()
+        private static IEnumerable<IFileComparer> GetFileComparers()
         {
             foreach (var type in Assembly.GetExecutingAssembly().GetTypes().Where(type => type.Namespace?.EndsWith(nameof(Comparers)) ?? false))
             {
-                //Check if implements ComparableFile
-                if (!type.DerivedFrom(typeof(IComparableFile)))
-                    continue;
+                if (type.GetTypeInfo().ImplementedInterfaces.All(implementedInterfaceType => implementedInterfaceType != typeof(IFileComparer)))
+                    continue; //If does not implement IFileComparer
+                if (type.GetConstructor(Type.EmptyTypes) == null) 
+                    continue; // If there is no parameterless constructor
 
-                //Check if marked with FileComparer attribute
-                var comparerAttribute = type.GetAttribute<FileComparerAttribute>();
-                if (comparerAttribute == null)
-                    continue;
+                IFileComparer fileComparer;
+                try { fileComparer = (IFileComparer)Activator.CreateInstance(type); }
+                catch (Exception ex) { Debug.Fail(ex.ToString()); continue; }
 
-                //Check if the config implements IComparerConfig
-                if (comparerAttribute.ConfigurationType.GetInterfaces().All(inter => inter != typeof(IComparerConfig)))
-                    continue;
-
-                yield return comparerAttribute;
+                yield return fileComparer;
             }
         }
     }

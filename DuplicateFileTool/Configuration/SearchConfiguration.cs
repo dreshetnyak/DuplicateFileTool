@@ -1,131 +1,80 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
+using DuplicateFileTool.Properties;
 
 namespace DuplicateFileTool.Configuration
 {
     [Localizable(true)]
-    internal class SearchConfiguration : TrackedChangeNotifier<ConfigurationPropertyAttribute>
+    internal class SearchConfiguration : NotifyPropertyChanged
     {
-        #region Backing Fields
-        private int _maximumFilesOpenedAtOnce;
-        private bool _excludeSystemFiles;
-        private bool _excludeHiddenFiles;
-        private bool _excludeOsFiles;
-        private string _selectedFileComparerGuid;
-        private ByteSizeUnits _byteSizeUnit;
-        private int _minFileSize;
-        private int _maxFileSize;
-        private InclusionType _extensionInclusionType;
+        public ConfigurationProperty<int> MaximumFilesOpenedAtOnce { get; } = new(
+            Resources.Config_MaximumFilesOpenedAtOnce_Name,
+            Resources.Config_MaximumFilesOpenedAtOnce_Description,
+            256,
+            new IntValidationRule(1, 512));
 
-        #endregion
-
-        [DefaultValue(256)]
-        [IntRangeValidationRule(1, 512)]
-        [ConfigurationProperty("Maximum files opened at once", "Specifies the maximum count of files that the program will keep open after reaching which the program will start closing the files opened previously. The low value will negatively impact performance, the high value will cause the program to consume to many resources.")]
-        public int MaximumFilesOpenedAtOnce
-        {
-            get => _maximumFilesOpenedAtOnce;
-            set
-            {
-                _maximumFilesOpenedAtOnce = value;
-                OnPropertyChanged();
-            }
-        }
-
-        [DefaultValue(true)]
-        [ConfigurationProperty("Exclude system files and directories", "If enabled the program will skip the files and directories that has the system attribute set.")]
-        public bool ExcludeSystemFiles
-        {
-            get => _excludeSystemFiles;
-            set
-            {
-                _excludeSystemFiles = value;
-                OnPropertyChanged();
-            }
-        }
-
-        [DefaultValue(true)]
-        [ConfigurationProperty("Exclude hidden files and directories", "If enabled the program will skip the hidden files and directories.")]
-        public bool ExcludeHiddenFiles
-        {
-            get => _excludeHiddenFiles;
-            set
-            {
-                _excludeHiddenFiles = value;
-                OnPropertyChanged();
-            }
-        }
-
-        [DefaultValue(true)]
-        [ConfigurationProperty("Exclude OS files and directories", "If enabled the program will skip the OS files and directories, such as windows directory and others known directories that belong to the operating system.")]
-        public bool ExcludeOsFiles
-        {
-            get => _excludeOsFiles;
-            set
-            {
-                _excludeOsFiles = value;
-                OnPropertyChanged();
-            }
-        }
-
-        [DefaultValue("56E94DDC-1021-49D5-8DB1-FF1C92710978")]
-        [ConfigurationProperty("Selected file comparer", "The file comparer that should be used to compare files during the duplicates search.")]
-        public string SelectedFileComparerGuid
-        {
-            get => _selectedFileComparerGuid;
-            set
-            {
-                _selectedFileComparerGuid = value;
-                OnPropertyChanged();
-            }
-        }
+        public ConfigurationProperty<bool> ExcludeSystemFiles { get; } = new(
+            Resources.Config_ExcludeSystemFiles_Name,
+            Resources.Config_ExcludeSystemFiles_Description,
+            true);
         
+        public ConfigurationProperty<bool> ExcludeHiddenFiles { get; } = new(
+            Resources.Config_ExcludeHiddenFiles_Name,
+            Resources.Config_ExcludeHiddenFiles_Description,
+            true);
+
+        public ConfigurationProperty<bool> ExcludeOsFiles { get; } = new(
+            Resources.Config_ExcludeOsFiles_Name,
+            Resources.Config_ExcludeOsFiles_Description,
+            true);
+
+        public ConfigurationProperty<Guid> SelectedFileComparerGuid { get; } = new(
+            Resources.Configur_SelectedFileComparerGuid_Name,
+            Resources.Configur_SelectedFileComparerGuid_Description,
+            Guid.Parse(@"56E94DDC-1021-49D5-8DB1-FF1C92710978"),
+            isHidden: true);
+
         #region File size inclusion parameters
-        public ByteSizeUnits ByteSizeUnit
-        {
-            get => _byteSizeUnit;
-            set
-            {
-                _byteSizeUnit = value; 
-                OnPropertyChanged();
-            }
-        }
 
-        public int MinFileSize
-        {
-            get => _minFileSize;
-            set
-            {
-                _minFileSize = value; 
-                OnPropertyChanged();
-            }
-        }
+        public ConfigurationProperty<ByteSizeUnits> ByteSizeUnit { get; } = new(
+            Resources.Config_ByteSizeUnit_Name,
+            Resources.Config_ByteSizeUnit_Description, 
+            ByteSizeUnits.Bytes);
 
-        public int MaxFileSize
-        {
-            get => _maxFileSize;
-            set
-            {
-                _maxFileSize = value; 
-                OnPropertyChanged();
-            }
-        }
+        public ConfigurationProperty<int> MinFileSize { get; } = new(
+            Resources.Config_MinFileSize_Name,
+            Resources.Config_MinFileSize_Description,
+            0,
+            new IntValidationRule(0, int.MaxValue));
+
+        public ConfigurationProperty<int> MaxFileSize { get; } = new(
+            Resources.Config_MaxFileSize_Name,
+            Resources.Config_MaxFileSize_Description,
+            0,
+            new IntValidationRule(0, int.MaxValue));
 
         #endregion
 
         #region  File extension inclusion parameters
-        public InclusionType ExtensionInclusionType
-        {
-            get => _extensionInclusionType;
-            set
-            {
-                _extensionInclusionType = value; 
-                OnPropertyChanged();
-            }
-        }
+
+        public ConfigurationProperty<InclusionType> ExtensionInclusionType { get; } = new(
+            Resources.Config_ExtensionInclusionType_Name,
+            Resources.Config_ExtensionInclusionType_Description,
+            InclusionType.Include);
 
         public ObservableCollection<ObservableString> Extensions { get; set; } = new();
 
         #endregion
+
+        public bool HasChanged => ChangeTracker.HasChanged;
+
+        private PropertiesChangeTracker<SearchConfiguration> ChangeTracker { get; }
+
+        public SearchConfiguration()
+        {
+            ChangeTracker = new PropertiesChangeTracker<SearchConfiguration>(this);
+            ChangeTracker.PropertyChanged += (_, _) => OnPropertyChanged(nameof(HasChanged));
+        }
     }
 }

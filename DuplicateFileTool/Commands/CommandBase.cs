@@ -58,7 +58,7 @@ namespace DuplicateFileTool.Commands
 
         protected CommandBase(bool enabled = true)
         {
-            _enabled = Enabled;
+            _enabled = enabled;
         }
 
         public abstract void Execute(object parameter);

@@ -10,7 +10,8 @@ namespace DuplicateFileTool
     {
         #region Types Definitions
         // ReSharper disable InconsistentNaming
-        internal static readonly IntPtr INVALID_HANDLE_VALUE = new IntPtr(-1);
+        internal static readonly IntPtr INVALID_HANDLE_VALUE = new(-1);
+        internal const long INVALID_FILE_ATTRIBUTES = -1;
         internal static readonly int NO_ERROR = 0;
         internal static readonly int ERROR_ACCESS_DENIED = 5;
         internal static readonly int ERROR_NO_MORE_FILES = 18;
@@ -141,6 +142,9 @@ namespace DuplicateFileTool
 
         #endregion
 
+        //TODO some of the methods here return DWORD and we map it to Int, int is 32 bit, we need to map it to long/ulong
+        //TODO Review charset mapping
+
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
         [return: MarshalAs(UnmanagedType.Bool)]
         internal static extern bool DeleteFile(string lpFileName);
@@ -177,9 +181,8 @@ namespace DuplicateFileTool
         [DllImport("kernel32.dll", SetLastError = true)]
         internal static extern unsafe int SetFilePointer(SafeFileHandle handle, int lo, int* hi, int origin);
 
-        [DllImport("shlwapi.dll", EntryPoint = "PathFileExistsW", SetLastError = true, CharSet = CharSet.Unicode)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        internal static extern bool PathFileExists([MarshalAs(UnmanagedType.LPTStr)]string pszPath);
+        [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto, BestFitMapping = false)]
+        internal static extern long GetFileAttributes(string lpFileName);
 
         [DllImport("gdi32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         internal static extern bool DeleteObject(IntPtr hObject);

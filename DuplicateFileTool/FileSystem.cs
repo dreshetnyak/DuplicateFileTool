@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Microsoft.Win32.SafeHandles;
 
@@ -56,7 +57,7 @@ namespace DuplicateFileTool
             if (Handle != null)
                 return Handle;
 
-            if (!Win32.PathFileExists(FileFullName))
+            if (!FileSystem.PathExists(FileFullName))
                 throw new FileSystemException(FileFullName, Properties.Resources.Error_File_not_found);
 
             Handle = FileSystem.OpenRead(FileFullName);
@@ -198,6 +199,12 @@ namespace DuplicateFileTool
         {
             if (!Win32.DeleteFile(fileFullName))
                 throw new FileSystemException(fileFullName, new Win32Exception(Marshal.GetLastWin32Error()).Message);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool PathExists(string path)
+        {
+            return Win32.GetFileAttributes(path) != Win32.INVALID_FILE_ATTRIBUTES;
         }
 
         public struct DriveInfo

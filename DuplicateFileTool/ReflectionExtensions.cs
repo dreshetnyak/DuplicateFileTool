@@ -31,14 +31,33 @@ namespace DuplicateFileTool
                 .FirstOrDefault(property => property.Name == propertyName && property.GetCustomAttributes(true).Any(attribute => attribute.GetType() == attributeType));
         }
 
-        public static T GetAttribute<T>(this Type objectType) where T : class
+        public static bool ImplementsInterface(this Type type, Type implementsInterfaceType)
         {
-            return objectType.GetCustomAttributes(true).FirstOrDefault(attribute => attribute is T) as T;
+            return type.GetTypeInfo().ImplementedInterfaces.Any(implementedInterface => implementedInterface == implementsInterfaceType);
         }
 
-        public static bool DerivedFrom(this Type checkType, Type searchType)
+        public static bool ImplementsInterfaceGeneric(this Type type, Type implementsInterfaceType)
         {
-            return checkType == searchType || checkType.BaseType != null && checkType.BaseType.DerivedFrom(searchType);
+            return type.GetTypeInfo().ImplementedInterfaces.Any(implementedInterface =>
+                implementedInterface.IsGenericType 
+                    ? implementedInterface.GetGenericTypeDefinition() == implementsInterfaceType.GetGenericTypeDefinition()
+                    : implementedInterface == implementsInterfaceType);
         }
+        
+        public static IEnumerable<PropertyInfo> GetPropertiesThatImplementGeneric(this Type type, Type implementsInterfaceType)
+        {
+            return type.GetProperties(BindingFlags.Instance | BindingFlags.Public).Where(property =>
+                property.PropertyType.ImplementsInterfaceGeneric(implementsInterfaceType));
+        }
+
+        //public static T GetAttribute<T>(this Type objectType) where T : class
+        //{
+        //    return objectType.GetCustomAttributes(true).FirstOrDefault(attribute => attribute is T) as T;
+        //}
+
+        //public static bool DerivedFrom(this Type checkType, Type searchType)
+        //{
+        //    return checkType == searchType || checkType.BaseType != null && checkType.BaseType.DerivedFrom(searchType);
+        //}
     }
 }

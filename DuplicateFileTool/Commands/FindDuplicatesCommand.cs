@@ -10,14 +10,14 @@ namespace DuplicateFileTool.Commands
         private DuplicatesEngine DuplicatesEngine { get; }
         private IReadOnlyCollection<SearchPath> SearchPaths { get; }
         private Func<IInclusionPredicate> GetInclusionPredicate { get; }
-        private Func<FileComparerAttribute> GetSelectedComparer { get; }
+        private Func<IFileComparer> GetSelectedComparer { get; }
         private CancellationTokenSource Cts { get; set; }
         
         public FindDuplicatesCommand(
             [NotNull] DuplicatesEngine duplicatesEngine,
             [NotNull] IReadOnlyCollection<SearchPath> searchPaths,
             [NotNull] Func<IInclusionPredicate> getGetInclusionPredicate,
-            [NotNull] Func<FileComparerAttribute> getSelectedComparer)
+            [NotNull] Func<IFileComparer> getSelectedComparer)
         {
             DuplicatesEngine = duplicatesEngine;
             SearchPaths = searchPaths;
@@ -32,11 +32,8 @@ namespace DuplicateFileTool.Commands
                 Enabled = false;
 
                 var selectedComparer = GetSelectedComparer();
-                var comparableFileFactory = Activator.CreateInstance(selectedComparer.ComparableFileFactoryType) as IComparableFileFactory;
-                var candidatePredicate = Activator.CreateInstance(selectedComparer.CandidatePredicateType) as ICandidatePredicate;
-
                 using (Cts = new CancellationTokenSource()) 
-                    await DuplicatesEngine.FindDuplicates(SearchPaths, GetInclusionPredicate(), candidatePredicate, comparableFileFactory, Cts.Token);
+                    await DuplicatesEngine.FindDuplicates(SearchPaths, GetInclusionPredicate(), selectedComparer.CandidatePredicate, selectedComparer.ComparableFileFactory, Cts.Token);
             }
             catch (OperationCanceledException) { /* ignore */ }
             finally

@@ -60,7 +60,7 @@ namespace DuplicateFileTool
     {
         private class SearchContext
         {
-            public IComparerConfig ComparerConfig { get; set; }
+            public IFileComparerConfig ComparerConfig { get; set; }
             public int CurrentFileIndex { get; set; }
             public int TotalFilesCount { get; set; }
             public int DuplicateGroupsCount { get; set; }
@@ -72,12 +72,12 @@ namespace DuplicateFileTool
         public event DuplicatesSearchProgressEventHandler DuplicatesSearchProgress;
         public event FileSystemErrorEventHandler FileSystemError;
 
-        public async Task Find(IReadOnlyCollection<IComparableFile[]> duplicateCandidates, IComparerConfig comparerConfig, CancellationToken cancellationToken)
+        public async Task Find(IReadOnlyCollection<IComparableFile[]> duplicateCandidates, IFileComparerConfig comparerConfig, CancellationToken cancellationToken)
         {
             await Task.Run(() => GetDuplicatesFromCandidates(duplicateCandidates, comparerConfig, cancellationToken), cancellationToken);
         }
 
-        private void GetDuplicatesFromCandidates(IReadOnlyCollection<IComparableFile[]> duplicateCandidates, IComparerConfig comparerConfig, CancellationToken cancellationToken)
+        private void GetDuplicatesFromCandidates(IReadOnlyCollection<IComparableFile[]> duplicateCandidates, IFileComparerConfig comparerConfig, CancellationToken cancellationToken)
         {
             var context = new SearchContext { ComparerConfig = comparerConfig, TotalFilesCount = duplicateCandidates.AsParallel().Sum(group => group.Length) };
 
@@ -131,9 +131,9 @@ namespace DuplicateFileTool
         private List<MatchResult> GetFileDuplicates(IComparableFile fileToFind, IEnumerable<IComparableFile> fileGroup, SearchContext context, CancellationToken cancellationToken)
         {
             var duplicates = new List<MatchResult>();
-            var matchThreshold = context.ComparerConfig.MatchThreshold;
-            var completeMatch = context.ComparerConfig.CompleteMatch;
-            var completeMismatch = context.ComparerConfig.CompleteMismatch;
+            var matchThreshold = context.ComparerConfig.MatchThreshold.Value;
+            var completeMatch = context.ComparerConfig.CompleteMatch.Value;
+            var completeMismatch = context.ComparerConfig.CompleteMismatch.Value;
             foreach (var fileFromGroup in fileGroup)
             {
                 if (ReferenceEquals(fileFromGroup, fileToFind)) 

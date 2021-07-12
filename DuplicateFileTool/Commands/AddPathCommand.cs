@@ -1,35 +1,39 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace DuplicateFileTool.Commands
 {
     internal class AddPathCommand : CommandBase
     {
-        private MainViewModel AppViewModel { get; }
+        private ICollection<SearchPath> SearchPaths { get; }
+        private Func<FileTreeItem> GetSelectedFileTreeItem { get; }
 
-        public AddPathCommand(MainViewModel appViewModel)
+        public AddPathCommand(ICollection<SearchPath> searchPaths, Func<FileTreeItem> getSelectedFileTreeItem)
         {
-            AppViewModel = appViewModel;
+            Enabled = false;
+            SearchPaths = searchPaths;
+            GetSelectedFileTreeItem = getSelectedFileTreeItem;
         }
 
         public override void Execute(object parameter)
         {
-            if (AppViewModel.SelectedFileTreeItem == null)
+            var selectedFileTreeItem = GetSelectedFileTreeItem();
+            if (selectedFileTreeItem == null)
                 return;
 
-            try
-            {
-                Enabled = false;
-                
-                var itemPath = AppViewModel.SelectedFileTreeItem.ItemPath;
-                var pathIsNotYetAdded = AppViewModel.SearchPaths.All(existingPath => !existingPath.Path.Equals(itemPath, StringComparison.Ordinal));
-                if (pathIsNotYetAdded)
-                    AppViewModel.SearchPaths.Add(new SearchPath(AppViewModel.SelectedFileTreeItem.ItemPath, InclusionType.Include));
-            }
-            finally
-            {
-                Enabled = true;
-            }
+            var itemPath = selectedFileTreeItem.ItemPath;
+            if (!CanAddPath(itemPath))
+                return;
+            SearchPaths.Add(new SearchPath(itemPath, InclusionType.Include));
+            Enabled = false;
+        }
+
+        public bool CanAddPath(string path)
+        {
+            return !string.IsNullOrEmpty(path) &&
+                SearchPaths.All(existingPath => !existingPath.Path.Equals(path, StringComparison.OrdinalIgnoreCase)) && 
+                FileSystem.PathExists(path);
         }
     }
 }
