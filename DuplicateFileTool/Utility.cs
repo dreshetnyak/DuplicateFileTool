@@ -20,7 +20,7 @@ namespace DuplicateFileTool
             if (string.IsNullOrEmpty(path))
                 return false;
 
-            if (Directory.Exists(path))
+            if (FileSystem.DirectoryExists(path))
                 return true;
 
             try { Directory.CreateDirectory(path); }
@@ -54,6 +54,14 @@ namespace DuplicateFileTool
             }
 
             return true;
+        }
+
+        public static string SubstringBeforeLast(this string str, char ch)
+        {
+            var chIdx = str.LastIndexOf(ch);
+            return chIdx != -1
+                ? str.Substring(0, chIdx)
+                : str;
         }
 
         public static string SubstringAfterLast(this string str, char ch)

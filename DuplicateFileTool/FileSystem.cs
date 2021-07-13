@@ -120,7 +120,7 @@ namespace DuplicateFileTool
         public static FileHandle OpenFile(string filePath, Win32.FileAccess fileAccess, Win32.FileShare fileShare, Win32.CreationDisposition disposition)
         {
             var fileHandle = Win32.CreateFile(
-                !filePath.StartsWith(@"\\?\") ? @"\\?\" + filePath : filePath, //If the path does not start from this special sequence then we add it. The sequence allow to exceed MAX_PATH
+                MakeLongPath(filePath), //If the path does not start from this special sequence then we add it. The sequence allow to exceed MAX_PATH
                 fileAccess,
                 fileShare,
                 null,
@@ -192,6 +192,9 @@ namespace DuplicateFileTool
             if (!closeSuccess)
                 throw new FileSystemException(path, new Win32Exception(Marshal.GetLastWin32Error()).Message);
 
+            if (new FileAttributes((uint)foundFileInfo.dwFileAttributes).IsArchive)
+                path = path.SubstringBeforeLast('\\');
+
             return new FileData(path, foundFileInfo);
         }
 
@@ -201,11 +204,111 @@ namespace DuplicateFileTool
                 throw new FileSystemException(fileFullName, new Win32Exception(Marshal.GetLastWin32Error()).Message);
         }
 
+        public static void DeleteFile(FileData fileData)
+        {
+            if (fileData.Attributes.IsReadonly)
+                RemoveFileReadonlyAttribute(fileData);
+
+            if (Win32.DeleteFile(fileData.FullName))
+                return;
+
+            throw new FileSystemException(fileData.FullName, new Win32Exception(Marshal.GetLastWin32Error()).Message);
+        }
+
+        public static bool RemoveFileReadonlyAttribute(FileData fileData)
+        {
+            var fileAttributes = GetFileAttributes(fileData.FullName);
+            return fileAttributes != null && Win32.SetFileAttributes(fileData.FullName, fileAttributes);
+        }
+
+        public static FileAttributes GetFileAttributes(string fileFullName)
+        {
+            var fileAttributesInt = Win32.GetFileAttributes(fileFullName);
+            return fileAttributesInt != Win32.INVALID_FILE_ATTRIBUTES
+                ? new FileAttributes(fileAttributesInt) { IsReadonly = false }
+                : null;
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool PathExists(string path)
         {
             return Win32.GetFileAttributes(path) != Win32.INVALID_FILE_ATTRIBUTES;
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool DirectoryExists(string path)
+        {
+            var attributes = Win32.GetFileAttributes(path);
+            return attributes != Win32.INVALID_FILE_ATTRIBUTES && new FileAttributes(attributes).IsDirectory;
+        }
+
+        public static bool IsDirectoryTreeEmpty(string path)
+        {
+            if (!DirectoryExists(path))
+                return true;
+
+            try
+            {
+                foreach (var dirItem in new DirectoryEnumeration(path))
+                {
+                    if (dirItem.Attributes.IsDirectory && IsDirectoryTreeEmpty(dirItem.FullName))
+                        continue; //If it is a directory and it is empty
+
+                    //If it is a file
+                    return false;
+                }
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        //TODO
+        public static bool DeleteDirectoryTree(string path, Action<string> log)
+        {
+            if (!DirectoryExists(path))
+                return true;
+
+            try
+            {
+                foreach (var dirItem in new DirectoryEnumeration(path))
+                {
+                    if (dirItem.Attributes.IsDirectory && DeleteDirectoryTree(dirItem.FullName, log))
+                        continue; //If it is a directory and we successfully deleted it
+
+                    //If it is a file or deletion failed
+                    return false;
+                }
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+
+            //The dir content is empty, now we can delete it
+            log?.Invoke(path);
+            return Win32.RemoveDirectory(MakeLongPath(path));
+        }
+
+        public static void DeleteDirectoryTreeWithParents(string path, Action<string> log)
+        {
+            var deletionFailed = !DeleteDirectoryTree(path, log);
+            if (deletionFailed)
+                return;
+
+            var dirPath = new DirectoryInfo(path);
+            while (dirPath.Parent != null) //While root is not reached
+            {
+                dirPath = dirPath.Parent;
+                if (!DeleteDirectoryTree(dirPath.FullName, log))
+                    return;
+            }
+        }
+
+        #region Drives Information
 
         public struct DriveInfo
         {
@@ -247,6 +350,13 @@ namespace DuplicateFileTool
             {
                 Marshal.FreeHGlobal(outBuffer);
             }
+        }
+
+        #endregion
+
+        public static string MakeLongPath(string path)
+        {
+            return !path.StartsWith(@"\\?\") ? @"\\?\" + path : path;
         }
     }
 }

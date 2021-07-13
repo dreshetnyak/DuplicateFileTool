@@ -363,4 +363,10 @@
   <data name="Config_ExtensionInclusionType_Description" xml:space="preserve">
     <value>Specifies if the listed extensions have to be included or excluded from the search</value>
   </data>
+  <data name="Log_Unmarking_FullFileName" xml:space="preserve">
+    <value>Unmarking: {0}</value>
+  </data>
+  <data name="Log_Deleting_Name" xml:space="preserve">
+    <value>Deleting: {0}</value>
+  </data>
 </root>

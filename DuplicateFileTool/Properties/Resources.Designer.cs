@@ -530,6 +530,15 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Deleting: {0}.
+        /// </summary>
+        public static string Log_Deleting_Name {
+            get {
+                return ResourceManager.GetString("Log_Deleting_Name", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Deleting: {0}; {1}.
         /// </summary>
         public static string Log_Deleting_Name_Size {
@@ -571,6 +580,15 @@ namespace DuplicateFileTool.Properties {
         public static string Log_Performing_deletion_of_the_marked_duplicates {
             get {
                 return ResourceManager.GetString("Log_Performing_deletion_of_the_marked_duplicates", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unmarking: {0}.
+        /// </summary>
+        public static string Log_Unmarking_FullFileName {
+            get {
+                return ResourceManager.GetString("Log_Unmarking_FullFileName", resourceCulture);
             }
         }
         
