@@ -12,6 +12,7 @@ namespace DuplicateFileTool
         public MainWindow()
         {
             InitializeComponent();
+            DataContext = new MainViewModel(this);
         }
     }
 }

@@ -93,6 +93,7 @@
     <Compile Include="Commands\CommandBase.cs" />
     <Compile Include="Commands\DeleteMarkedFilesCommand.cs" />
     <Compile Include="Commands\FindDuplicatesCommand.cs" />
+    <Compile Include="Commands\OpenFileInExplorerCommand.cs" />
     <Compile Include="Commands\RelayCommand.cs" />
     <Compile Include="Commands\ResetSelectionCommand.cs" />
     <Compile Include="Commands\ToggleDeletionMarkCommand.cs" />
@@ -107,10 +108,13 @@
     <Compile Include="Drives.cs" />
     <Compile Include="DuplicateCandidates.cs" />
     <Compile Include="DuplicatesEngine.cs" />
+    <Compile Include="DuplicatesRemover.cs" />
     <Compile Include="DuplicatesSearch.cs" />
     <Compile Include="InclusionPredicate.cs" />
-    <Compile Include="InterfaceSwitch.cs" />
+    <Compile Include="UiSwitch.cs" />
     <Compile Include="Observable.cs" />
+    <Compile Include="PagedObservableCollectionView.cs" />
+    <Compile Include="TreeViewExtension.cs" />
     <Compile Include="Utility.cs" />
     <Compile Include="FileComparer.cs" />
     <Compile Include="FileData.cs" />
@@ -126,6 +130,7 @@
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Reflected.cs" />
     <Compile Include="ReflectionExtensions.cs" />
+    <Compile Include="ViewExtensions.cs" />
     <Compile Include="Win32.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -211,6 +216,9 @@
   <ItemGroup>
     <Resource Include="Images\Add.png" />
     <Resource Include="Images\Recycle.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\OpenFolder.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

@@ -138,11 +138,11 @@
   <data name="Warning_Encountered_a_group_with_all_files_selected" xml:space="preserve">
     <value>Invalid selection, encountered a group with all files selected, at leas one file should be left unselected. The group will be ignored.</value>
   </data>
-  <data name="Log_Files_deleted_Count" xml:space="preserve">
-    <value>Files deleted: {0}</value>
+  <data name="Log_Files_Deletion_Summary" xml:space="preserve">
+    <value>Deleted: {0:N0} files; Freed: {1:N0} bytes.</value>
   </data>
-  <data name="Log_Deleted_Size" xml:space="preserve">
-    <value>Deleted size: {0:N0} Bytes</value>
+  <data name="Log_Deletion_Completed" xml:space="preserve">
+    <value>Done. </value>
   </data>
   <data name="Log_Deleting_Name_Size" xml:space="preserve">
     <value>Deleting: {0}; {1}</value>
@@ -368,5 +368,17 @@
   </data>
   <data name="Log_Deleting_Name" xml:space="preserve">
     <value>Deleting: {0}</value>
+  </data>
+  <data name="Log_Deletion_Cancelled" xml:space="preserve">
+    <value>Cancelled. </value>
+  </data>
+  <data name="Ui_ToolTip_Open_File_In_Explorer" xml:space="preserve">
+    <value>Open the file in explorer</value>
+  </data>
+  <data name="Ui_ToolTip_Toggle_Mark_For_Deletion" xml:space="preserve">
+    <value>Mark for deletion</value>
+  </data>
+  <data name="Ui_ToolTip_Toggle_Unmark_For_Deletion" xml:space="preserve">
+    <value>Unmark</value>
   </data>
 </root>

@@ -4,6 +4,29 @@ using System.Reflection;
 
 namespace DuplicateFileTool
 {
+    internal enum MessageType { Information, Warning, Error }
+
+    internal sealed class ErrorMessage
+    {
+        public MessageType Type { get; }
+        public string Text { get; }
+        public string Path { get; }
+
+        public ErrorMessage(string path, string message, MessageType messageType = MessageType.Information)
+        {
+            Path = path ?? "";
+            Text = message;
+            Type = messageType;
+        }
+
+        public ErrorMessage(string message, MessageType messageType = MessageType.Information)
+        {
+            Path = "";
+            Text = message;
+            Type = messageType;
+        }
+    }
+
     internal static class Utility
     {
         public static string GetAssemblyLocation()

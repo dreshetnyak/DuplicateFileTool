@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DuplicateFileTool
 {
-    internal class FilesSearchProgressEventArgs : EventArgs
+    internal sealed class FilesSearchProgressEventArgs : EventArgs
     {
         public string DirPath { get; }
         public int FoundFilesCount { get; }

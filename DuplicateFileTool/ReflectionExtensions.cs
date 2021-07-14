@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using DuplicateFileTool.Annotations;
 
 namespace DuplicateFileTool
 {
@@ -49,6 +50,12 @@ namespace DuplicateFileTool
             return type.GetProperties(BindingFlags.Instance | BindingFlags.Public).Where(property =>
                 property.PropertyType.ImplementsInterfaceGeneric(implementsInterfaceType));
         }
+
+        public static IEnumerable<PropertyInfo> GetPropertiesOfType<T>([NotNull] this object obj, BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.Public)
+        {
+            return obj.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public).Where(property => property.PropertyType == typeof(T));
+        }
+        
 
         //public static T GetAttribute<T>(this Type objectType) where T : class
         //{

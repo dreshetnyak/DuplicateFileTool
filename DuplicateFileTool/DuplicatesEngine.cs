@@ -5,10 +5,12 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using DuplicateFileTool.Converters;
 
 namespace DuplicateFileTool
 {
+    [DebuggerDisplay("{FileData.FullName,nq}")]
     internal class DuplicateFile : NotifyPropertyChanged
     {
         private bool _isMarkedForDeletion;
@@ -136,6 +138,7 @@ namespace DuplicateFileTool
         private string _currentPath = "";
         private int _includedFilesCount;
         private int _progressPercentage;
+        private string _progressText;
         private int _currentFileIndex;
         private int _totalFilesCount;
         private int _candidateGroupsCount;
@@ -147,9 +150,10 @@ namespace DuplicateFileTool
 
         #endregion
 
-        private FilesSearch Files { get; }
-        private DuplicateCandidates Candidates { get; }
-        private DuplicatesSearch Duplicates { get; }
+        private FilesSearch Files { get; } = new();
+        private DuplicateCandidates Candidates { get; } = new();
+        private DuplicatesSearch Duplicates { get; } = new();
+        private DuplicatesRemover DuplicatesRemover { get; } = new();
 
         public SearchStep CurrentStep
         {
@@ -184,6 +188,15 @@ namespace DuplicateFileTool
             private set
             {
                 _progressPercentage = value; 
+                OnPropertyChanged();
+            }
+        }
+        public string ProgressText
+        {
+            get => _progressText;
+            set
+            {
+                _progressText = value;
                 OnPropertyChanged();
             }
         }
@@ -262,26 +275,26 @@ namespace DuplicateFileTool
             }
         }
 
-        public ObservableCollection<FileSystemErrorEventArgs> FileSystemErrors { get; }
-        public ObservableCollection<DuplicateGroup> DuplicateGroups { get; }
+        public ObservableCollection<ErrorMessage> Errors { get; } = new();
+        //public ObservableCollection<FileSystemError> FileSystemErrors { get; } = new();
+        public ObservableCollection<DuplicateGroup> DuplicateGroups { get; } = new();
 
         public DuplicatesEngine()
         {
-            FileSystemErrors = new ObservableCollection<FileSystemErrorEventArgs>();
-            DuplicateGroups = new ObservableCollection<DuplicateGroup>();
-
-            Files = new FilesSearch();
             Files.FilesSearchProgress += OnFilesSearchProgress;
             Files.FileSystemError += OnFileSystemError;
-
-            Candidates = new DuplicateCandidates();
-            Candidates.CandidatesSearchProgress += OnCandidatesSearchProgress;
             
-            Duplicates = new DuplicatesSearch();
+            Candidates.CandidatesSearchProgress += OnCandidatesSearchProgress;
+
             Duplicates.DuplicatesSearchProgress += OnDuplicatesSearchProgress;
             Duplicates.FileSystemError += OnFileSystemError;
-            Duplicates.DuplicatesGroupFound += (_, args) => System.Windows.Application.Current.Dispatcher.Invoke(() => DuplicateGroups.Add(new DuplicateGroup(args.DuplicatesGroup)));
+            Duplicates.DuplicatesGroupFound += (_, args) => Application.Current.Dispatcher.Invoke(() => DuplicateGroups.Add(new DuplicateGroup(args.DuplicatesGroup)));
+
+            DuplicatesRemover.DeletionMessage += OnDeletionMessage;
+            DuplicatesRemover.DeletionStateChanged += DeletionStateChanged;
         }
+
+        #region Finding Duplicates
 
         public async Task FindDuplicates(
             IReadOnlyCollection<SearchPath> searchPaths, 
@@ -303,6 +316,7 @@ namespace DuplicateFileTool
 
             CurrentStep = SearchStep.Done;
             CurrentStep = SearchStep.StandBy;
+            ProgressPercentage = 0;
         }
 
         private void OnFilesSearchProgress(object sender, FilesSearchProgressEventArgs eventArgs)
@@ -337,7 +351,37 @@ namespace DuplicateFileTool
 
         private void OnFileSystemError(object sender, FileSystemErrorEventArgs eventArgs)
         {
-            FileSystemErrors.Add(eventArgs);
+            var fileSystemError = eventArgs.FileSystemError;
+            Errors.Add(new ErrorMessage(fileSystemError.Path, fileSystemError.Message, MessageType.Error));
         }
+
+        #endregion
+
+        #region Removing Duplicates
+
+        public async Task RemoveDuplicates(ObservableCollection<DuplicateGroup> duplicates, bool removeEmptyDirs, bool deleteToRecycleBin, CancellationToken cancellationToken)
+        {
+            await DuplicatesRemover.RemoveDuplicates(duplicates, removeEmptyDirs, deleteToRecycleBin, cancellationToken);
+            ProgressPercentage = 0;
+        }
+
+        private void OnDeletionMessage(object sender, DeletionMessageEventArgs eventArgs)
+        {
+            var deletionMessage = eventArgs.Message;
+            ProgressText = deletionMessage.Text;
+            var deletionMessageType = deletionMessage.Type;
+            if (deletionMessageType is MessageType.Error or MessageType.Warning)
+                Errors.Add(new ErrorMessage(deletionMessage.Path, deletionMessage.Text, deletionMessageType));
+        }
+
+        private void DeletionStateChanged(object sender, DeletionStateEventArgs eventArgs)
+        {
+            var deletionState = eventArgs.State;
+            var total = (double)deletionState.TotalFilesForDeletionCount;
+            var current = (double)deletionState.CurrentFileForDeletionIndex;
+            ProgressPercentage = (int)(current * 10000 / total);
+        }
+
+        #endregion
     }
 }

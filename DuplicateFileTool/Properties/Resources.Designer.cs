@@ -521,15 +521,6 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Deleted size: {0:N0} Bytes.
-        /// </summary>
-        public static string Log_Deleted_Size {
-            get {
-                return ResourceManager.GetString("Log_Deleted_Size", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Deleting: {0}.
         /// </summary>
         public static string Log_Deleting_Name {
@@ -544,6 +535,24 @@ namespace DuplicateFileTool.Properties {
         public static string Log_Deleting_Name_Size {
             get {
                 return ResourceManager.GetString("Log_Deleting_Name_Size", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cancelled. .
+        /// </summary>
+        public static string Log_Deletion_Cancelled {
+            get {
+                return ResourceManager.GetString("Log_Deletion_Cancelled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Done. .
+        /// </summary>
+        public static string Log_Deletion_Completed {
+            get {
+                return ResourceManager.GetString("Log_Deletion_Completed", resourceCulture);
             }
         }
         
@@ -566,11 +575,11 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Files deleted: {0}.
+        ///   Looks up a localized string similar to Deleted: {0:N0} files; Freed: {1:N0} bytes..
         /// </summary>
-        public static string Log_Files_deleted_Count {
+        public static string Log_Files_Deletion_Summary {
             get {
-                return ResourceManager.GetString("Log_Files_deleted_Count", resourceCulture);
+                return ResourceManager.GetString("Log_Files_Deletion_Summary", resourceCulture);
             }
         }
         
@@ -805,6 +814,33 @@ namespace DuplicateFileTool.Properties {
         public static string Ui_ToolTip_Only_the_files_with_the_listed_extensions_included {
             get {
                 return ResourceManager.GetString("Ui_ToolTip_Only_the_files_with_the_listed_extensions_included", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Open the file in explorer.
+        /// </summary>
+        public static string Ui_ToolTip_Open_File_In_Explorer {
+            get {
+                return ResourceManager.GetString("Ui_ToolTip_Open_File_In_Explorer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mark for deletion.
+        /// </summary>
+        public static string Ui_ToolTip_Toggle_Mark_For_Deletion {
+            get {
+                return ResourceManager.GetString("Ui_ToolTip_Toggle_Mark_For_Deletion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unmark.
+        /// </summary>
+        public static string Ui_ToolTip_Toggle_Unmark_For_Deletion {
+            get {
+                return ResourceManager.GetString("Ui_ToolTip_Toggle_Unmark_For_Deletion", resourceCulture);
             }
         }
         

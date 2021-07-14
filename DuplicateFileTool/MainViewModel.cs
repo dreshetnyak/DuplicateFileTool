@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Windows;
 using DuplicateFileTool.Commands;
 using DuplicateFileTool.Configuration;
 
@@ -47,15 +49,20 @@ namespace DuplicateFileTool
         }
     }
 
+    [Localizable(true)]
     internal class MainViewModel : NotifyPropertyChanged
     {
+        #region Backing Fields
         private IFileComparer _selectedFileComparer;
         private FileTreeItem _selectedFileTreeItem;
         private int _selectedTabIndex;
         private long _toBeDeletedSize;
         private string _output;
-        private int _progressPercentage;
-        private string _progressText;
+        private bool _removeEmptyDirectories;
+        private bool _deleteToRecycleBin;
+        private double _taskbarProgress;
+
+        #endregion
 
         public ApplicationConfig Config { get; }
 
@@ -76,9 +83,10 @@ namespace DuplicateFileTool
             }
         }
         public DuplicatesEngine Duplicates { get; }
-
+        public PagedObservableCollectionView<DuplicateGroup> DuplicateFilesPageView { get; } //Stores the collection of duplicates groups that corresponds to the selected page
+        
         public ObservableCollection<SearchPath> SearchPaths { get; } = new();
-        public ObservableCollection<FileTreeItem> FileTree { get; }
+        public ObservableCollection<FileTreeItem> FileTree { get; } = new();
         public FileTreeItem SelectedFileTreeItem
         {
             get => _selectedFileTreeItem;
@@ -116,21 +124,30 @@ namespace DuplicateFileTool
                 OnPropertyChanged();
             }
         }
-        public int ProgressPercentage
+        public bool RemoveEmptyDirectories
         {
-            get => _progressPercentage;
+            get => _removeEmptyDirectories;
             set
             {
-                _progressPercentage = value;
+                _removeEmptyDirectories = value; 
                 OnPropertyChanged();
             }
         }
-        public string ProgressText
+        public bool DeleteToRecycleBin
         {
-            get => _progressText;
+            get => _deleteToRecycleBin;
             set
             {
-                _progressText = value;
+                _deleteToRecycleBin = value; 
+                OnPropertyChanged();
+            }
+        }
+        public double TaskbarProgress
+        {
+            get => _taskbarProgress;
+            set
+            {
+                _taskbarProgress = value / 10000;
                 OnPropertyChanged();
             }
         }
@@ -143,12 +160,16 @@ namespace DuplicateFileTool
         public AutoSelectByPathCommand AutoSelectByPath { get; }
         public ResetSelectionCommand ResetSelection { get; }
         public DeleteMarkedFilesCommand DeleteMarkedFiles { get; }
+        public OpenFileInExplorerCommand OpenFileInExplorer { get; }
 
         #endregion
 
         public SearchConfiguration SearchConfig { get; }
+        public UiSwitch Ui { get; } = new();
 
-        public MainViewModel()
+        public event TreeViewResetHandler TreeViewReset;
+
+        public MainViewModel(Window mainWindow)
         {
             PropertyChanged += OnPropertyChanged;
 
@@ -159,23 +180,40 @@ namespace DuplicateFileTool
             InclusionPredicate = new InclusionPredicate(Config.SearchConfig);
             FileComparers = Config.FileComparers;
             Duplicates = new DuplicatesEngine();
-            InitializeSelectedFileComparer(); 
+            Duplicates.PropertyChanged += OnDuplicatesPropertyChanged;
+            
+            DuplicateFilesPageView = new PagedObservableCollectionView<DuplicateGroup>(Duplicates.DuplicateGroups, 100);
+            DuplicateFilesPageView.Collection.CollectionChanged += OnDuplicatesCollectionChanged;
 
-            //TODO Need to display this 
-            //Duplicates.FileSystemErrors
+            InitializeSelectedFileComparer();
             
             FindDuplicates = new FindDuplicatesCommand(Duplicates, SearchPaths, () => InclusionPredicate, () => SelectedFileComparer);
             FindDuplicates.FindDuplicatesFinished += (_, _) => SelectedTabIndex = 1;
-            CancelDuplicatesSearch = new RelayCommand(_ => FindDuplicates.Cancel());
 
+            CancelDuplicatesSearch = new RelayCommand(_ => FindDuplicates.Cancel());
             ToggleDeletionMark = new ToggleDeletionMarkCommand(sizeDelta => ToBeDeletedSize += sizeDelta);
             AutoSelectByPath = new AutoSelectByPathCommand(Duplicates.DuplicateGroups, sizeDelta => ToBeDeletedSize += sizeDelta);
             ResetSelection = new ResetSelectionCommand(Duplicates.DuplicateGroups, sizeDelta => ToBeDeletedSize += sizeDelta);
-            DeleteMarkedFiles = new DeleteMarkedFilesCommand(Duplicates.DuplicateGroups, sizeDelta => ToBeDeletedSize += sizeDelta, message => { Output += message; });
+            DeleteMarkedFiles = new DeleteMarkedFilesCommand(Duplicates, () => RemoveEmptyDirectories, () => DeleteToRecycleBin);
             AddPath = new AddPathCommand(SearchPaths, () => SelectedFileTreeItem);
+            OpenFileInExplorer = new OpenFileInExplorerCommand();
 
-            FileTree = new ObservableCollection<FileTreeItem>();
+            var treeViewExtension = new TreeViewExtension(mainWindow);
+            TreeViewReset += treeViewExtension.ViewModelOnTreeViewReset;
+
             UpdateFileTree();
+        }
+
+        private void OnDuplicatesCollectionChanged(object _, NotifyCollectionChangedEventArgs args)
+        {
+            if (args.Action == NotifyCollectionChangedAction.Reset)
+                TreeViewReset?.Invoke(this, new TreeViewResetEventArgs(nameof(DuplicateFilesPageView)));
+        }
+
+        private void OnDuplicatesPropertyChanged(object sender, PropertyChangedEventArgs eventArgs)
+        {
+            if (eventArgs.PropertyName == nameof(Duplicates.ProgressPercentage))
+                TaskbarProgress = Duplicates.ProgressPercentage;
         }
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs eventArgs)
@@ -210,9 +248,12 @@ namespace DuplicateFileTool
 
         private void InitializeSelectedFileComparer()
         {
+            
+            // ReSharper disable LocalizableElement
             Debug.Assert(Config != null, "Initializing the selected file comparer while the Config object is null");
             Debug.Assert(Config.SearchConfig != null, "Initializing the selected file comparer while the Config.SearchConfig object is null");
             Debug.Assert(FileComparers != null, "Initializing the selected file comparer while the Config.FileComparers list is null");
+            // ReSharper restore LocalizableElement
 
             var searchConfig = Config?.SearchConfig;
             if (searchConfig == null)

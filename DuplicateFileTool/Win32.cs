@@ -149,7 +149,7 @@ namespace DuplicateFileTool
         [return: MarshalAs(UnmanagedType.Bool)]
         internal static extern bool DeleteFile(string lpFileName);
 
-        [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
+        [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
         [return: MarshalAs(UnmanagedType.Bool)]
         internal static extern bool RemoveDirectory(string lpFileName);
 

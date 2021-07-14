@@ -2,18 +2,26 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using DuplicateFileTool.Annotations;
 using Microsoft.Win32.SafeHandles;
 
 namespace DuplicateFileTool
 {
-    internal sealed class FileSystemErrorEventArgs : EventArgs
+    internal sealed class FileSystemError
     {
         public string Path { get; }
         public string Message { get; }
         public Exception Exception { get; }
-        public FileSystemErrorEventArgs(string path, string message, Exception exception = null) { Path = path; Message = message; Exception = exception; }
+        public FileSystemError(string path, string message, Exception exception = null) { Path = path; Message = message; Exception = exception; }
+    }
+
+    internal sealed class FileSystemErrorEventArgs : EventArgs
+    {
+        public FileSystemError FileSystemError { get; }
+        public FileSystemErrorEventArgs(string path, string message, Exception exception = null) { FileSystemError = new FileSystemError(path, message, exception); }
     }
     internal delegate void FileSystemErrorEventHandler(object sender, FileSystemErrorEventArgs eventArgs);
 
@@ -198,7 +206,8 @@ namespace DuplicateFileTool
             return new FileData(path, foundFileInfo);
         }
 
-        public static void DeleteFile(string fileFullName)
+        //TODO implement deleteToRecycleBin
+        public static void DeleteFile(string fileFullName, bool deleteToRecycleBin = false)
         {
             if (!Win32.DeleteFile(fileFullName))
                 throw new FileSystemException(fileFullName, new Win32Exception(Marshal.GetLastWin32Error()).Message);
@@ -246,42 +255,19 @@ namespace DuplicateFileTool
         {
             if (!DirectoryExists(path))
                 return true;
-
-            try
-            {
-                foreach (var dirItem in new DirectoryEnumeration(path))
-                {
-                    if (dirItem.Attributes.IsDirectory && IsDirectoryTreeEmpty(dirItem.FullName))
-                        continue; //If it is a directory and it is empty
-
-                    //If it is a file
-                    return false;
-                }
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-
-            return true;
+            try { return !new DirectoryEnumeration(path).Any(dirItem => !dirItem.Attributes.IsDirectory || !IsDirectoryTreeEmpty(dirItem.FullName)); }
+            catch (Exception) { return false; }
         }
 
-        //TODO
-        public static bool DeleteDirectoryTree(string path, Action<string> log)
+        public static bool DeleteEmptySubDirectories([NotNull] string path, [NotNull] Action<string> directoryToRemoveName, [NotNull] Action<string, string> deletionError)
         {
             if (!DirectoryExists(path))
                 return true;
 
             try
             {
-                foreach (var dirItem in new DirectoryEnumeration(path))
-                {
-                    if (dirItem.Attributes.IsDirectory && DeleteDirectoryTree(dirItem.FullName, log))
-                        continue; //If it is a directory and we successfully deleted it
-
-                    //If it is a file or deletion failed
-                    return false;
-                }
+                if (new DirectoryEnumeration(path).Any(dirItem => !dirItem.Attributes.IsDirectory || !DeleteEmptySubDirectories(dirItem.FullName, directoryToRemoveName, deletionError)))
+                    return false; //Found a file or deletion failure
             }
             catch (Exception)
             {
@@ -289,13 +275,19 @@ namespace DuplicateFileTool
             }
 
             //The dir content is empty, now we can delete it
-            log?.Invoke(path);
-            return Win32.RemoveDirectory(MakeLongPath(path));
+            directoryToRemoveName(path);
+            var deletionSuccess = Win32.RemoveDirectory(MakeLongPath(path));
+            if (deletionSuccess)
+                return true;
+
+            deletionError(path, new Win32Exception(Marshal.GetLastWin32Error()).Message);
+            return false;
         }
 
-        public static void DeleteDirectoryTreeWithParents(string path, Action<string> log)
+        //TODO implement deleteToRecycleBin
+        public static void DeleteDirectoryTreeWithParents([NotNull] string path, [NotNull] Action<string> writeLog, [NotNull] Action<string, string> deletionError, bool deleteToRecycleBin = false)
         {
-            var deletionFailed = !DeleteDirectoryTree(path, log);
+            var deletionFailed = !DeleteEmptySubDirectories(path, writeLog, deletionError);
             if (deletionFailed)
                 return;
 
@@ -303,7 +295,7 @@ namespace DuplicateFileTool
             while (dirPath.Parent != null) //While root is not reached
             {
                 dirPath = dirPath.Parent;
-                if (!DeleteDirectoryTree(dirPath.FullName, log))
+                if (!DeleteEmptySubDirectories(dirPath.FullName, writeLog, deletionError))
                     return;
             }
         }
