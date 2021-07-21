@@ -14,7 +14,7 @@ namespace DuplicateFileTool
     internal class FileReader : IDisposable
     {
         public static int MaxFileHandlesCount { get; set; } = 255; //512 is the limit set by Windows
-        private ReaderWriterLockSlim OpenFilesCacheLock { get; } = new();
+        private static ReaderWriterLockSlim OpenFilesCacheLock { get; } = new();
         private static List<FileHandle> OpenFilesCache { get; } = new();
 
         private FileHandle File { get; }
@@ -27,16 +27,30 @@ namespace DuplicateFileTool
 
         public void Dispose()
         {
-            File?.Dispose();
+            try
+            {
+                OpenFilesCacheLock.EnterWriteLock();
+
+                var fileCacheIndex = OpenFilesCache.IndexOf(File);
+                if (fileCacheIndex != -1)
+                    OpenFilesCache.RemoveAt(fileCacheIndex);
+
+                File?.Dispose();
+            }
+            finally
+            {
+                OpenFilesCacheLock.ExitWriteLock();
+            }
         }
 
         public int ReadNext(byte[] bufferToReceiveData)
         {
-            OpenFilesCacheLock.EnterUpgradeableReadLock();
             try
             {
+                OpenFilesCacheLock.EnterUpgradeableReadLock();
+
                 if (!OpenFilesCache.Contains(File))
-                    OpenFileHandle();
+                    OpenFileHandle(File, Offset);
 
                 var bytesRead = FileSystem.ReadFile(File, bufferToReceiveData);
                 if (bytesRead > 0)
@@ -49,7 +63,7 @@ namespace DuplicateFileTool
             }
         }
 
-        private void OpenFileHandle()
+        private static void OpenFileHandle(FileHandle file, long offset)
         {
             try
             {
@@ -58,10 +72,10 @@ namespace DuplicateFileTool
                 if (OpenFilesCache.Count >= MaxFileHandlesCount)
                     FreeOneHandle();
 
-                OpenFilesCache.Add(File);
+                OpenFilesCache.Add(file);
 
-                if (!FileSystem.SetFilePointer(File, Offset))
-                    throw new FileSystemException(File.FileFullName, Resources.Error_Unable_to_set_the_file_offset);
+                if (!FileSystem.SetFilePointer(file, offset))
+                    throw new FileSystemException(file.FileFullName, Resources.Error_Unable_to_set_the_file_offset);
             }
             finally
             {

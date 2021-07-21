@@ -48,7 +48,7 @@ namespace DuplicateFileTool
         [Localizable(true)]
         private void CloseFindHandle()
         {
-            if (FindHandle != IntPtr.Zero && !Win32.FindClose(FindHandle))
+            if (FindHandle != IntPtr.Zero && FindHandle != Win32.INVALID_HANDLE_VALUE && !Win32.FindClose(FindHandle))
                 throw new ApplicationException(Resources.Error_Failed_to_close_the_file_search_handle + new Win32Exception(Marshal.GetLastWin32Error()).Message);
         }
 

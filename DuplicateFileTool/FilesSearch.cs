@@ -85,7 +85,7 @@ namespace DuplicateFileTool
 
         private IEnumerable<FileData> FindPathFiles(string path, IReadOnlyCollection<string> excludePaths, int foundFilesCount, IInclusionPredicate inclusionPredicate, CancellationToken cancellationToken)
         {
-            foreach (var fileData in new DirectoryEnumeration(path)) //DirectoryEnumeration throws
+            foreach (var fileData in new DirectoryEnumeration(path)) //TODO DirectoryEnumeration throws
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 

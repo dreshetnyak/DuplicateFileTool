@@ -7,7 +7,8 @@
         xmlns:resx="clr-namespace:DuplicateFileTool.Properties"
         xmlns:converters="clr-namespace:DuplicateFileTool.Converters"
         mc:Ignorable="d"
-        Title="{Binding Config.ApplicationName, Mode=OneTime}" Height="450" Width="800">
+        Title="{Binding Config.ApplicationName, Mode=OneTime}" Height="450" Width="800"
+        d:DataContext="{d:DesignInstance local:MainViewModel, IsDesignTimeCreatable=False}">
     <Window.TaskbarItemInfo>
         <TaskbarItemInfo ProgressValue="{Binding TaskbarProgress}" ProgressState="Normal" />
     </Window.TaskbarItemInfo>
@@ -119,7 +120,7 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
-                        <ToolBar Grid.Row="0" Margin="0,0,0,3" IsEnabled="{Binding Ui.IsInterfaceEntryEnabled}" ToolTip="{x:Static resx:Resources.Ui_ToolTip_Add_selected_to_the_list}">
+                        <ToolBar Grid.Row="0" Margin="0,0,0,3" IsEnabled="{Binding Ui.IsAddPathEnabled}" ToolTip="{x:Static resx:Resources.Ui_ToolTip_Add_selected_to_the_list}">
                             <Button Height="24" Background="Transparent" Command="{Binding AddPath}">
                                 <Image RenderOptions.BitmapScalingMode="Fant" Margin="5,0,5,0">
                                     <Image.Style>
@@ -137,7 +138,7 @@
                             <TextBlock VerticalAlignment="Center" Margin="0,0,5,0" Text="{Binding SelectedFileTreeItem.ItemPath}" />
                         </ToolBar>
                         <DataGrid Grid.Row="1"
-                              IsReadOnly="{Binding Ui.IsSearchPathsListEnabled}" 
+                              IsReadOnly="{Binding Ui.IsSearchPathsListReadOnly}" 
                               CanUserAddRows="False"
                               AlternationCount="2" 
                               SelectionMode="Single" 
@@ -244,13 +245,13 @@
 
                         <StackPanel Grid.Row="3" Orientation="Horizontal">
                             <!--TODO IsEnabled-->
-                            <Button MinHeight="28" Margin="3,5,1,5" Command="{Binding CancelDuplicatesSearch}">
+                            <Button MinHeight="28" Margin="3,5,1,5" Command="{Binding CancelDuplicatesSearch}" IsEnabled="{Binding Ui.IsCancelSearchEnabled}">
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="Images/Cancel.png" Height="16" Margin="5,0,5,0" RenderOptions.BitmapScalingMode="Fant" />
                                     <TextBlock Text="{x:Static resx:Resources.Ui_Cancel_Search_Button_Text}" Margin="0,0,5,0" />
                                 </StackPanel>
                             </Button>
-                            <Button MinHeight="28" Margin="3,5,1,5" Command="{Binding FindDuplicates}">
+                            <Button MinHeight="28" Margin="3,5,1,5" Command="{Binding FindDuplicates}" IsEnabled="{Binding Ui.IsSearchEnabled}">
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="Images/Start.png"  Height="16" Margin="5,0,5,0" RenderOptions.BitmapScalingMode="Fant" />
                                     <TextBlock Text="{x:Static resx:Resources.Ui_Search_Button_Text}" Margin="0,0,5,0" />
@@ -267,7 +268,21 @@
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
-                    <TreeView Grid.Column="0" ItemsSource="{Binding Duplicates.DuplicateGroups}" Margin="0,0,3,0" />
+
+                    <TreeView Grid.Column="0" x:Name="DuplicateFilesPageView" ItemsSource="{Binding DuplicateFilesPageView.Collection}" Margin="0,0,3,0">
+                        <TreeView.Resources>
+                            <Style TargetType="TreeViewItem">
+                                <Setter Property="IsExpanded" Value="True" />
+                            </Style>
+                        </TreeView.Resources>
+                        <TreeView.ItemContainerStyle>
+                            <Style TargetType="{x:Type TreeViewItem}">
+                                <Setter Property="IsExpanded" Value="True" />
+                                <Setter Property="KeyboardNavigation.AcceptsReturn" Value="True" />
+                            </Style>
+                        </TreeView.ItemContainerStyle>
+                    </TreeView>
+
                     <Grid Grid.Column="1">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
@@ -322,7 +337,7 @@
                 </Grid>
             </TabItem>
             <TabItem Header="{x:Static resx:Resources.Ui_Logs_Tab_Header}" MinHeight="24" MinWidth="80">
-                <TextBox VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" TextWrapping="NoWrap" Text="{Binding Output}" />
+                <TextBox VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" TextWrapping="NoWrap" IsReadOnly="True" Text="{Binding Output}" />
             </TabItem>
         </TabControl>
 

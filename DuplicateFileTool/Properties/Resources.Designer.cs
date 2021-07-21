@@ -692,6 +692,42 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Page {0} / {1}.
+        /// </summary>
+        public static string Ui_PageInfo_Page {
+            get {
+                return ResourceManager.GetString("Ui_PageInfo_Page", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Comparing: .
+        /// </summary>
+        public static string Ui_Progress_Comparing {
+            get {
+                return ResourceManager.GetString("Ui_Progress_Comparing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Done..
+        /// </summary>
+        public static string Ui_Progress_Duplicates_Search_Done {
+            get {
+                return ResourceManager.GetString("Ui_Progress_Duplicates_Search_Done", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Scanning files: .
+        /// </summary>
+        public static string Ui_Progress_Scanning {
+            get {
+                return ResourceManager.GetString("Ui_Progress_Scanning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Auto Select by Path.
         /// </summary>
         public static string Ui_Results_Auto_select_by_path {

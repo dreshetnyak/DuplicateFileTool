@@ -32,6 +32,7 @@ namespace DuplicateFileTool.Commands
             try
             {
                 Enabled = false;
+                CanCancel = true;
 
                 var selectedComparer = GetSelectedComparer();
                 using (Cts = new CancellationTokenSource()) 
@@ -43,6 +44,8 @@ namespace DuplicateFileTool.Commands
             catch (OperationCanceledException) { /* ignore */ }
             finally
             {
+                CanCancel = false;
+                Cts.Dispose();
                 Cts = null;
                 Enabled = true;
             }

@@ -8,6 +8,8 @@ namespace DuplicateFileTool
         private bool _isSearchPathsListReadOnly = true;
         private bool _isSearchExtensionsEnabled = true;
         private bool _isSearchFileSizeEntryEnabled;
+        private bool _isCancelSearchEnabled;
+        private bool _isSearchEnabled;
 
         public bool IsAddPathEnabled
         {
@@ -46,6 +48,24 @@ namespace DuplicateFileTool
             set
             {
                 _isSearchFileSizeEntryEnabled = value; 
+                OnPropertyChanged();
+            }
+        }
+        public bool IsCancelSearchEnabled
+        {
+            get => _isCancelSearchEnabled;
+            set
+            {
+                _isCancelSearchEnabled = value; 
+                OnPropertyChanged();
+            }
+        }
+        public bool IsSearchEnabled
+        {
+            get => _isSearchEnabled;
+            set
+            {
+                _isSearchEnabled = value; 
                 OnPropertyChanged();
             }
         }

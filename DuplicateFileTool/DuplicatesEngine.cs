@@ -1,12 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using DuplicateFileTool.Converters;
+using DuplicateFileTool.Properties;
 
 namespace DuplicateFileTool
 {
@@ -129,13 +132,10 @@ namespace DuplicateFileTool
         }
     }
 
+    [Localizable(true)]
     internal class DuplicatesEngine : NotifyPropertyChanged
     {
-        internal enum SearchStep { StandBy, SearchingFiles, SearchingCandidates, SearchingDuplicates, Done }
-
         #region Backing Fields
-        private SearchStep _currentStep;
-        private string _currentPath = "";
         private int _includedFilesCount;
         private int _progressPercentage;
         private string _progressText;
@@ -155,24 +155,6 @@ namespace DuplicateFileTool
         private DuplicatesSearch Duplicates { get; } = new();
         private DuplicatesRemover DuplicatesRemover { get; } = new();
 
-        public SearchStep CurrentStep
-        {
-            get => _currentStep;
-            private set
-            {
-                _currentStep = value; 
-                OnPropertyChanged();
-            }
-        }
-        public string CurrentPath
-        {
-            get => _currentPath;
-            private set
-            {
-                _currentPath = value; 
-                OnPropertyChanged();
-            }
-        }
         public int IncludedFilesCount
         {
             get => _includedFilesCount;
@@ -276,7 +258,6 @@ namespace DuplicateFileTool
         }
 
         public ObservableCollection<ErrorMessage> Errors { get; } = new();
-        //public ObservableCollection<FileSystemError> FileSystemErrors { get; } = new();
         public ObservableCollection<DuplicateGroup> DuplicateGroups { get; } = new();
 
         public DuplicatesEngine()
@@ -289,7 +270,7 @@ namespace DuplicateFileTool
             Duplicates.DuplicatesSearchProgress += OnDuplicatesSearchProgress;
             Duplicates.FileSystemError += OnFileSystemError;
             Duplicates.DuplicatesGroupFound += (_, args) => Application.Current.Dispatcher.Invoke(() => DuplicateGroups.Add(new DuplicateGroup(args.DuplicatesGroup)));
-
+            
             DuplicatesRemover.DeletionMessage += OnDeletionMessage;
             DuplicatesRemover.DeletionStateChanged += DeletionStateChanged;
         }
@@ -297,31 +278,47 @@ namespace DuplicateFileTool
         #region Finding Duplicates
 
         public async Task FindDuplicates(
-            IReadOnlyCollection<SearchPath> searchPaths, 
-            IInclusionPredicate inclusionPredicate, 
+            IReadOnlyCollection<SearchPath> searchPaths,
+            IInclusionPredicate inclusionPredicate,
             ICandidatePredicate duplicateCandidatePredicate,
             IComparableFileFactory comparableFileFactory,
             CancellationToken cancellationToken)
         {
             DuplicateGroups.Clear();
 
-            CurrentStep = SearchStep.SearchingFiles;
-            var files = await Files.Find(searchPaths, inclusionPredicate, cancellationToken);
+            List<IComparableFile[]> duplicateCandidates = null;
+            try
+            {
+                var files = await Files.Find(searchPaths, inclusionPredicate, cancellationToken);
+                duplicateCandidates = await Candidates.Find(files, duplicateCandidatePredicate, comparableFileFactory, cancellationToken);
+                await Duplicates.Find(duplicateCandidates, comparableFileFactory.Config, cancellationToken);
+            }
+            finally
+            {
+                if (duplicateCandidates != null)
+                    DisposeComparableFiles(duplicateCandidates);
+            }
 
-            CurrentStep = SearchStep.SearchingCandidates;
-            var duplicateCandidates = await Candidates.Find(files, duplicateCandidatePredicate, comparableFileFactory, cancellationToken);
-
-            CurrentStep = SearchStep.SearchingDuplicates;
-            await Duplicates.Find(duplicateCandidates, comparableFileFactory.Config, cancellationToken);
-
-            CurrentStep = SearchStep.Done;
-            CurrentStep = SearchStep.StandBy;
+            ProgressText = Resources.Ui_Progress_Duplicates_Search_Done;
             ProgressPercentage = 0;
+        }
+
+        private static void DisposeComparableFiles(IEnumerable<IComparableFile[]> fileGroups)
+        {
+            foreach (var fileGroup in fileGroups)
+            {
+                foreach (var file in fileGroup)
+                {
+                    if (file is not IDisposable disposableFile)
+                        return;
+                    disposableFile.Dispose();
+                }
+            }
         }
 
         private void OnFilesSearchProgress(object sender, FilesSearchProgressEventArgs eventArgs)
         {
-            CurrentPath = eventArgs.DirPath;
+            ProgressText = Resources.Ui_Progress_Scanning + eventArgs.DirPath;
             IncludedFilesCount = eventArgs.FoundFilesCount;
         }
 
@@ -343,7 +340,7 @@ namespace DuplicateFileTool
 
         private void UpdateProgress(string currentPath, int totalFilesCount, int currentFileIndex)
         {
-            CurrentPath = currentPath;
+            ProgressText = Resources.Ui_Progress_Comparing + currentPath;
             TotalFilesCount = totalFilesCount;
             CurrentFileIndex = currentFileIndex;
             ProgressPercentage = (int)((double)currentFileIndex * 10000 / totalFilesCount);

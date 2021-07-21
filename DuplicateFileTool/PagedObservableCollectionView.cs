@@ -1,8 +1,10 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
+using DuplicateFileTool.Properties;
 using Application = System.Windows.Application;
 
 namespace DuplicateFileTool
@@ -18,7 +20,7 @@ namespace DuplicateFileTool
         private int CurrentPage { get; set; }
         private int TotalPages { get; set; }
 
-        public string PageInfo => $"Page {CurrentPage} / {TotalPages}";
+        public string PageInfo => string.Format(Resources.Ui_PageInfo_Page, CurrentPage, TotalPages);
 
         public bool IsNextPageExists
         {

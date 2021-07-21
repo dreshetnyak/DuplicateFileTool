@@ -186,9 +186,12 @@ namespace DuplicateFileTool
             DuplicateFilesPageView.Collection.CollectionChanged += OnDuplicatesCollectionChanged;
 
             InitializeSelectedFileComparer();
-            
+
+            SearchPaths.CollectionChanged += OnSearchPathsCollectionChanged;
+
             FindDuplicates = new FindDuplicatesCommand(Duplicates, SearchPaths, () => InclusionPredicate, () => SelectedFileComparer);
-            FindDuplicates.FindDuplicatesFinished += (_, _) => SelectedTabIndex = 1;
+            FindDuplicates.FindDuplicatesFinished += OnFindDuplicatesFinished;
+            FindDuplicates.CanExecuteChanged += OnFindDuplicatesCanExecuteChanged;
 
             CancelDuplicatesSearch = new RelayCommand(_ => FindDuplicates.Cancel());
             ToggleDeletionMark = new ToggleDeletionMarkCommand(sizeDelta => ToBeDeletedSize += sizeDelta);
@@ -202,6 +205,21 @@ namespace DuplicateFileTool
             TreeViewReset += treeViewExtension.ViewModelOnTreeViewReset;
 
             UpdateFileTree();
+        }
+
+        private void OnFindDuplicatesFinished(object o, EventArgs eventArgs)
+        {
+            SelectedTabIndex = 1;
+        }
+
+        private void OnFindDuplicatesCanExecuteChanged(object sender, EventArgs eventArgs)
+        {
+            Ui.IsCancelSearchEnabled = FindDuplicates.CanCancel;
+        }
+
+        private void OnSearchPathsCollectionChanged(object sender, NotifyCollectionChangedEventArgs eventArgs)
+        {
+            Ui.IsSearchEnabled = SearchPaths.Count != 0 && FindDuplicates.Enabled;
         }
 
         private void OnDuplicatesCollectionChanged(object _, NotifyCollectionChangedEventArgs args)
