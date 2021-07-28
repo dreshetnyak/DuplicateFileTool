@@ -33,7 +33,7 @@ namespace DuplicateFileTool.Commands
             {
                 Enabled = false;
                 CanCancel = true;
-
+                
                 var selectedComparer = GetSelectedComparer();
                 using (Cts = new CancellationTokenSource()) 
                     await DuplicatesEngine.FindDuplicates(SearchPaths, GetInclusionPredicate(), selectedComparer.CandidatePredicate, selectedComparer.ComparableFileFactory, Cts.Token);

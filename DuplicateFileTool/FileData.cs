@@ -142,7 +142,7 @@ namespace DuplicateFileTool
     }
 
     [DebuggerDisplay("{" + nameof(FullName) + "}")]
-    internal class FileData
+    internal sealed class FileData
     {
         public string DirPath { get; }
         public string FileName { get; }

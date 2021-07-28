@@ -49,6 +49,7 @@ namespace DuplicateFileTool.Commands
                     return;
                 _canCancel = value;
                 OnPropertyChanged();
+                OnCanExecuteChanged();
             }
         }
 

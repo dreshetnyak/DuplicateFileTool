@@ -710,6 +710,15 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Search Cancelled..
+        /// </summary>
+        public static string Ui_Progress_Duplicates_Search_Cancelled {
+            get {
+                return ResourceManager.GetString("Ui_Progress_Duplicates_Search_Cancelled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Done..
         /// </summary>
         public static string Ui_Progress_Duplicates_Search_Done {

@@ -13,7 +13,6 @@ namespace DuplicateFileTool
         public string FilePath { get; }
         public int CurrentFileIndex { get; }
         public int TotalFilesCount { get; }
-        public int DuplicateGroupsCount { get; }
         public int DuplicateFilesCount { get; }
         public long DuplicatedTotalSize { get; set; }
 
@@ -22,7 +21,6 @@ namespace DuplicateFileTool
             FilePath = filePath;
             CurrentFileIndex = currentFileIndex;
             TotalFilesCount = totalFilesCount;
-            DuplicateGroupsCount = duplicateGroupsCount;
             DuplicateFilesCount = duplicateFilesCount;
             DuplicatedTotalSize = duplicatedTotalSize;
         }

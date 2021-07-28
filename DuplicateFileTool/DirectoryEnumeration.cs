@@ -49,28 +49,32 @@ namespace DuplicateFileTool
         private void CloseFindHandle()
         {
             if (FindHandle != IntPtr.Zero && FindHandle != Win32.INVALID_HANDLE_VALUE && !Win32.FindClose(FindHandle))
-                throw new ApplicationException(Resources.Error_Failed_to_close_the_file_search_handle + new Win32Exception(Marshal.GetLastWin32Error()).Message);
+                throw new FileSystemException(SearchPath, Resources.Error_Failed_to_close_the_file_search_handle + new Win32Exception(Marshal.GetLastWin32Error()).Message);
         }
 
         public bool MoveNext()
         {
-            if (IsNoMoreFiles)
-                return false;
+            do
+            {
+                if (IsNoMoreFiles)
+                    return false;
 
-            Win32.WIN32_FIND_DATA findData;
-            IsNoMoreFiles = FindHandle == IntPtr.Zero
-                ? !MoveToFirstFile(out findData)
-                : !MoveToNextFile(out findData);
+                Win32.WIN32_FIND_DATA findData;
+                IsNoMoreFiles = FindHandle == IntPtr.Zero
+                    ? !MoveToFirstFile(out findData)
+                    : !MoveToNextFile(out findData);
 
-            if (IsNoMoreFiles)
-                return false;
+                if (IsNoMoreFiles)
+                    return false;
 
-            var fileName = findData.cFileName;
-            if (fileName == "." || fileName == "..")
-                return MoveNext();
+                var fileName = findData.cFileName;
+                if (fileName is "." or "..")
+                    continue;
 
-            CurrentFileData = new FileData(SearchPath, findData);
-            return true;
+                CurrentFileData = new FileData(SearchPath, findData);
+                return true;
+
+            } while (true);
         }
 
         private bool MoveToFirstFile(out Win32.WIN32_FIND_DATA findData)
@@ -79,7 +83,7 @@ namespace DuplicateFileTool
             if (FindHandle.IsValidHandle())
                 return true;
 
-            var errCode = Marshal.GetLastWin32Error(); 
+            var errCode = Marshal.GetLastWin32Error();
             if (errCode == Win32.ERROR_NO_MORE_FILES)
                 return false;
 
@@ -95,7 +99,7 @@ namespace DuplicateFileTool
             if (errorCode == Win32.ERROR_NO_MORE_FILES)
                 return false;
 
-            throw new ApplicationException(Resources.Error_Failed_to_find_the_next_file + new Win32Exception(errorCode).Message);
+            throw new FileSystemException(SearchPath, Resources.Error_Failed_to_find_the_next_file + new Win32Exception(errorCode).Message);
         }
 
         private static string GetPathAdaptedForSearch(string path)

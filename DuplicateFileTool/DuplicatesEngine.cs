@@ -147,6 +147,7 @@ namespace DuplicateFileTool
         private int _duplicateGroupsCount;
         private int _duplicateFilesCount;
         private long _duplicatedTotalSize;
+        private long _toBeDeletedSize;
 
         #endregion
 
@@ -256,6 +257,15 @@ namespace DuplicateFileTool
                 OnPropertyChanged();
             }
         }
+        public long ToBeDeletedSize
+        {
+            get => _toBeDeletedSize;
+            set
+            {
+                _toBeDeletedSize = value;
+                OnPropertyChanged();
+            }
+        }
 
         public ObservableCollection<ErrorMessage> Errors { get; } = new();
         public ObservableCollection<DuplicateGroup> DuplicateGroups { get; } = new();
@@ -266,10 +276,13 @@ namespace DuplicateFileTool
             Files.FileSystemError += OnFileSystemError;
             
             Candidates.CandidatesSearchProgress += OnCandidatesSearchProgress;
+            Candidates.FileSystemError += OnFileSystemError;
 
             Duplicates.DuplicatesSearchProgress += OnDuplicatesSearchProgress;
             Duplicates.FileSystemError += OnFileSystemError;
             Duplicates.DuplicatesGroupFound += (_, args) => Application.Current.Dispatcher.Invoke(() => DuplicateGroups.Add(new DuplicateGroup(args.DuplicatesGroup)));
+
+            DuplicateGroups.CollectionChanged += OnDuplicateGroupsCollectionChanged;
             
             DuplicatesRemover.DeletionMessage += OnDeletionMessage;
             DuplicatesRemover.DeletionStateChanged += DeletionStateChanged;
@@ -293,10 +306,17 @@ namespace DuplicateFileTool
                 duplicateCandidates = await Candidates.Find(files, duplicateCandidatePredicate, comparableFileFactory, cancellationToken);
                 await Duplicates.Find(duplicateCandidates, comparableFileFactory.Config, cancellationToken);
             }
+            catch (OperationCanceledException)
+            {
+                ProgressText = Resources.Ui_Progress_Duplicates_Search_Cancelled;
+                ProgressPercentage = 0;
+                return;
+            }
             finally
             {
                 if (duplicateCandidates != null)
                     DisposeComparableFiles(duplicateCandidates);
+                GC.Collect();
             }
 
             ProgressText = Resources.Ui_Progress_Duplicates_Search_Done;
@@ -318,7 +338,8 @@ namespace DuplicateFileTool
 
         private void OnFilesSearchProgress(object sender, FilesSearchProgressEventArgs eventArgs)
         {
-            ProgressText = Resources.Ui_Progress_Scanning + eventArgs.DirPath;
+            if (eventArgs.IsDirectory) 
+                ProgressText = Resources.Ui_Progress_Scanning + eventArgs.Path;
             IncludedFilesCount = eventArgs.FoundFilesCount;
         }
 
@@ -333,7 +354,6 @@ namespace DuplicateFileTool
         private void OnDuplicatesSearchProgress(object sender, DuplicatesSearchProgressEventArgs eventArgs)
         {
             UpdateProgress(eventArgs.FilePath, eventArgs.TotalFilesCount, eventArgs.CurrentFileIndex);
-            DuplicateGroupsCount = eventArgs.DuplicateGroupsCount;
             DuplicateFilesCount = eventArgs.DuplicateFilesCount;
             DuplicatedTotalSize = eventArgs.DuplicatedTotalSize;
         }
@@ -350,6 +370,11 @@ namespace DuplicateFileTool
         {
             var fileSystemError = eventArgs.FileSystemError;
             Errors.Add(new ErrorMessage(fileSystemError.Path, fileSystemError.Message, MessageType.Error));
+        }
+
+        private void OnDuplicateGroupsCollectionChanged(object sender, NotifyCollectionChangedEventArgs eventArgs)
+        {
+            DuplicateGroupsCount = DuplicateGroups.Count;
         }
 
         #endregion
@@ -377,6 +402,9 @@ namespace DuplicateFileTool
             var total = (double)deletionState.TotalFilesForDeletionCount;
             var current = (double)deletionState.CurrentFileForDeletionIndex;
             ProgressPercentage = (int)(current * 10000 / total);
+            var deletedSizeDelta = deletionState.DeletedSizeDelta;
+            ToBeDeletedSize += deletedSizeDelta;
+            DuplicatedTotalSize += deletedSizeDelta;
         }
 
         #endregion

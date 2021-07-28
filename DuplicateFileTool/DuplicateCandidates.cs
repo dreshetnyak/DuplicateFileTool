@@ -31,6 +31,7 @@ namespace DuplicateFileTool
     internal class DuplicateCandidates
     {
         public event CandidatesSearchProgressEventHandler CandidatesSearchProgress;
+        public event FileSystemErrorEventHandler FileSystemError;
 
         public async Task<List<IComparableFile[]>> Find(IReadOnlyCollection<FileData> srcFiles, ICandidatePredicate duplicateCandidatePredicate, IComparableFileFactory comparableFileFactory, CancellationToken cancellationToken)
         {
@@ -59,11 +60,15 @@ namespace DuplicateFileTool
                     var candidates = srcFiles.AsParallel().WithCancellation(cancellationToken).Where(file => duplicateCandidatePredicate.IsCandidate(file, currentFile)).ToArray();
                     if (candidates.Length < 2)
                         continue;
-                    
+
                     var candidatesGroup = candidates.Select(comparableFileFactory.Create).ToArray();
                     candidateFilesCount += candidatesGroup.Length;
                     candidatesTotalSize += candidatesGroup.Sum(candidate => candidate.FileData.Size);
                     duplicateCandidates.Add(candidatesGroup);
+                }
+                catch (Exception ex)
+                {
+                    OnFileSystemError(currentFile.FullName, ex);
                 }
                 finally
                 {
@@ -77,6 +82,11 @@ namespace DuplicateFileTool
         protected virtual void OnScanningPath(string filePath, int currentFileIndex, int totalFilesCount, int candidateGroupsFound, int candidateFilesFound, long candidatesTotalSize)
         {
             CandidatesSearchProgress?.Invoke(this, new CandidatesSearchProgressEventArgs(filePath, currentFileIndex, totalFilesCount, candidateGroupsFound, candidateFilesFound, candidatesTotalSize));
+        }
+
+        protected virtual void OnFileSystemError(string path, Exception ex)
+        {
+            FileSystemError?.Invoke(this, new FileSystemErrorEventArgs(path, ex.Message, ex));
         }
     }
 }

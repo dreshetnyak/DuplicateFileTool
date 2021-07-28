@@ -393,4 +393,7 @@
   <data name="Ui_Progress_Duplicates_Search_Done" xml:space="preserve">
     <value>Done.</value>
   </data>
+  <data name="Ui_Progress_Duplicates_Search_Cancelled" xml:space="preserve">
+    <value>Search Cancelled.</value>
+  </data>
 </root>

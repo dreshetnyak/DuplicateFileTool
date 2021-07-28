@@ -18,6 +18,8 @@ namespace DuplicateFileTool
         public int TotalFilesForDeletionCount { get; set; }
         public int TotalDeletedCount { get; set; }
         public long TotalDeletedSize { get; set; }
+        public long DeletedSizeDelta { get; set; }
+        public long DuplicatedGroupCountDelta { get; set; }
     }
 
     internal class DeletionStateEventArgs : EventArgs
@@ -161,7 +163,9 @@ namespace DuplicateFileTool
                     duplicateFilesCount--;
 
                     deletionStatus.TotalDeletedCount++;
-                    deletionStatus.TotalDeletedSize += fileData.Size;
+                    var fileSize = fileData.Size;
+                    deletionStatus.TotalDeletedSize += fileSize;
+                    deletionStatus.DeletedSizeDelta = -fileSize;
                 }
                 catch (FileSystemException ex)
                 {

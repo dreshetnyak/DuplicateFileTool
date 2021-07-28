@@ -56,7 +56,6 @@ namespace DuplicateFileTool
         private IFileComparer _selectedFileComparer;
         private FileTreeItem _selectedFileTreeItem;
         private int _selectedTabIndex;
-        private long _toBeDeletedSize;
         private string _output;
         private bool _removeEmptyDirectories;
         private bool _deleteToRecycleBin;
@@ -106,15 +105,6 @@ namespace DuplicateFileTool
             }
         }
 
-        public long ToBeDeletedSize
-        {
-            get => _toBeDeletedSize;
-            set
-            {
-                _toBeDeletedSize = value;
-                OnPropertyChanged();
-            }
-        }
         public string Output
         {
             get => _output;
@@ -194,9 +184,9 @@ namespace DuplicateFileTool
             FindDuplicates.CanExecuteChanged += OnFindDuplicatesCanExecuteChanged;
 
             CancelDuplicatesSearch = new RelayCommand(_ => FindDuplicates.Cancel());
-            ToggleDeletionMark = new ToggleDeletionMarkCommand(sizeDelta => ToBeDeletedSize += sizeDelta);
-            AutoSelectByPath = new AutoSelectByPathCommand(Duplicates.DuplicateGroups, sizeDelta => ToBeDeletedSize += sizeDelta);
-            ResetSelection = new ResetSelectionCommand(Duplicates.DuplicateGroups, sizeDelta => ToBeDeletedSize += sizeDelta);
+            ToggleDeletionMark = new ToggleDeletionMarkCommand(sizeDelta => Duplicates.ToBeDeletedSize += sizeDelta);
+            AutoSelectByPath = new AutoSelectByPathCommand(Duplicates.DuplicateGroups, sizeDelta => Duplicates.ToBeDeletedSize += sizeDelta);
+            ResetSelection = new ResetSelectionCommand(Duplicates.DuplicateGroups, sizeDelta => Duplicates.ToBeDeletedSize += sizeDelta);
             DeleteMarkedFiles = new DeleteMarkedFilesCommand(Duplicates, () => RemoveEmptyDirectories, () => DeleteToRecycleBin);
             AddPath = new AddPathCommand(SearchPaths, () => SelectedFileTreeItem);
             OpenFileInExplorer = new OpenFileInExplorerCommand();
