@@ -345,7 +345,7 @@ namespace DuplicateFileTool
 
         private void OnCandidatesSearchProgress(object sender, CandidatesSearchProgressEventArgs eventArgs)
         {
-            UpdateProgress(eventArgs.FilePath, eventArgs.TotalFilesCount, eventArgs.CurrentFileIndex);
+            UpdateProgress(Resources.Ui_Progress_Analyzing + eventArgs.FilePath, eventArgs.TotalFilesCount, eventArgs.CurrentFileIndex);
             CandidateGroupsCount = eventArgs.CandidateGroupsCount;
             CandidateFilesCount = eventArgs.CandidateFilesCount;
             CandidatesTotalSize = eventArgs.CandidatesTotalSize;
@@ -353,14 +353,14 @@ namespace DuplicateFileTool
 
         private void OnDuplicatesSearchProgress(object sender, DuplicatesSearchProgressEventArgs eventArgs)
         {
-            UpdateProgress(eventArgs.FilePath, eventArgs.TotalFilesCount, eventArgs.CurrentFileIndex);
+            UpdateProgress(Resources.Ui_Progress_Comparing + eventArgs.FilePath, eventArgs.TotalFilesCount, eventArgs.CurrentFileIndex);
             DuplicateFilesCount = eventArgs.DuplicateFilesCount;
             DuplicatedTotalSize = eventArgs.DuplicatedTotalSize;
         }
 
-        private void UpdateProgress(string currentPath, int totalFilesCount, int currentFileIndex)
+        private void UpdateProgress(string progressMessage, int totalFilesCount, int currentFileIndex)
         {
-            ProgressText = Resources.Ui_Progress_Comparing + currentPath;
+            ProgressText = progressMessage;
             TotalFilesCount = totalFilesCount;
             CurrentFileIndex = currentFileIndex;
             ProgressPercentage = (int)((double)currentFileIndex * 10000 / totalFilesCount);

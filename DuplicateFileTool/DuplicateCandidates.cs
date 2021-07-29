@@ -66,6 +66,10 @@ namespace DuplicateFileTool
                     candidatesTotalSize += candidatesGroup.Sum(candidate => candidate.FileData.Size);
                     duplicateCandidates.Add(candidatesGroup);
                 }
+                catch (OperationCanceledException)
+                {
+                    throw;
+                }
                 catch (Exception ex)
                 {
                     OnFileSystemError(currentFile.FullName, ex);

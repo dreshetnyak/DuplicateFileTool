@@ -665,6 +665,15 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Errors.
+        /// </summary>
+        public static string Ui_Errors_Tab_Header {
+            get {
+                return ResourceManager.GetString("Ui_Errors_Tab_Header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Extensions.
         /// </summary>
         public static string Ui_Extensions_GroupBox_Header {
@@ -683,20 +692,20 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Logs.
-        /// </summary>
-        public static string Ui_Logs_Tab_Header {
-            get {
-                return ResourceManager.GetString("Ui_Logs_Tab_Header", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Page {0} / {1}.
         /// </summary>
         public static string Ui_PageInfo_Page {
             get {
                 return ResourceManager.GetString("Ui_PageInfo_Page", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Analyzing: .
+        /// </summary>
+        public static string Ui_Progress_Analyzing {
+            get {
+                return ResourceManager.GetString("Ui_Progress_Analyzing", resourceCulture);
             }
         }
         

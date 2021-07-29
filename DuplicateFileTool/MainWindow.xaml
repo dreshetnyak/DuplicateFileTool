@@ -7,7 +7,7 @@
         xmlns:resx="clr-namespace:DuplicateFileTool.Properties"
         xmlns:converters="clr-namespace:DuplicateFileTool.Converters"
         mc:Ignorable="d"
-        Title="{Binding Config.ApplicationName, Mode=OneTime}" Height="450" Width="800"
+        Title="{Binding Config.ApplicationName, Mode=OneTime}" Height="650" Width="1000" MinHeight="378" MinWidth="500"
         d:DataContext="{d:DesignInstance local:MainViewModel, IsDesignTimeCreatable=False}">
     <Window.TaskbarItemInfo>
         <TaskbarItemInfo ProgressValue="{Binding TaskbarProgress}" ProgressState="Normal" />
@@ -82,6 +82,29 @@
             </Grid>
         </HierarchicalDataTemplate>
 
+        <Style x:Key="ImageButton" TargetType="{x:Type Button}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+                            <Grid>
+                                <Rectangle x:Name="Background" Fill="{TemplateBinding Background}"/>
+                                <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Background" Property="Opacity" Value="0.5"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="False">
+                                <Setter TargetName="Background" Property="Opacity" Value="1"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -95,7 +118,7 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="200"/>
                         <ColumnDefinition Width="4" />
-                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" MinWidth="62" />
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
@@ -120,23 +143,44 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
-                        <ToolBar Grid.Row="0" Margin="0,0,0,3" IsEnabled="{Binding Ui.IsAddPathEnabled}" ToolTip="{x:Static resx:Resources.Ui_ToolTip_Add_selected_to_the_list}">
-                            <Button Height="24" Background="Transparent" Command="{Binding AddPath}">
-                                <Image RenderOptions.BitmapScalingMode="Fant" Margin="5,0,5,0">
-                                    <Image.Style>
-                                        <Style TargetType="{x:Type Image}">
-                                            <Setter Property="Source" Value="Images/AddPath.png" />
-                                            <Style.Triggers>
-                                                <Trigger Property="IsEnabled" Value="False">
-                                                    <Setter Property="Source" Value="Images/AddPathGray.png" />
-                                                </Trigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Image.Style>
-                                </Image>
-                            </Button>
-                            <TextBlock VerticalAlignment="Center" Margin="0,0,5,0" Text="{Binding SelectedFileTreeItem.ItemPath}" />
-                        </ToolBar>
+
+                        <Border Grid.Row="0" IsEnabled="{Binding Ui.IsAddPathEnabled}" ToolTip="{x:Static resx:Resources.Ui_ToolTip_Add_selected_to_the_list}"
+                                BorderBrush="DimGray" 
+                                BorderThickness="1" 
+                                CornerRadius="5,5,5,5"
+                                Margin="0,0,0,3"
+                                Background="{StaticResource {x:Static SystemColors.WindowBrushKey}}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <Button Grid.Column="0" Height="24" Background="Transparent" BorderThickness="0" Command="{Binding AddPath}" Style="{StaticResource ImageButton}">
+                                    <Image RenderOptions.BitmapScalingMode="Fant" Margin="5,2,5,2">
+                                        <Image.Style>
+                                            <Style TargetType="{x:Type Image}">
+                                                <Setter Property="Source" Value="Images/AddPath.png" />
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsEnabled" Value="False">
+                                                        <Setter Property="Source" Value="Images/AddPathGray.png" />
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Image.Style>
+                                    </Image>
+                                </Button>
+                                <TextBox Grid.Column="1" 
+                                         Text="{Binding SelectedFileTreeItem.ItemPath, Mode=OneWay}" 
+                                         Background="Transparent" 
+                                         BorderThickness="0" 
+                                         IsReadOnly="True" 
+                                         VerticalAlignment="Center" 
+                                         TextWrapping="NoWrap" 
+                                         Margin="0,0,5,0" />
+                            </Grid>
+                        </Border>
+
                         <DataGrid Grid.Row="1"
                               IsReadOnly="{Binding Ui.IsSearchPathsListReadOnly}" 
                               CanUserAddRows="False"
@@ -244,7 +288,6 @@
                         </GroupBox>
 
                         <StackPanel Grid.Row="3" Orientation="Horizontal">
-                            <!--TODO IsEnabled-->
                             <Button MinHeight="28" Margin="3,5,1,5" Command="{Binding CancelDuplicatesSearch}" IsEnabled="{Binding Ui.IsCancelSearchEnabled}">
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="Images/Cancel.png" Height="16" Margin="5,0,5,0" RenderOptions.BitmapScalingMode="Fant" />
@@ -269,19 +312,99 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
-                    <TreeView Grid.Column="0" x:Name="DuplicateFilesPageView" ItemsSource="{Binding DuplicateFilesPageView.Collection}" Margin="0,0,3,0">
-                        <TreeView.Resources>
-                            <Style TargetType="TreeViewItem">
-                                <Setter Property="IsExpanded" Value="True" />
-                            </Style>
-                        </TreeView.Resources>
-                        <TreeView.ItemContainerStyle>
-                            <Style TargetType="{x:Type TreeViewItem}">
-                                <Setter Property="IsExpanded" Value="True" />
-                                <Setter Property="KeyboardNavigation.AcceptsReturn" Value="True" />
-                            </Style>
-                        </TreeView.ItemContainerStyle>
-                    </TreeView>
+                    <Grid Grid.Column="0" Margin="0,0,0,3">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.Row="0" Margin="0,0,0,3">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Border Grid.Column="1"
+                                BorderBrush="DimGray" 
+                                BorderThickness="1" 
+                                CornerRadius="5,5,5,5"
+                                Margin="0,0,3,0"
+                                Background="{StaticResource {x:Static SystemColors.WindowBrushKey}}">
+                                <Grid Margin="3,3,3,3">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition />
+                                        <ColumnDefinition />
+                                        <ColumnDefinition />
+                                    </Grid.ColumnDefinitions>
+                                    <Button Grid.Column="0" 
+                                        ToolTip="Previous page" 
+                                        IsEnabled="{Binding DuplicateFilesPageView.IsPreviousPageExists}" 
+                                        Command="{Binding ChangePage}"
+                                        Background="Transparent"
+                                        BorderThickness="0"
+                                        Style="{StaticResource ImageButton}"
+                                        CommandParameter="Previous">
+                                        <Button.Content>
+                                            <Image Height="18" RenderOptions.BitmapScalingMode="Fant">
+                                                <Image.Style>
+                                                    <Style TargetType="{x:Type Image}">
+                                                        <Setter Property="Source" Value="Images/Previous.png" />
+                                                        <Style.Triggers>
+                                                            <Trigger Property="IsEnabled" Value="False">
+                                                                <Setter Property="Source" Value="Images/PreviousGray.png" />
+                                                            </Trigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Image.Style>
+                                            </Image>
+                                        </Button.Content>
+                                    </Button>
+                                    <TextBlock Grid.Column="1" 
+                                               Text="{Binding DuplicateFilesPageView.PageInfo}" 
+                                               VerticalAlignment="Center" 
+                                               FontFamily="Consolas" FontSize="14"
+                                               Margin="3,0,3,0" />
+                                    <Button Grid.Column="2" 
+                                        ToolTip="Next page" 
+                                        IsEnabled="{Binding DuplicateFilesPageView.IsNextPageExists}" 
+                                        Command="{Binding ChangePage}"
+                                        Background="Transparent"
+                                        BorderThickness="0"
+                                        Style="{StaticResource ImageButton}"
+                                        CommandParameter="Next">
+                                        <Button.Content>
+                                            <Image Height="18" RenderOptions.BitmapScalingMode="Fant">
+                                                <Image.Style>
+                                                    <Style TargetType="{x:Type Image}">
+                                                        <Setter Property="Source" Value="Images/Next.png" />
+                                                        <Style.Triggers>
+                                                            <Trigger Property="IsEnabled" Value="False">
+                                                                <Setter Property="Source" Value="Images/NextGray.png" />
+                                                            </Trigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Image.Style>
+                                            </Image>
+                                        </Button.Content>
+                                    </Button>
+                                </Grid>
+                            </Border>
+                        </Grid>
+
+                        <TreeView x:Name="DuplicateFilesPageView" Grid.Row="1" ItemsSource="{Binding DuplicateFilesPageView.Collection}" Margin="0,0,3,0">
+                            <TreeView.Resources>
+                                <Style TargetType="TreeViewItem">
+                                    <Setter Property="IsExpanded" Value="True" />
+                                </Style>
+                            </TreeView.Resources>
+                            <TreeView.ItemContainerStyle>
+                                <Style TargetType="{x:Type TreeViewItem}">
+                                    <Setter Property="IsExpanded" Value="True" />
+                                    <Setter Property="KeyboardNavigation.AcceptsReturn" Value="True" />
+                                </Style>
+                            </TreeView.ItemContainerStyle>
+                        </TreeView>
+                    </Grid>
 
                     <Grid Grid.Column="1">
                         <Grid.RowDefinitions>
@@ -336,7 +459,7 @@
                     </Grid>
                 </Grid>
             </TabItem>
-            <TabItem Header="{x:Static resx:Resources.Ui_Logs_Tab_Header}" MinHeight="24" MinWidth="80">
+            <TabItem Header="{x:Static resx:Resources.Ui_Errors_Tab_Header}" MinHeight="24" MinWidth="80">
                 <TextBox VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" TextWrapping="NoWrap" IsReadOnly="True" Text="{Binding Output}" />
             </TabItem>
         </TabControl>

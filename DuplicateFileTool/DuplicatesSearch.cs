@@ -16,7 +16,7 @@ namespace DuplicateFileTool
         public int DuplicateFilesCount { get; }
         public long DuplicatedTotalSize { get; set; }
 
-        public DuplicatesSearchProgressEventArgs(string filePath, int currentFileIndex, int totalFilesCount, int duplicateGroupsCount, int duplicateFilesCount, long duplicatedTotalSize)
+        public DuplicatesSearchProgressEventArgs(string filePath, int currentFileIndex, int totalFilesCount, int duplicateFilesCount, long duplicatedTotalSize)
         {
             FilePath = filePath;
             CurrentFileIndex = currentFileIndex;
@@ -148,6 +148,10 @@ namespace DuplicateFileTool
                     if ((matchValue = fileToFind.CompareTo(fileFromGroup, cancellationToken)) < matchThreshold)
                         continue;
                 }
+                catch (OperationCanceledException)
+                {
+                    throw;
+                }
                 catch (FileSystemException ex)
                 {
                     OnFileSystemError(ex.FileFullName, ex.Message, ex);
@@ -179,7 +183,7 @@ namespace DuplicateFileTool
         
         private void OnDuplicatesSearchProgress(string filePath, SearchContext context)
         {
-            DuplicatesSearchProgress?.Invoke(this, new DuplicatesSearchProgressEventArgs(filePath, context.CurrentFileIndex, context.TotalFilesCount, context.DuplicateGroupsCount, context.DuplicateFilesCount, context.DuplicatedTotalSize));
+            DuplicatesSearchProgress?.Invoke(this, new DuplicatesSearchProgressEventArgs(filePath, context.CurrentFileIndex, context.TotalFilesCount, context.DuplicateFilesCount, context.DuplicatedTotalSize));
         }
 
         protected virtual void OnFileSystemError(string path, string message, Exception exception = null)

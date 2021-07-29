@@ -5,9 +5,9 @@ namespace DuplicateFileTool
     internal class UiSwitch : NotifyPropertyChanged
     {
         private bool _isInterfaceEntryEnabled = true;
-        private bool _isSearchPathsListReadOnly = true;
+        private bool _isSearchPathsListReadOnly;
         private bool _isSearchExtensionsEnabled = true;
-        private bool _isSearchFileSizeEntryEnabled;
+        private bool _isSearchFileSizeEntryEnabled = true;
         private bool _isCancelSearchEnabled;
         private bool _isSearchEnabled;
 

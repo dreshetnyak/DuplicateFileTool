@@ -151,6 +151,7 @@ namespace DuplicateFileTool
         public ResetSelectionCommand ResetSelection { get; }
         public DeleteMarkedFilesCommand DeleteMarkedFiles { get; }
         public OpenFileInExplorerCommand OpenFileInExplorer { get; }
+        public ChangePageCommand ChangePage { get; }
 
         #endregion
 
@@ -172,7 +173,7 @@ namespace DuplicateFileTool
             Duplicates = new DuplicatesEngine();
             Duplicates.PropertyChanged += OnDuplicatesPropertyChanged;
             
-            DuplicateFilesPageView = new PagedObservableCollectionView<DuplicateGroup>(Duplicates.DuplicateGroups, 100);
+            DuplicateFilesPageView = new PagedObservableCollectionView<DuplicateGroup>(Duplicates.DuplicateGroups, 25);
             DuplicateFilesPageView.Collection.CollectionChanged += OnDuplicatesCollectionChanged;
 
             InitializeSelectedFileComparer();
@@ -190,6 +191,7 @@ namespace DuplicateFileTool
             DeleteMarkedFiles = new DeleteMarkedFilesCommand(Duplicates, () => RemoveEmptyDirectories, () => DeleteToRecycleBin);
             AddPath = new AddPathCommand(SearchPaths, () => SelectedFileTreeItem);
             OpenFileInExplorer = new OpenFileInExplorerCommand();
+            ChangePage = new ChangePageCommand(DuplicateFilesPageView, () => OnPropertyChanged(nameof(DuplicateFilesPageView.Collection)));
 
             var treeViewExtension = new TreeViewExtension(mainWindow);
             TreeViewReset += treeViewExtension.ViewModelOnTreeViewReset;
@@ -205,6 +207,10 @@ namespace DuplicateFileTool
         private void OnFindDuplicatesCanExecuteChanged(object sender, EventArgs eventArgs)
         {
             Ui.IsCancelSearchEnabled = FindDuplicates.CanCancel;
+            Ui.IsSearchExtensionsEnabled = FindDuplicates.Enabled;
+            Ui.IsSearchFileSizeEntryEnabled = FindDuplicates.Enabled;
+            Ui.IsSearchPathsListReadOnly = !FindDuplicates.Enabled;
+            OnSelectedFileTreeItemChanged();
         }
 
         private void OnSearchPathsCollectionChanged(object sender, NotifyCollectionChangedEventArgs eventArgs)
@@ -237,7 +243,7 @@ namespace DuplicateFileTool
 
             var currentAddPathState = AddPath.Enabled;
             var itemPath = SelectedFileTreeItem.ItemPath;
-            var newAddPathState = AddPath.CanAddPath(itemPath);
+            var newAddPathState = AddPath.CanAddPath(itemPath) && FindDuplicates.Enabled;
             if (currentAddPathState == newAddPathState)
                 return;
 

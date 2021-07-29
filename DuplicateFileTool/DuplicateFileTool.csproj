@@ -90,6 +90,7 @@
     </ApplicationDefinition>
     <Compile Include="Commands\AddPathCommand.cs" />
     <Compile Include="Commands\AutoSelectByPathCommand.cs" />
+    <Compile Include="Commands\ChangePageCommand.cs" />
     <Compile Include="Commands\CommandBase.cs" />
     <Compile Include="Commands\DeleteMarkedFilesCommand.cs" />
     <Compile Include="Commands\FindDuplicatesCommand.cs" />
@@ -219,6 +220,18 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\OpenFolder.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Previous.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Next.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\NextGray.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\PreviousGray.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

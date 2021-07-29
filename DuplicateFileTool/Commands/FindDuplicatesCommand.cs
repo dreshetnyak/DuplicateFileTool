@@ -35,7 +35,7 @@ namespace DuplicateFileTool.Commands
                 CanCancel = true;
                 
                 var selectedComparer = GetSelectedComparer();
-                using (Cts = new CancellationTokenSource()) 
+                using (Cts = new CancellationTokenSource())
                     await DuplicatesEngine.FindDuplicates(SearchPaths, GetInclusionPredicate(), selectedComparer.CandidatePredicate, selectedComparer.ComparableFileFactory, Cts.Token);
 
                 if (!Cts.IsCancellationRequested)

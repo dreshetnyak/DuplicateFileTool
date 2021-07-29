@@ -195,8 +195,8 @@
   <data name="Ui_Files" xml:space="preserve">
     <value>, Files: </value>
   </data>
-  <data name="Ui_Logs_Tab_Header" xml:space="preserve">
-    <value>Logs</value>
+  <data name="Ui_Errors_Tab_Header" xml:space="preserve">
+    <value>Errors</value>
   </data>
   <data name="Ui_Results_Duplicate_Groups_Count" xml:space="preserve">
     <value>File Groups:</value>
@@ -395,5 +395,8 @@
   </data>
   <data name="Ui_Progress_Duplicates_Search_Cancelled" xml:space="preserve">
     <value>Search Cancelled.</value>
+  </data>
+  <data name="Ui_Progress_Analyzing" xml:space="preserve">
+    <value>Analyzing: </value>
   </data>
 </root>
