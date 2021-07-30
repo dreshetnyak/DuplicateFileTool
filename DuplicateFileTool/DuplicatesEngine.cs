@@ -369,7 +369,9 @@ namespace DuplicateFileTool
         private void OnFileSystemError(object sender, FileSystemErrorEventArgs eventArgs)
         {
             var fileSystemError = eventArgs.FileSystemError;
-            Errors.Add(new ErrorMessage(fileSystemError.Path, fileSystemError.Message, MessageType.Error));
+            var path = fileSystemError.Path;
+            var message = fileSystemError.Message;
+            Application.Current.Dispatcher.Invoke(() => Errors.Add(new ErrorMessage(path, message, MessageType.Error)));
         }
 
         private void OnDuplicateGroupsCollectionChanged(object sender, NotifyCollectionChangedEventArgs eventArgs)

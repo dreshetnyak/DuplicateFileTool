@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
 using DuplicateFileTool.Properties;
@@ -34,6 +35,7 @@ namespace DuplicateFileTool.Comparers
         #region Candidate Predicate Implementation
         public class CandidatePredicate : ICandidatePredicate
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public bool IsCandidate(FileData firstFile, FileData secondFile)
             {
                 return firstFile.Size == secondFile.Size;

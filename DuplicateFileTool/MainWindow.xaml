@@ -459,8 +459,28 @@
                     </Grid>
                 </Grid>
             </TabItem>
+
             <TabItem Header="{x:Static resx:Resources.Ui_Errors_Tab_Header}" MinHeight="24" MinWidth="80">
-                <TextBox VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" TextWrapping="NoWrap" IsReadOnly="True" Text="{Binding Output}" />
+                <DataGrid IsReadOnly="True" 
+                          CanUserAddRows="False"
+                          AlternationCount="2" 
+                          SelectionMode="Single" 
+                          SelectionUnit="FullRow" 
+                          AutoGenerateColumns="False" 
+                          MinRowHeight="24"
+                          AlternatingRowBackground="Bisque" 
+                          ItemsSource="{Binding Duplicates.Errors}">
+                    <DataGrid.Resources>
+                        <Style x:Key="VerticallyCenteredTextColumn">
+                            <Setter Property="FrameworkElement.VerticalAlignment" Value="Center"/>
+                        </Style>
+                    </DataGrid.Resources>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Type" Width="Auto" Binding="{Binding Type, Mode=OneTime}" ElementStyle="{StaticResource VerticallyCenteredTextColumn}" />
+                        <DataGridTextColumn Header="Path" Width="500" Binding="{Binding Path, Mode=OneTime}"  ElementStyle="{StaticResource VerticallyCenteredTextColumn}" />
+                        <DataGridTextColumn Header="Message" Width="300" Binding="{Binding Text, Mode=OneTime}"  ElementStyle="{StaticResource VerticallyCenteredTextColumn}" />
+                    </DataGrid.Columns>
+                </DataGrid>
             </TabItem>
         </TabControl>
 

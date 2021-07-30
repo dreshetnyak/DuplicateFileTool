@@ -40,7 +40,7 @@ namespace DuplicateFileTool
 
         private List<IComparableFile[]> FindSync(
             IReadOnlyCollection<FileData> srcFiles,
-            ICandidatePredicate duplicateCandidatePredicate, 
+            ICandidatePredicate duplicateCandidatePredicate,
             IComparableFileFactory comparableFileFactory,
             CancellationToken cancellationToken)
         {
