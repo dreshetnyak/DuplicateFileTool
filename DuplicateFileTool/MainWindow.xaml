@@ -7,6 +7,7 @@
         xmlns:resx="clr-namespace:DuplicateFileTool.Properties"
         xmlns:converters="clr-namespace:DuplicateFileTool.Converters"
         mc:Ignorable="d"
+        Icon="DuplicateFileTool.ico"
         Title="{Binding Config.ApplicationName, Mode=OneTime}" Height="650" Width="1000" MinHeight="378" MinWidth="500"
         d:DataContext="{d:DesignInstance local:MainViewModel, IsDesignTimeCreatable=False}">
     <Window.TaskbarItemInfo>
