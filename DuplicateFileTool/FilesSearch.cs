@@ -59,7 +59,7 @@ namespace DuplicateFileTool
                     cancellationToken.ThrowIfCancellationRequested();
                     foreach (var foundPath in FindPathFiles(path, excludePaths, foundFiles.Count, inclusionPredicate, cancellationToken))
                     {
-                        if (inclusionPredicate.IsFileIncluded(foundPath))
+                        if (inclusionPredicate.IsIncluded(foundPath))
                             foundFiles.Add(foundPath);
                     }
                 }
@@ -120,7 +120,7 @@ namespace DuplicateFileTool
 
                 cancellationToken.ThrowIfCancellationRequested();
 
-                if (!inclusionPredicate.IsFileIncluded(fileData))
+                if (!inclusionPredicate.IsIncluded(fileData))
                     continue;
 
                 if (!fileData.Attributes.IsDirectory)

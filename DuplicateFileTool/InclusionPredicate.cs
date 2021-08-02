@@ -9,7 +9,7 @@ namespace DuplicateFileTool
 {
     internal interface IInclusionPredicate
     {
-        bool IsFileIncluded(FileData fileData);
+        bool IsIncluded(FileData fileData);
     }
 
     [Localizable(true)]
@@ -23,32 +23,25 @@ namespace DuplicateFileTool
             SearchConfig = searchConfig;
         }
 
-        public bool IsFileIncluded(FileData fileData)
+        public bool IsIncluded(FileData fileData)
         {
             var fileAttributes = fileData.Attributes;
-            if (SearchConfig.ExcludeSystemFiles.Value && fileAttributes.IsSystem || 
+            if (SearchConfig.ExcludeSystemFiles.Value && fileAttributes.IsSystem ||
                 SearchConfig.ExcludeHiddenFiles.Value && fileAttributes.IsHidden ||
                 SearchConfig.ExcludeOsFiles.Value && fileData.FullName.StartsWith(WindowsOsPath, StringComparison.OrdinalIgnoreCase))
                 return false;
 
+            if (fileAttributes.IsDirectory)
+                return true;
+
             if (!IsFileExtensionIncluded(fileData.Extension))
                 return false;
 
-            var maxFileSize = SearchConfig.MaxFileSize.Value;
-            if (maxFileSize == 0)
-                return true;
-
             var fileSize = fileData.Size;
             var sizeUnit = SearchConfig.ByteSizeUnit.Value;
-            var maxSize = GetSizeInBytes(SearchConfig.MaxFileSize.Value, sizeUnit);
-            if (fileSize > maxSize)
-                return false;
-
-            var minSize = GetSizeInBytes(SearchConfig.MinFileSize.Value, sizeUnit);
-            if (fileSize > minSize)
-                return false;
-
-            return true;
+            var maxFileSize = SearchConfig.MaxFileSize.Value;
+            
+            return (maxFileSize == 0 || fileSize <= GetSizeInBytes(maxFileSize, sizeUnit)) && fileSize >= GetSizeInBytes(SearchConfig.MinFileSize.Value, sizeUnit);
         }
 
         private bool IsFileExtensionIncluded([NotNull] string fileExtension)
