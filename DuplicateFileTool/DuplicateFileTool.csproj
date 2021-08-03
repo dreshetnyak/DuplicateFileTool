@@ -219,7 +219,6 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\Add.png" />
-    <Resource Include="Images\Recycle.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\OpenFolder.png" />
@@ -238,6 +237,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="DuplicateFileTool.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Reset.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
