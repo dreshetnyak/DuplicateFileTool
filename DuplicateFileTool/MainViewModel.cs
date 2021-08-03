@@ -8,12 +8,14 @@ using System.Linq;
 using System.Windows;
 using DuplicateFileTool.Commands;
 using DuplicateFileTool.Configuration;
+using DuplicateFileTool.Properties;
 
 namespace DuplicateFileTool
 {
     public enum InclusionType { Include, Exclude }
     public enum ByteSizeUnits { Bytes, Kilobytes, Megabytes, Gigabytes }
-    
+    public enum SortOrder { Size, Name, Number }
+
     internal class SearchPath : NotifyPropertyChanged
     {
         private InclusionType _pathInclusionType;
@@ -60,6 +62,10 @@ namespace DuplicateFileTool
         private bool _removeEmptyDirectories;
         private bool _deleteToRecycleBin;
         private double _taskbarProgress;
+        private string _selectedDuplicatePath;
+        private bool _isSortOrderDescending;
+        private string _duplicatesSortingOrderToolTip;
+        private SortOrder _selectedDuplicatesSortOrder;
 
         #endregion
 
@@ -82,8 +88,17 @@ namespace DuplicateFileTool
             }
         }
         public DuplicatesEngine Duplicates { get; }
-        public PagedObservableCollectionView<DuplicateGroup> DuplicateFilesPageView { get; } //Stores the collection of duplicates groups that corresponds to the selected page
-        
+        public PagedObservableCollectionView<DuplicateGroup> DuplicateGroupsPageView { get; } //Stores the collection of duplicates groups that corresponds to the selected page
+        public bool IsSortOrderDescending
+        {
+            get => _isSortOrderDescending;
+            set
+            {
+                _isSortOrderDescending = value;
+                OnPropertyChanged();
+            }
+        }
+
         public ObservableCollection<SearchPath> SearchPaths { get; } = new();
         public ObservableCollection<FileTreeItem> FileTree { get; } = new();
         public FileTreeItem SelectedFileTreeItem
@@ -101,6 +116,34 @@ namespace DuplicateFileTool
             set
             {
                 _selectedTabIndex = value; 
+                OnPropertyChanged();
+            }
+        }
+        public string SelectedDuplicatePath
+        {
+            get => _selectedDuplicatePath;
+            set
+            {
+                _selectedDuplicatePath = value; 
+                OnPropertyChanged();
+            }
+        }
+        public string DuplicatesSortingOrderToolTip
+        {
+            get => _duplicatesSortingOrderToolTip;
+            set
+            {
+                _duplicatesSortingOrderToolTip = value; 
+                OnPropertyChanged();
+            }
+        }
+        public SortOrder[] SortOrderTypes { get; }
+        public SortOrder SelectedDuplicatesSortOrder
+        {
+            get => _selectedDuplicatesSortOrder;
+            set
+            {
+                _selectedDuplicatesSortOrder = value; 
                 OnPropertyChanged();
             }
         }
@@ -152,6 +195,8 @@ namespace DuplicateFileTool
         public DeleteMarkedFilesCommand DeleteMarkedFiles { get; }
         public OpenFileInExplorerCommand OpenFileInExplorer { get; }
         public ChangePageCommand ChangePage { get; }
+        public RelayCommand ToggleDuplicateSortingOrder { get; }
+        public ClearResultsCommand ClearResults { get; }
 
         #endregion
 
@@ -167,14 +212,19 @@ namespace DuplicateFileTool
             Config = new ApplicationConfig();
             SearchConfig = Config.SearchConfig;
             PathComparisonTypes = Enum.GetValues(typeof(InclusionType)).OfType<object>().Cast<InclusionType>().ToArray();
-            
+            SortOrderTypes = Enum.GetValues(typeof(SortOrder)).OfType<object>().Cast<SortOrder>().ToArray();
+
+            //TODO SelectedDuplicatesSortOrder - propagate to config
+
             InclusionPredicate = new InclusionPredicate(Config.SearchConfig);
             FileComparers = Config.FileComparers;
             Duplicates = new DuplicatesEngine();
             Duplicates.PropertyChanged += OnDuplicatesPropertyChanged;
-            
-            DuplicateFilesPageView = new PagedObservableCollectionView<DuplicateGroup>(Duplicates.DuplicateGroups, 25);
-            DuplicateFilesPageView.Collection.CollectionChanged += OnDuplicatesCollectionChanged;
+            Duplicates.Errors.CollectionChanged += (_, _) => Ui.IsErrorTabImageEnabled = Duplicates.Errors.Count != 0;
+            Duplicates.DuplicateGroups.CollectionChanged += OnDuplicateGroupsCollectionChanged;
+
+            DuplicateGroupsPageView = new PagedObservableCollectionView<DuplicateGroup>(Duplicates.DuplicateGroups, 25); //TODO The number of the items per page should be taken from the configuration
+            DuplicateGroupsPageView.Collection.CollectionChanged += OnDuplicatesPageViewCollectionChanged;
 
             InitializeSelectedFileComparer();
 
@@ -185,17 +235,21 @@ namespace DuplicateFileTool
             FindDuplicates.CanExecuteChanged += OnFindDuplicatesCanExecuteChanged;
 
             CancelDuplicatesSearch = new RelayCommand(_ => FindDuplicates.Cancel());
-            ToggleDeletionMark = new ToggleDeletionMarkCommand(sizeDelta => Duplicates.ToBeDeletedSize += sizeDelta);
-            AutoSelectByPath = new AutoSelectByPathCommand(Duplicates.DuplicateGroups, sizeDelta => Duplicates.ToBeDeletedSize += sizeDelta);
-            ResetSelection = new ResetSelectionCommand(Duplicates.DuplicateGroups, sizeDelta => Duplicates.ToBeDeletedSize += sizeDelta);
+            ToggleDeletionMark = new ToggleDeletionMarkCommand(sizeDelta => Duplicates.ToBeDeletedSize += sizeDelta, countDelta => Duplicates.ToBeDeletedCount += countDelta);
+            AutoSelectByPath = new AutoSelectByPathCommand(Duplicates.DuplicateGroups, () => SelectedDuplicatePath, sizeDelta => Duplicates.ToBeDeletedSize += sizeDelta);
+            ResetSelection = new ResetSelectionCommand(Duplicates.DuplicateGroups, sizeDelta => Duplicates.ToBeDeletedSize += sizeDelta, countDelta => Duplicates.ToBeDeletedCount += countDelta);
             DeleteMarkedFiles = new DeleteMarkedFilesCommand(Duplicates, () => RemoveEmptyDirectories, () => DeleteToRecycleBin);
             AddPath = new AddPathCommand(SearchPaths, () => SelectedFileTreeItem);
             OpenFileInExplorer = new OpenFileInExplorerCommand();
-            ChangePage = new ChangePageCommand(DuplicateFilesPageView, () => OnPropertyChanged(nameof(DuplicateFilesPageView.Collection)));
+            ChangePage = new ChangePageCommand(DuplicateGroupsPageView, () => OnPropertyChanged(nameof(DuplicateGroupsPageView.Collection)));
+            ToggleDuplicateSortingOrder = new RelayCommand(_ => IsSortOrderDescending = !IsSortOrderDescending);
+            ClearResults = new ClearResultsCommand(() => Duplicates.Clear());
 
             var treeViewExtension = new TreeViewExtension(mainWindow);
             TreeViewReset += treeViewExtension.ViewModelOnTreeViewReset;
-
+            
+            DuplicateFile.ItemSelected += (sender, _) => { SelectedDuplicatePath = ((DuplicateFile)sender).FileFullName; };
+            
             UpdateFileTree();
         }
 
@@ -207,8 +261,7 @@ namespace DuplicateFileTool
         private void OnFindDuplicatesCanExecuteChanged(object sender, EventArgs eventArgs)
         {
             Ui.IsCancelSearchEnabled = FindDuplicates.CanCancel;
-            Ui.IsSearchExtensionsEnabled = FindDuplicates.Enabled;
-            Ui.IsSearchFileSizeEntryEnabled = FindDuplicates.Enabled;
+            Ui.IsUiEntryEnabled = FindDuplicates.Enabled;
             Ui.IsSearchPathsListReadOnly = !FindDuplicates.Enabled;
             OnSelectedFileTreeItemChanged();
         }
@@ -218,24 +271,52 @@ namespace DuplicateFileTool
             Ui.IsSearchEnabled = SearchPaths.Count != 0 && FindDuplicates.Enabled;
         }
 
-        private void OnDuplicatesCollectionChanged(object _, NotifyCollectionChangedEventArgs args)
+        private void OnDuplicateGroupsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            var isEnabled = Duplicates.DuplicateGroups.Count != 0;
+            AutoSelectByPath.Enabled = isEnabled;
+            ClearResults.Enabled = isEnabled;
+        }
+
+        private void OnDuplicatesPageViewCollectionChanged(object _, NotifyCollectionChangedEventArgs args)
         {
             if (args.Action == NotifyCollectionChangedAction.Reset)
-                TreeViewReset?.Invoke(this, new TreeViewResetEventArgs(nameof(DuplicateFilesPageView)));
+                TreeViewReset?.Invoke(this, new TreeViewResetEventArgs(nameof(DuplicateGroupsPageView)));
         }
 
         private void OnDuplicatesPropertyChanged(object sender, PropertyChangedEventArgs eventArgs)
         {
-            if (eventArgs.PropertyName == nameof(Duplicates.ProgressPercentage))
-                TaskbarProgress = Duplicates.ProgressPercentage;
+            switch (eventArgs.PropertyName)
+            {
+                case nameof(Duplicates.ProgressPercentage):
+                    TaskbarProgress = Duplicates.ProgressPercentage;
+                    break;
+                case nameof(Duplicates.ToBeDeletedCount):
+                    var hasFilesToBeDeleted = Duplicates.ToBeDeletedCount != 0;
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        ResetSelection.Enabled = hasFilesToBeDeleted;
+                        DeleteMarkedFiles.Enabled = hasFilesToBeDeleted;
+                    });
+                    break;
+            }
         }
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs eventArgs)
         {
-            if (eventArgs.PropertyName == nameof(SelectedFileTreeItem))
-                OnSelectedFileTreeItemChanged();
+            switch (eventArgs.PropertyName)
+            {
+                case nameof(SelectedFileTreeItem):
+                    OnSelectedFileTreeItemChanged();
+                    break;
+                case nameof(IsSortOrderDescending):
+                    DuplicatesSortingOrderToolTip = IsSortOrderDescending
+                        ? Resources.Ui_Duplicates_Sorting_Order_Descending
+                        : Resources.Ui_Duplicates_Sorting_Order_Ascending;
+                    break;
+            }
         }
-        
+
         private void OnSelectedFileTreeItemChanged()
         {
             if (AddPath == null)

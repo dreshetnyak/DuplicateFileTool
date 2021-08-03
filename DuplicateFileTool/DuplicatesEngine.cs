@@ -17,6 +17,9 @@ namespace DuplicateFileTool
     internal class DuplicateFile : NotifyPropertyChanged
     {
         private bool _isMarkedForDeletion;
+        private bool _isSelected;
+
+        public static event EventHandler ItemSelected;
 
         private DuplicateGroup ParentGroup { get; }
         public FileData FileData { get; }
@@ -47,6 +50,17 @@ namespace DuplicateFileTool
                 }
             }
         }
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set
+            {
+                if (_isSelected == value)
+                    return;
+                _isSelected = value;
+                ItemSelected?.Invoke(this, EventArgs.Empty);
+            }
+        }
 
         public DuplicateFile(DuplicateGroup parentGroup, MatchResult matchResult)
         {
@@ -64,6 +78,7 @@ namespace DuplicateFileTool
         private int _groupNumber;
         private int _filesCount;
         private string _duplicatedSize;
+        private bool _isSelected;
 
         public int GroupNumber
         {
@@ -98,7 +113,15 @@ namespace DuplicateFileTool
                 OnPropertyChanged();
             }
         }
-
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set
+            {
+                _isSelected = value;
+                OnPropertyChanged();
+            }
+        }
         public ObservableCollection<DuplicateFile> DuplicateFiles { get; }
 
         public DuplicateGroup(IEnumerable<MatchResult> duplicateFiles)
@@ -148,6 +171,7 @@ namespace DuplicateFileTool
         private int _duplicateFilesCount;
         private long _duplicatedTotalSize;
         private long _toBeDeletedSize;
+        private long _toBeDeletedCount;
 
         #endregion
 
@@ -266,6 +290,15 @@ namespace DuplicateFileTool
                 OnPropertyChanged();
             }
         }
+        public long ToBeDeletedCount
+        {
+            get => _toBeDeletedCount;
+            set
+            {
+                _toBeDeletedCount = value;
+                OnPropertyChanged();
+            }
+        }
 
         public ObservableCollection<ErrorMessage> Errors { get; } = new();
         public ObservableCollection<DuplicateGroup> DuplicateGroups { get; } = new();
@@ -280,7 +313,7 @@ namespace DuplicateFileTool
 
             Duplicates.DuplicatesSearchProgress += OnDuplicatesSearchProgress;
             Duplicates.FileSystemError += OnFileSystemError;
-            Duplicates.DuplicatesGroupFound += (_, args) => Application.Current.Dispatcher.Invoke(() => DuplicateGroups.Add(new DuplicateGroup(args.DuplicatesGroup)));
+            Duplicates.DuplicatesGroupFound += (_, args) => Application.Current?.Dispatcher.Invoke(() => DuplicateGroups.Add(new DuplicateGroup(args.DuplicatesGroup) { GroupNumber = DuplicateGroups.Count + 1 }));
 
             DuplicateGroups.CollectionChanged += OnDuplicateGroupsCollectionChanged;
             
@@ -297,7 +330,7 @@ namespace DuplicateFileTool
             IComparableFileFactory comparableFileFactory,
             CancellationToken cancellationToken)
         {
-            DuplicateGroups.Clear();
+            Clear();
 
             List<IComparableFile[]> duplicateCandidates = null;
             try
@@ -321,6 +354,24 @@ namespace DuplicateFileTool
 
             ProgressText = Resources.Ui_Progress_Duplicates_Search_Done;
             ProgressPercentage = 0;
+        }
+
+        public void Clear()
+        {
+            Errors.Clear();
+            DuplicateGroups.Clear();
+            IncludedFilesCount = 0;
+            CurrentFileIndex = 0;
+            TotalFilesCount = 0;
+            CandidateGroupsCount = 0;
+            CandidateFilesCount = 0;
+            CandidatesTotalSize = 0;
+            DuplicateGroupsCount = 0;
+            DuplicateFilesCount = 0;
+            DuplicatedTotalSize = 0;
+            ToBeDeletedSize = 0;
+            ToBeDeletedCount = 0;
+            GC.Collect();
         }
 
         private static void DisposeComparableFiles(IEnumerable<IComparableFile[]> fileGroups)
@@ -407,6 +458,7 @@ namespace DuplicateFileTool
             var deletedSizeDelta = deletionState.DeletedSizeDelta;
             ToBeDeletedSize += deletedSizeDelta;
             DuplicatedTotalSize += deletedSizeDelta;
+            ToBeDeletedCount += deletionState.DeletedCountDelta;
         }
 
         #endregion

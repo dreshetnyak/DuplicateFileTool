@@ -7,24 +7,19 @@ namespace DuplicateFileTool.Commands
     {
         public ObservableCollection<DuplicateGroup> DuplicateGroups { get; }
         private Action<long> UpdateToDeleteSize { get; }
+        private Action<long> UpdateToDeleteCount { get; }
 
-        public ResetSelectionCommand(ObservableCollection<DuplicateGroup> duplicateGroups, Action<long> updateToDeleteSize)
+        public ResetSelectionCommand(ObservableCollection<DuplicateGroup> duplicateGroups, Action<long> updateToDeleteSize, Action<long> updateToDeleteCount)
         {
+            Enabled = false;
             DuplicateGroups = duplicateGroups;
             UpdateToDeleteSize = updateToDeleteSize;
+            UpdateToDeleteCount = updateToDeleteCount;
         }
 
         public override void Execute(object parameter)
         {
-            try
-            {
-                Enabled = false;
-                DeselectAll();
-            }
-            finally
-            {
-                Enabled = true;
-            }
+            DeselectAll();
         }
 
         private void DeselectAll()
@@ -37,6 +32,7 @@ namespace DuplicateFileTool.Commands
                         continue;
                     duplicatedFile.IsMarkedForDeletion = false;
                     UpdateToDeleteSize(-duplicatedFile.FileData.Size);
+                    UpdateToDeleteCount(-1);
                 }
             }
         }

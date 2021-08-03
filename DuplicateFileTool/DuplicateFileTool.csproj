@@ -94,6 +94,7 @@
     <Compile Include="Commands\AddPathCommand.cs" />
     <Compile Include="Commands\AutoSelectByPathCommand.cs" />
     <Compile Include="Commands\ChangePageCommand.cs" />
+    <Compile Include="Commands\ClearResultsCommand.cs" />
     <Compile Include="Commands\CommandBase.cs" />
     <Compile Include="Commands\DeleteMarkedFilesCommand.cs" />
     <Compile Include="Commands\FindDuplicatesCommand.cs" />
@@ -108,6 +109,7 @@
     <Compile Include="Converters\BooleanToVisibilityConverter.cs" />
     <Compile Include="Converters\DataConversion.cs" />
     <Compile Include="Converters\EnumBooleanConverter.cs" />
+    <Compile Include="Converters\LongConverter.cs" />
     <Compile Include="DirectoryEnumeration.cs" />
     <Compile Include="Drives.cs" />
     <Compile Include="DuplicateCandidates.cs" />
@@ -240,6 +242,36 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\Reset.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Error.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ErrorGray.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Menu.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Results.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Settings.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Info.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ArrowUp.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Clear.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ClearGray.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\DownArrow.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

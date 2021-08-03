@@ -15,12 +15,13 @@ namespace DuplicateFileTool.Comparers
         public IConfigurationProperty<int> HashChunkSize { get; } = new ConfigurationProperty<int>(
             Resources.Config_ComparableFileHash_HashChunkSize_Name,
             Resources.Config_ComparableFileHash_HashChunkSize_Description,
-            65535, new IntValidationRule(512, int.MaxValue));
+            65535, new LongValidationRule(512, int.MaxValue));
     }
 
     internal class FileHashComparer : FileComparer
     {
-        public FileHashComparer() : base(Guid.Parse(@"56E94DDC-1021-49D5-8DB1-FF1C92710978"), Resources.FileHashComparer_Name, Resources.FileHashComparer_Description)
+        // ReSharper disable once LocalizableElement
+        public FileHashComparer() : base(Guid.Parse("56E94DDC-1021-49D5-8DB1-FF1C92710978"), Resources.FileHashComparer_Name, Resources.FileHashComparer_Description)
         {
             Config = new ComparableFileHashConfig();
             ComparableFileFactory = new ComparableFileHash.Factory(Config);

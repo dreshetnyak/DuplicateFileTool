@@ -17,12 +17,12 @@ namespace DuplicateFileTool
     }
 
     [Localizable(true)]
-    internal class IntValidationRule : ValidationRule
+    internal class LongValidationRule : ValidationRule
     {
-        private int? MinValue { get; }
-        private int? MaxValue { get; }
+        private long? MinValue { get; }
+        private long? MaxValue { get; }
 
-        public IntValidationRule(int? minValue = null, int? maxValue = null)
+        public LongValidationRule(long? minValue = null, long? maxValue = null)
         {
             MinValue = minValue;
             MaxValue = maxValue;
@@ -65,6 +65,8 @@ namespace DuplicateFileTool
     {
         #region Backing Fields
         private T _value;
+        private bool _isValid;
+        private bool _isInvalid;
 
         #endregion
 
@@ -83,6 +85,31 @@ namespace DuplicateFileTool
                 if (IsReadOnly)
                     return;
                 _value = value;
+                OnPropertyChanged();
+                var isValid = Validator == null || Validator.Validate(value, CultureInfo.CurrentCulture).IsValid;
+                IsValid = isValid;
+                IsInvalid = !isValid;
+            }
+        }
+        public bool IsValid
+        {
+            get => _isValid;
+            set
+            {
+                if (_isValid == value)
+                    return;
+                _isValid = value;
+                OnPropertyChanged();
+            }
+        }
+        public bool IsInvalid
+        {
+            get => _isInvalid;
+            set
+            {
+                if (_isInvalid == value)
+                    return;
+                _isInvalid = value;
                 OnPropertyChanged();
             }
         }
@@ -127,17 +154,17 @@ namespace DuplicateFileTool
         public IConfigurationProperty<int> MatchThreshold { get; protected set; } = new ConfigurationProperty<int>(
             Resources.Config_Comparer_MatchThreshold_Name,
             Resources.Config_Comparer_MatchThreshold_Description,
-            10000, new IntValidationRule(0, int.MaxValue));
+            10000, new LongValidationRule(0, int.MaxValue));
         
         public IConfigurationProperty<int> CompleteMatch { get; protected set; } = new ConfigurationProperty<int>(
             Resources.Config_Comparer_CompleteMatch_Name,
             Resources.Config_Comparer_CompleteMatch_Description,
-            10000, new IntValidationRule(0, int.MaxValue));
+            10000, new LongValidationRule(0, int.MaxValue));
 
         public IConfigurationProperty<int> CompleteMismatch { get; protected set; } = new ConfigurationProperty<int>(
             Resources.Config_Comparer_CompleteMismatch_Name,
             Resources.Config_Comparer_CompleteMismatch_Description,
-            0, new IntValidationRule(0, int.MaxValue));
+            0, new LongValidationRule(0, int.MaxValue));
     }
 
     #endregion

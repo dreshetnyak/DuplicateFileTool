@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Threading;
-
-//TODO must prevent selection/deselection for deletion during the deletion process
 
 namespace DuplicateFileTool.Commands
 {
@@ -19,6 +17,7 @@ namespace DuplicateFileTool.Commands
         
         public DeleteMarkedFilesCommand(DuplicatesEngine duplicates, Func<bool> removeEmptyDirs, Func<bool> deleteToRecycleBin)
         {
+            Enabled = false;
             Duplicates = duplicates;
             RemoveEmptyDirs = removeEmptyDirs;
             DeleteToRecycleBin = deleteToRecycleBin;
@@ -40,7 +39,8 @@ namespace DuplicateFileTool.Commands
             }
             finally
             {
-                Enabled = true;
+                Enabled = Duplicates.DuplicateGroups.Any(group => group.DuplicateFiles.Any(file => file.IsMarkedForDeletion));
+
                 try
                 {
                     lock (CtsLock)

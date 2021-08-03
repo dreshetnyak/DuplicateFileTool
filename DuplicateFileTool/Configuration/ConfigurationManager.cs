@@ -42,9 +42,11 @@ namespace DuplicateFileTool.Configuration
 
         public static string GetAppName()
         {
-            var appName = Assembly.GetExecutingAssembly().GetName();
-            var appVersion = appName.Version;
-            return $"{appName.Name} {appVersion.Major}.{appVersion.Minor}.{appVersion.Revision}";
+            var assembly = Assembly.GetExecutingAssembly();
+            var appName = assembly.GetCustomAttribute<AssemblyTitleAttribute>().Title;
+            var appVersion = assembly.GetName().Version;
+
+            return $"{appName} {appVersion.Major}.{appVersion.Minor}.{appVersion.Revision}";
         }
     }
 }

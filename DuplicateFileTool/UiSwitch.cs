@@ -6,10 +6,10 @@ namespace DuplicateFileTool
     {
         private bool _isInterfaceEntryEnabled = true;
         private bool _isSearchPathsListReadOnly;
-        private bool _isSearchExtensionsEnabled = true;
-        private bool _isSearchFileSizeEntryEnabled = true;
+        private bool _isUiEntryEnabled = true;
         private bool _isCancelSearchEnabled;
         private bool _isSearchEnabled;
+        private bool _isErrorTabImageEnabled;
 
         public bool IsAddPathEnabled
         {
@@ -33,21 +33,12 @@ namespace DuplicateFileTool
                 OnPropertyChanged();
             }
         }
-        public bool IsSearchExtensionsEnabled
+        public bool IsUiEntryEnabled
         {
-            get => _isSearchExtensionsEnabled;
+            get => _isUiEntryEnabled;
             set
             {
-                _isSearchExtensionsEnabled = value; 
-                OnPropertyChanged();
-            }
-        }
-        public bool IsSearchFileSizeEntryEnabled
-        {
-            get => _isSearchFileSizeEntryEnabled;
-            set
-            {
-                _isSearchFileSizeEntryEnabled = value; 
+                _isUiEntryEnabled = value; 
                 OnPropertyChanged();
             }
         }
@@ -66,6 +57,17 @@ namespace DuplicateFileTool
             set
             {
                 _isSearchEnabled = value; 
+                OnPropertyChanged();
+            }
+        }
+        public bool IsErrorTabImageEnabled
+        {
+            get => _isErrorTabImageEnabled;
+            set
+            {
+                if (_isErrorTabImageEnabled == value)
+                    return;
+                _isErrorTabImageEnabled = value;
                 OnPropertyChanged();
             }
         }

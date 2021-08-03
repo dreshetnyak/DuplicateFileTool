@@ -7,8 +7,7 @@ namespace DuplicateFileTool
 {
     internal class FileTreeItem : NotifyPropertyChanged
     {
-        public delegate void ItemSelectedEventHandler(object sender, EventArgs eventArgs);
-        public static event ItemSelectedEventHandler ItemSelected;
+        public static event EventHandler ItemSelected;
 
         #region Backing Fields
         private bool _isExpanded;

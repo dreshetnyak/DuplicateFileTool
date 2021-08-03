@@ -602,6 +602,33 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to About the program.
+        /// </summary>
+        public static string Ui_About_the_Program_Header {
+            get {
+                return ResourceManager.GetString("Ui_About_the_Program_Header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Duplicate File Tool is a program for search and removal of a duplicated files. It is FREE and Open Source, made to be extensible with a different search algorithms..
+        /// </summary>
+        public static string Ui_About_the_Program_Text {
+            get {
+                return ResourceManager.GetString("Ui_About_the_Program_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Select the path where the duplicated files should be automatically selected for deletion..
+        /// </summary>
+        public static string Ui_AutoSelectByPath_Description {
+            get {
+                return ResourceManager.GetString("Ui_AutoSelectByPath_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cancel.
         /// </summary>
         public static string Ui_Cancel_Search_Button_Text {
@@ -661,6 +688,24 @@ namespace DuplicateFileTool.Properties {
         public static string Ui_Duplicated_size {
             get {
                 return ResourceManager.GetString("Ui_Duplicated_size", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Current sorting order is Ascending.
+        /// </summary>
+        public static string Ui_Duplicates_Sorting_Order_Ascending {
+            get {
+                return ResourceManager.GetString("Ui_Duplicates_Sorting_Order_Ascending", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Current sorting order is Descending.
+        /// </summary>
+        public static string Ui_Duplicates_Sorting_Order_Descending {
+            get {
+                return ResourceManager.GetString("Ui_Duplicates_Sorting_Order_Descending", resourceCulture);
             }
         }
         
@@ -755,7 +800,16 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Delete Marked Files.
+        ///   Looks up a localized string similar to Clear all results.
+        /// </summary>
+        public static string Ui_Results_Clear_Results {
+            get {
+                return ResourceManager.GetString("Ui_Results_Clear_Results", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Delete Selected Files.
         /// </summary>
         public static string Ui_Results_Delete_Marked_Files {
             get {
@@ -791,7 +845,7 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Reset Selection.
+        ///   Looks up a localized string similar to Clear Selection.
         /// </summary>
         public static string Ui_Results_Reset_selection {
             get {
@@ -827,11 +881,38 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Maximum:.
+        /// </summary>
+        public static string Ui_Search_Size_Maximum_Label {
+            get {
+                return ResourceManager.GetString("Ui_Search_Size_Maximum_Label", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Minimum:.
+        /// </summary>
+        public static string Ui_Search_Size_Minimum_Label {
+            get {
+                return ResourceManager.GetString("Ui_Search_Size_Minimum_Label", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Search.
         /// </summary>
         public static string Ui_Search_Tab_Header {
             get {
                 return ResourceManager.GetString("Ui_Search_Tab_Header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Settings.
+        /// </summary>
+        public static string Ui_Settings_Tab_Header {
+            get {
+                return ResourceManager.GetString("Ui_Settings_Tab_Header", resourceCulture);
             }
         }
         
@@ -850,6 +931,15 @@ namespace DuplicateFileTool.Properties {
         public static string Ui_ToolTip_Add_selected_to_the_list {
             get {
                 return ResourceManager.GetString("Ui_ToolTip_Add_selected_to_the_list", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Duplicate file search errors.
+        /// </summary>
+        public static string Ui_ToolTip_Errors_Tab {
+            get {
+                return ResourceManager.GetString("Ui_ToolTip_Errors_Tab", resourceCulture);
             }
         }
         
@@ -881,7 +971,34 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Mark for deletion.
+        ///   Looks up a localized string similar to Duplicate file search results.
+        /// </summary>
+        public static string Ui_ToolTip_Results_Tab {
+            get {
+                return ResourceManager.GetString("Ui_ToolTip_Results_Tab", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Duplicate files search.
+        /// </summary>
+        public static string Ui_ToolTip_Search_Tab {
+            get {
+                return ResourceManager.GetString("Ui_ToolTip_Search_Tab", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Duplicate file tool settings.
+        /// </summary>
+        public static string Ui_ToolTip_Settings_Tab {
+            get {
+                return ResourceManager.GetString("Ui_ToolTip_Settings_Tab", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Select for deletion.
         /// </summary>
         public static string Ui_ToolTip_Toggle_Mark_For_Deletion {
             get {

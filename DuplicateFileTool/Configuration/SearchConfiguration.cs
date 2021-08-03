@@ -17,7 +17,7 @@ namespace DuplicateFileTool.Configuration
             Resources.Config_MaximumFilesOpenedAtOnce_Name,
             Resources.Config_MaximumFilesOpenedAtOnce_Description,
             256,
-            new IntValidationRule(1, 512));
+            new LongValidationRule(1, 512));
 
         public ConfigurationProperty<bool> ExcludeSystemFiles { get; } = new(
             Resources.Config_ExcludeSystemFiles_Name,
@@ -47,17 +47,17 @@ namespace DuplicateFileTool.Configuration
             Resources.Config_ByteSizeUnit_Description, 
             ByteSizeUnits.Bytes);
 
-        public ConfigurationProperty<int> MinFileSize { get; } = new(
+        public ConfigurationProperty<long> MinFileSize { get; } = new(
             Resources.Config_MinFileSize_Name,
             Resources.Config_MinFileSize_Description,
             0,
-            new IntValidationRule(0, int.MaxValue));
+            new LongValidationRule(0, long.MaxValue));
 
-        public ConfigurationProperty<int> MaxFileSize { get; } = new(
+        public ConfigurationProperty<long> MaxFileSize { get; } = new(
             Resources.Config_MaxFileSize_Name,
             Resources.Config_MaxFileSize_Description,
             0,
-            new IntValidationRule(0, int.MaxValue));
+            new LongValidationRule(0, long.MaxValue));
 
         #endregion
 

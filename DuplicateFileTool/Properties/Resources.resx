@@ -232,10 +232,10 @@
     <value>Auto Select by Path</value>
   </data>
   <data name="Ui_Results_Reset_selection" xml:space="preserve">
-    <value>Reset Selection</value>
+    <value>Clear Selection</value>
   </data>
   <data name="Ui_Results_Delete_Marked_Files" xml:space="preserve">
-    <value>Delete Marked Files</value>
+    <value>Delete Selected Files</value>
   </data>
   <data name="Error_The_value_is_less_than_the_allowed_minimum" xml:space="preserve">
     <value>The value is less than the allowed minimum</value>
@@ -376,7 +376,7 @@
     <value>Open the file in explorer</value>
   </data>
   <data name="Ui_ToolTip_Toggle_Mark_For_Deletion" xml:space="preserve">
-    <value>Mark for deletion</value>
+    <value>Select for deletion</value>
   </data>
   <data name="Ui_ToolTip_Toggle_Unmark_For_Deletion" xml:space="preserve">
     <value>Unmark</value>
@@ -398,5 +398,44 @@
   </data>
   <data name="Ui_Progress_Analyzing" xml:space="preserve">
     <value>Analyzing: </value>
+  </data>
+  <data name="Ui_About_the_Program_Header" xml:space="preserve">
+    <value>About the program</value>
+  </data>
+  <data name="Ui_About_the_Program_Text" xml:space="preserve">
+    <value>Duplicate File Tool is a program for search and removal of a duplicated files. It is FREE and Open Source, made to be extensible with a different search algorithms.</value>
+  </data>
+  <data name="Ui_Settings_Tab_Header" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="Ui_Search_Size_Maximum_Label" xml:space="preserve">
+    <value>Maximum:</value>
+  </data>
+  <data name="Ui_Search_Size_Minimum_Label" xml:space="preserve">
+    <value>Minimum:</value>
+  </data>
+  <data name="Ui_ToolTip_Errors_Tab" xml:space="preserve">
+    <value>Duplicate file search errors</value>
+  </data>
+  <data name="Ui_ToolTip_Results_Tab" xml:space="preserve">
+    <value>Duplicate file search results</value>
+  </data>
+  <data name="Ui_ToolTip_Search_Tab" xml:space="preserve">
+    <value>Duplicate files search</value>
+  </data>
+  <data name="Ui_ToolTip_Settings_Tab" xml:space="preserve">
+    <value>Duplicate file tool settings</value>
+  </data>
+  <data name="Ui_AutoSelectByPath_Description" xml:space="preserve">
+    <value>Select the path where the duplicated files should be automatically selected for deletion.</value>
+  </data>
+  <data name="Ui_Duplicates_Sorting_Order_Ascending" xml:space="preserve">
+    <value>Current sorting order is Ascending</value>
+  </data>
+  <data name="Ui_Duplicates_Sorting_Order_Descending" xml:space="preserve">
+    <value>Current sorting order is Descending</value>
+  </data>
+  <data name="Ui_Results_Clear_Results" xml:space="preserve">
+    <value>Clear all results</value>
   </data>
 </root>

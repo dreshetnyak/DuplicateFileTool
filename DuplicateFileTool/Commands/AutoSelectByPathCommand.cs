@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using DuplicateFileTool.Properties;
 
 namespace DuplicateFileTool.Commands
 {
@@ -9,34 +11,34 @@ namespace DuplicateFileTool.Commands
     {
         private Action<long> UpdateToDeleteSize { get; }
         private ObservableCollection<DuplicateGroup> DuplicateFileGroups { get; }
+        public Func<string> SelectedDuplicatePath { get; }
 
-        public AutoSelectByPathCommand(ObservableCollection<DuplicateGroup> duplicateFileGroups, Action<long> updateToDeleteSize)
+        public AutoSelectByPathCommand(ObservableCollection<DuplicateGroup> duplicateFileGroups, Func<string> selectedDuplicatePath, Action<long> updateToDeleteSize)
         {
+            Enabled = false;
             DuplicateFileGroups = duplicateFileGroups;
+            SelectedDuplicatePath = selectedDuplicatePath;
             UpdateToDeleteSize = updateToDeleteSize;
         }
 
         public override void Execute(object parameter)
         {
-            try
-            {
-                Enabled = false;
-                var selectedPath = GetThePathForSelection();
-                if (selectedPath != null)
-                    MarkDuplicatedFiles(selectedPath);
-            }
-            finally
-            {
-                Enabled = true;
-            }
+            var selectedPath = GetThePathForSelection();
+            if (selectedPath != null)
+                MarkDuplicatedFiles(selectedPath);
         }
 
-        private static string GetThePathForSelection()
+        private string GetThePathForSelection()
         {
-            using var dialog = new FolderBrowserDialog();
-            return dialog.ShowDialog() == DialogResult.OK 
-                ? dialog.SelectedPath 
-                : null;
+            using var dialog = new FolderBrowserDialog
+            {
+                Description = Resources.Ui_AutoSelectByPath_Description,
+                RootFolder = Environment.SpecialFolder.Desktop,
+                SelectedPath = new FileInfo(SelectedDuplicatePath()).DirectoryName,
+                ShowNewFolderButton = false
+            };
+
+            return dialog.ShowDialog() == DialogResult.OK ? dialog.SelectedPath : null;
         }
 
         private void MarkDuplicatedFiles(string selectedPath)
