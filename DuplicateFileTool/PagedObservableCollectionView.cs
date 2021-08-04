@@ -87,10 +87,10 @@ namespace DuplicateFileTool
             try
             {
                 var removalParentIndex = eventArgs.OldStartingIndex;
-                if (IsIndexAfterCurrentPage(removalParentIndex))
+                if (removalParentIndex >= ParentIndex + ItemsPerPage) // Is index after current page
                     return;
 
-                if (IsIndexOnCurrentPage(removalParentIndex))
+                if (removalParentIndex >= ParentIndex && removalParentIndex < ParentIndex + ItemsPerPage) // Is index on current page
                     RemoveAt(Collection, removalParentIndex - ParentIndex);
                 else if (Collection.Count != 0)
                     RemoveAt(Collection, 0);
@@ -118,10 +118,10 @@ namespace DuplicateFileTool
             try
             {
                 var additionParentIndex = eventArgs.NewStartingIndex;
-                if (IsIndexAfterCurrentPage(additionParentIndex))
+                if (additionParentIndex >= ParentIndex + ItemsPerPage) // Is index after current page
                     return;
 
-                if (IsIndexBeforeCurrentPage(additionParentIndex))
+                if (additionParentIndex < ParentIndex) // Is index before current page
                 {
                     Debug.WriteLine("Error. Element added before current page, this is not fully supported the entire view will be reloaded.");
                     LoadCurrentPage();
@@ -227,37 +227,12 @@ namespace DuplicateFileTool
             if (pageInfoUnchanged)
                 return;
 
-            IsPreviousPageExists = GetIsPreviousPageExists();
-            IsNextPageExists = GetIsNextPageExists();
+            IsPreviousPageExists = ParentIndex != 0;
+            IsNextPageExists = ParentCollection.Count - ParentIndex > ItemsPerPage;
 
             CurrentPage = newCurrentPage;
             TotalPages = newTotalPages;
             OnPropertyChanged(nameof(PageInfo));
-        }
-
-        private bool IsIndexAfterCurrentPage(int parentIndex)
-        {
-            return parentIndex >= ParentIndex + ItemsPerPage;
-        }
-
-        private bool IsIndexOnCurrentPage(int parentIndex)
-        {
-            return parentIndex >= ParentIndex && parentIndex < ParentIndex + ItemsPerPage;
-        }
-
-        private bool IsIndexBeforeCurrentPage(int parentIndex)
-        {
-            return parentIndex < ParentIndex;
-        }
-
-        private bool GetIsPreviousPageExists()
-        {
-            return ParentIndex != 0;
-        }
-
-        private bool GetIsNextPageExists()
-        {
-            return ParentCollection.Count - ParentIndex > ItemsPerPage;
         }
 
         private int GetCurrentPageNumber()

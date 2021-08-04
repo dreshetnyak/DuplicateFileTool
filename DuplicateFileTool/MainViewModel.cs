@@ -94,6 +94,8 @@ namespace DuplicateFileTool
             get => _isSortOrderDescending;
             set
             {
+                if (_isSortOrderDescending == value)
+                    return;
                 _isSortOrderDescending = value;
                 OnPropertyChanged();
             }
@@ -143,7 +145,9 @@ namespace DuplicateFileTool
             get => _selectedDuplicatesSortOrder;
             set
             {
-                _selectedDuplicatesSortOrder = value; 
+                if (_selectedDuplicatesSortOrder == value)
+                    return;
+                _selectedDuplicatesSortOrder = value;
                 OnPropertyChanged();
             }
         }
@@ -313,6 +317,10 @@ namespace DuplicateFileTool
                     DuplicatesSortingOrderToolTip = IsSortOrderDescending
                         ? Resources.Ui_Duplicates_Sorting_Order_Descending
                         : Resources.Ui_Duplicates_Sorting_Order_Ascending;
+                    //TODO change the order of the items
+                    break;
+                case nameof(SelectedDuplicatesSortOrder):
+                    //TODO sort the files
                     break;
             }
         }
