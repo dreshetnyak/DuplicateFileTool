@@ -25,11 +25,11 @@ namespace DuplicateFileTool
         {
             var fileSearchResults = new List<Task<IReadOnlyCollection<FileData>>>();
 
-            foreach (var physicalDrivePartitions in FileSystem.GetDrivesInfo().GroupBy(drive => drive.PhysicalDriveNumber)) //Split the work by physical drives
+            foreach (var physicalDrivePartitions in Drives.Get().GroupBy(drive => drive.PhysicalDriveNumber)) //Split the work by physical drives
             {
                 var physicalDrivePaths = searchPaths.Where(searchPath =>
                     physicalDrivePartitions.Any(driveInfo =>
-                        driveInfo.DriveLetter == new DirectoryInfo(searchPath.Path).Root.FullName)).ToArray();
+                        driveInfo.Name == new DirectoryInfo(searchPath.Path).Root.FullName)).ToArray();
 
                 if (physicalDrivePaths.Length == 0)
                     continue;

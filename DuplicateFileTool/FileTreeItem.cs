@@ -134,7 +134,7 @@ namespace DuplicateFileTool
         {
             foreach (var drive in Drives.Get())
             {
-                var fileData = new FileData(drive.Path, new Win32.WIN32_FIND_DATA
+                var fileData = new FileData(drive.Name, new Win32.WIN32_FIND_DATA
                 {
                     dwFileAttributes = Win32.FileAttributes.Device,
                     ftCreationTime = new Win32.FILETIME(),
@@ -144,8 +144,8 @@ namespace DuplicateFileTool
                     nFileSizeLow = 0,
                     dwReserved0 = 0,
                     dwReserved1 = 0,
-                    cFileName = drive.Path,
-                    cAlternate = drive.Path
+                    cFileName = drive.Name,
+                    cAlternate = drive.Name
                 });
 
                 yield return new FileTreeItem(fileData, drive.Name);

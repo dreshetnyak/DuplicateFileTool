@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
@@ -10,6 +9,8 @@ using Microsoft.Win32.SafeHandles;
 
 namespace DuplicateFileTool
 {
+    #region File System Error Types
+
     internal sealed class FileSystemError
     {
         public string Path { get; }
@@ -36,6 +37,12 @@ namespace DuplicateFileTool
         }
     }
 
+    #endregion
+
+    /// <summary>
+    /// FileHandle is a wrapper around SafeFileHandle it opens it when needed, closes it, contains the information indicating
+    /// if the file is open or not and the last access to the stored handle.
+    /// </summary>
     internal class FileHandle : IDisposable
     {
         private SafeFileHandle Handle { get; set; }
@@ -114,11 +121,6 @@ namespace DuplicateFileTool
         private static readonly RedirectDisable Redirect = new RedirectDisable();
 
         #endregion
-
-        /// <summary>
-        /// FileHandle is a wrapper around SafeFileHandle it opens it when needed, closes it, contains the information indicating
-        /// if the file is open or not and the last access to the stored handle.
-        /// </summary>
 
         public static FileHandle OpenRead(string filePath)
         {
@@ -299,53 +301,7 @@ namespace DuplicateFileTool
                     return;
             }
         }
-
-        #region Drives Information
-
-        public struct DriveInfo
-        {
-            public string DriveLetter { get; set; }
-            public uint PhysicalDriveNumber { get; set; }   //Equals to uint.MaxValue if the value is undetermined
-        }
-
-        public static IEnumerable<DriveInfo> GetDrivesInfo()
-        {
-            var volumeDiskExtents = new Win32.VOLUME_DISK_EXTENTS();
-            var outBufferSize = (uint)Marshal.SizeOf(volumeDiskExtents);
-            var outBuffer = IntPtr.Zero;
-
-            try
-            {
-                outBuffer = Marshal.AllocHGlobal((int)outBufferSize);
-                foreach (var logicalDrive in Environment.GetLogicalDrives()) // C:\, D:\, etc.
-                {
-                    using (var driveHandle = Win32.CreateFile($"\\\\.\\{logicalDrive[0]}:", Win32.FileAccess.None, Win32.FileShare.Read | Win32.FileShare.Write, null, Win32.CreationDisposition.OpenExisting, 0, IntPtr.Zero))
-                    {
-                        if (driveHandle.IsInvalid)
-                        {
-                            yield return new DriveInfo { DriveLetter = logicalDrive, PhysicalDriveNumber = uint.MaxValue };
-                            continue;
-                        }
-
-                        if (!Win32.DeviceIoControl(driveHandle, Win32.IOCTL_VOLUME_GET_VOLUME_DISK_EXTENTS, IntPtr.Zero, 0, outBuffer, outBufferSize, out _, IntPtr.Zero))
-                        {
-                            yield return new DriveInfo { DriveLetter = logicalDrive, PhysicalDriveNumber = uint.MaxValue };
-                            continue;
-                        }
-
-                        Marshal.PtrToStructure(outBuffer, volumeDiskExtents);
-                        yield return new DriveInfo { DriveLetter = logicalDrive, PhysicalDriveNumber = volumeDiskExtents.Extents.DiskNumber };
-                    }
-                }
-            }
-            finally
-            {
-                Marshal.FreeHGlobal(outBuffer);
-            }
-        }
-
-        #endregion
-
+        
         public static string MakeLongPath(string path)
         {
             return !path.StartsWith(@"\\?\") ? @"\\?\" + path : path;

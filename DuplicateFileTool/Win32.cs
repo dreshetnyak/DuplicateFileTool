@@ -17,7 +17,7 @@ namespace DuplicateFileTool
         internal static readonly int ERROR_NO_MORE_FILES = 18;
         internal static readonly int FILE_ATTRIBUTE_DIRECTORY = 0x00000010;
         internal const int MAX_PATH = 260;
-        internal const uint IOCTL_VOLUME_GET_VOLUME_DISK_EXTENTS = 0x00560000;
+        internal const int IOCTL_VOLUME_GET_VOLUME_DISK_EXTENTS = 0x00560000;
         // ReSharper enable InconsistentNaming
 
         [StructLayout(LayoutKind.Sequential)]
@@ -193,8 +193,8 @@ namespace DuplicateFileTool
         [DllImport("Kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         [ResourceExposure(ResourceScope.Machine)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        internal static extern bool DeviceIoControl(SafeFileHandle fileHandle, uint ioControlCode, IntPtr inBuffer, uint cbInBuffer, IntPtr outBuffer, uint cbOutBuffer, out uint cbBytesReturned, IntPtr overlapped);
-        
+        internal static extern bool DeviceIoControl(SafeFileHandle fileHandle, int ioControlCode, IntPtr inBuffer, int cbInBuffer, IntPtr outBuffer, int cbOutBuffer, out int cbBytesReturned, IntPtr overlapped);
+
         #region File Tree Related
 
         public enum FileAttribute : uint

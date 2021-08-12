@@ -14,7 +14,7 @@ namespace DuplicateFileTool
 {
     public enum InclusionType { Include, Exclude }
     public enum ByteSizeUnits { Bytes, Kilobytes, Megabytes, Gigabytes }
-    public enum SortOrder { Size, Name, Number }
+    public enum SortOrder { None, Size, Name, Number }
 
     internal class SearchPath : NotifyPropertyChanged
     {
