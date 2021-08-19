@@ -10,7 +10,7 @@ using DuplicateFileTool.Annotations;
 
 namespace DuplicateFileTool
 {
-    internal sealed class ObservableCollectionProxy<T> : Collection<T>, INotifyCollectionChanged, INotifyPropertyChanged
+    internal sealed class ObservableCollectionProxy<T> : Collection<T>, INotifyCollectionChanged, INotifyPropertyChanged where T : class
     {
         private const string CountString = nameof(Count);
         private const string IndexerName = "Item[]";
@@ -295,26 +295,25 @@ namespace DuplicateFileTool
                 FilteredItems.RemoveAt(filteredItemIndex);
                 TotalPages = GetTotalPages(FilteredItems.Count, ItemsPerPage);
 
+                bool selectedItemWasRemoved;
                 var itemIndex = Items.IndexOf(removedSourceItem);
                 if (itemIndex != -1)
+                {
+                    selectedItemWasRemoved = SelectedItem != null && Items[itemIndex] == SelectedItem;
                     Items.RemoveAt(itemIndex);
+                }
+                else
+                    selectedItemWasRemoved = false;
 
                 var itemPage = GetItemPage(ItemsPerPage, filteredItemIndex);
-                if (itemPage > CurrentPage)
+                if (itemPage <= CurrentPage)
+                    LoadPage(CurrentPage > TotalPages ? TotalPages : CurrentPage);
+
+                var itemsCount = Items.Count;
+                if (!selectedItemWasRemoved || itemsCount == 0)
                     continue;
 
-                //TODO
-
-                //if (SelectedItem == removedSourceItem)
-
-
-                //SelectedItem = index < itemsCount
-                //    ? Items[index]
-                //    : itemsCount != 0
-                //        ? Items[itemsCount - 1]
-                //        : default;
-
-                LoadPage(CurrentPage);
+                SelectedItem = Items[itemIndex < itemsCount ? itemIndex : itemsCount - 1];
             }
         }
 
