@@ -23,7 +23,7 @@ namespace DuplicateFileTool
         private ObservableCollection<T> SourceCollection { get; }
         private List<T> FilteredItems { get; }
         private IComparer<T> Comparer { get; }
-        private Func<T, bool> ItemFilter { get; }
+        private IInclusionPredicate<T> InclusionPredicate { get; }
 
         public int ItemsPerPage
         {
@@ -66,19 +66,19 @@ namespace DuplicateFileTool
         public event PropertyChangedEventHandler PropertyChanged;
         public event NotifyCollectionChangedEventHandler CollectionChanged;
 
-        public ObservableCollectionProxy([NotNull] ObservableCollection<T> sourceCollection, [NotNull] Func<T, bool> itemFilter, [NotNull] IComparer<T> comparer, int itemsPerPage)
+        public ObservableCollectionProxy([NotNull] ObservableCollection<T> sourceCollection, [NotNull] IInclusionPredicate<T> inclusionPredicate, [NotNull] IComparer<T> comparer, int itemsPerPage)
         {
             SourceCollection = sourceCollection;
-            ItemFilter = itemFilter;
+            InclusionPredicate = inclusionPredicate;
             Comparer = comparer;
             ItemsPerPage = itemsPerPage;
-            FilteredItems = sourceCollection.AsParallel().Where(itemFilter).ToList();
+            FilteredItems = sourceCollection.AsParallel().Where(inclusionPredicate.IsIncluded).ToList();
             FilteredItems.Sort(comparer);
 
             TotalPages = GetTotalPages(FilteredItems.Count, itemsPerPage);
             foreach (var item in GetPageItems(0))
                 Items.Add(item);
-            
+            sourceCollection.Add();
             SourceCollection.CollectionChanged += OnSourceCollectionChanged;
         }
 
@@ -143,7 +143,7 @@ namespace DuplicateFileTool
         protected override void InsertItem(int index, T item)
         {
             SourceCollection.Add(item);
-            if (!ItemFilter(item))
+            if (!InclusionPredicate.IsIncluded(item))
                 return;
 
             var itemIndex = InsertSorted(FilteredItems, Comparer, item);
@@ -269,7 +269,7 @@ namespace DuplicateFileTool
         private void OnItemAdded(int newItemIndex)
         {
             var newItem = SourceCollection[newItemIndex];
-            if (!ItemFilter(newItem))
+            if (!InclusionPredicate.IsIncluded(newItem))
                 return;
             var filteredIndex = InsertSorted(FilteredItems, Comparer, newItem);
             var itemPage = GetItemPage(ItemsPerPage, filteredIndex);
@@ -285,7 +285,7 @@ namespace DuplicateFileTool
         {
             foreach (T removedSourceItem in removedSourceItems)
             {
-                if (!ItemFilter(removedSourceItem))
+                if (!InclusionPredicate.IsIncluded(removedSourceItem))
                     continue;
 
                 var filteredItemIndex = FilteredItems.IndexOf(removedSourceItem);

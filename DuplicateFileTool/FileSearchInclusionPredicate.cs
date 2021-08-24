@@ -7,18 +7,13 @@ using DuplicateFileTool.Properties;
 
 namespace DuplicateFileTool
 {
-    internal interface IInclusionPredicate
-    {
-        bool IsIncluded(FileData fileData);
-    }
-
     [Localizable(true)]
-    internal class InclusionPredicate : IInclusionPredicate
+    internal class FileSearchInclusionPredicate : IInclusionPredicate<FileData>
     {
         public SearchConfiguration SearchConfig { get; }
         public static string WindowsOsPath { get; } = Environment.GetFolderPath(Environment.SpecialFolder.Windows);
 
-        public InclusionPredicate(SearchConfiguration searchConfig)
+        public FileSearchInclusionPredicate(SearchConfiguration searchConfig)
         {
             SearchConfig = searchConfig;
         }

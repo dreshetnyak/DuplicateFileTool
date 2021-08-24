@@ -325,7 +325,7 @@ namespace DuplicateFileTool
 
         public async Task FindDuplicates(
             IReadOnlyCollection<SearchPath> searchPaths,
-            IInclusionPredicate inclusionPredicate,
+            IInclusionPredicate<FileData> inclusionPredicate,
             ICandidatePredicate duplicateCandidatePredicate,
             IComparableFileFactory comparableFileFactory,
             CancellationToken cancellationToken)

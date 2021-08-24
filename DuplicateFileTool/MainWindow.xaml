@@ -476,8 +476,8 @@
                                 </Grid>
                             </Border>
                         </Grid>
-
-                        <TreeView x:Name="DuplicateFilesPageView" Grid.Row="1" ItemsSource="{Binding DuplicateGroupsPageView.Collection}" Margin="0,0,3,0">
+                        <!--DuplicateGroupsPageView.Collection-->
+                        <TreeView x:Name="DuplicateFilesPageView" Grid.Row="1" ItemsSource="{Binding DuplicateGroupsProxyView}" Margin="0,0,3,0">
                             <TreeView.Resources>
                                 <Style TargetType="{x:Type TreeViewItem}">
                                     <Setter Property="IsExpanded" Value="True" />

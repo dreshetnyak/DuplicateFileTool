@@ -9,7 +9,7 @@ namespace DuplicateFileTool.Commands
     {
         private DuplicatesEngine DuplicatesEngine { get; }
         private IReadOnlyCollection<SearchPath> SearchPaths { get; }
-        private Func<IInclusionPredicate> GetInclusionPredicate { get; }
+        private Func<IInclusionPredicate<FileData>> GetInclusionPredicate { get; }
         private Func<IFileComparer> GetSelectedComparer { get; }
         private CancellationTokenSource Cts { get; set; }
 
@@ -18,7 +18,7 @@ namespace DuplicateFileTool.Commands
         public FindDuplicatesCommand(
             [NotNull] DuplicatesEngine duplicatesEngine,
             [NotNull] IReadOnlyCollection<SearchPath> searchPaths,
-            [NotNull] Func<IInclusionPredicate> getGetInclusionPredicate,
+            [NotNull] Func<IInclusionPredicate<FileData>> getGetInclusionPredicate,
             [NotNull] Func<IFileComparer> getSelectedComparer)
         {
             DuplicatesEngine = duplicatesEngine;

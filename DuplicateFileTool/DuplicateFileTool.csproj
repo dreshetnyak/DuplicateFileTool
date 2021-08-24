@@ -110,6 +110,8 @@
     <Compile Include="Converters\DataConversion.cs" />
     <Compile Include="Converters\EnumBooleanConverter.cs" />
     <Compile Include="Converters\LongConverter.cs" />
+    <Compile Include="DuplicateGroupComparer.cs" />
+    <Compile Include="IInclusionPredicate.cs" />
     <Compile Include="ObservableCollectionProxy.cs" />
     <Compile Include="DirectoryEnumeration.cs" />
     <Compile Include="Drives.cs" />
@@ -117,7 +119,8 @@
     <Compile Include="DuplicatesEngine.cs" />
     <Compile Include="DuplicatesRemover.cs" />
     <Compile Include="DuplicatesSearch.cs" />
-    <Compile Include="InclusionPredicate.cs" />
+    <Compile Include="FileSearchInclusionPredicate.cs" />
+    <Compile Include="ResultsGroupInclusionPredicate.cs" />
     <Compile Include="UiSwitch.cs" />
     <Compile Include="Observable.cs" />
     <Compile Include="PagedObservableCollectionView.cs" />

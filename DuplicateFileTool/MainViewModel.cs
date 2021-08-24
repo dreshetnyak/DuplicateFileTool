@@ -72,7 +72,7 @@ namespace DuplicateFileTool
         public ApplicationConfig Config { get; }
 
         public InclusionType[] PathComparisonTypes { get; }
-        public IInclusionPredicate InclusionPredicate { get; }
+        public IInclusionPredicate<FileData> FileSearchInclusionPredicate { get; }
         public IReadOnlyCollection<IFileComparer> FileComparers { get; }
         public IFileComparer SelectedFileComparer
         {
@@ -89,6 +89,7 @@ namespace DuplicateFileTool
         }
         public DuplicatesEngine Duplicates { get; }
         public PagedObservableCollectionView<DuplicateGroup> DuplicateGroupsPageView { get; } //Stores the collection of duplicates groups that corresponds to the selected page
+        public ObservableCollectionProxy<DuplicateGroup> DuplicateGroupsProxyView { get; }
         public bool IsSortOrderDescending
         {
             get => _isSortOrderDescending;
@@ -220,7 +221,7 @@ namespace DuplicateFileTool
 
             //TODO SelectedDuplicatesSortOrder - propagate to config
 
-            InclusionPredicate = new InclusionPredicate(Config.SearchConfig);
+            FileSearchInclusionPredicate = new FileSearchInclusionPredicate(Config.SearchConfig);
             FileComparers = Config.FileComparers;
             Duplicates = new DuplicatesEngine();
             Duplicates.PropertyChanged += OnDuplicatesPropertyChanged;
@@ -230,11 +231,15 @@ namespace DuplicateFileTool
             DuplicateGroupsPageView = new PagedObservableCollectionView<DuplicateGroup>(Duplicates.DuplicateGroups, 25); //TODO The number of the items per page should be taken from the configuration
             DuplicateGroupsPageView.Collection.CollectionChanged += OnDuplicatesPageViewCollectionChanged;
 
+            var resultsGroupInclusionPredicate = new ResultsGroupInclusionPredicate(); //TODO
+            var duplicateGroupsComparer = new DuplicateGroupComparer(); //TODO
+            DuplicateGroupsProxyView = new ObservableCollectionProxy<DuplicateGroup>(Duplicates.DuplicateGroups, resultsGroupInclusionPredicate, duplicateGroupsComparer, 25);
+
             InitializeSelectedFileComparer();
 
             SearchPaths.CollectionChanged += OnSearchPathsCollectionChanged;
 
-            FindDuplicates = new FindDuplicatesCommand(Duplicates, SearchPaths, () => InclusionPredicate, () => SelectedFileComparer);
+            FindDuplicates = new FindDuplicatesCommand(Duplicates, SearchPaths, () => FileSearchInclusionPredicate, () => SelectedFileComparer);
             FindDuplicates.FindDuplicatesFinished += OnFindDuplicatesFinished;
             FindDuplicates.CanExecuteChanged += OnFindDuplicatesCanExecuteChanged;
 

@@ -21,7 +21,7 @@ namespace DuplicateFileTool
         public event FilesSearchProgressEventHandler FilesSearchProgress;
         public event FileSystemErrorEventHandler FileSystemError;
 
-        public async Task<IReadOnlyCollection<FileData>> Find(IReadOnlyCollection<SearchPath> searchPaths, IInclusionPredicate inclusionPredicate, CancellationToken cancellationToken)
+        public async Task<IReadOnlyCollection<FileData>> Find(IReadOnlyCollection<SearchPath> searchPaths, IInclusionPredicate<FileData> inclusionPredicate, CancellationToken cancellationToken)
         {
             var fileSearchResults = new List<Task<IReadOnlyCollection<FileData>>>();
 
@@ -44,7 +44,7 @@ namespace DuplicateFileTool
             return searchResults;
         }
 
-        private IReadOnlyCollection<FileData> FindFiles(IEnumerable<SearchPath> searchPaths, IInclusionPredicate inclusionPredicate, CancellationToken cancellationToken)
+        private IReadOnlyCollection<FileData> FindFiles(IEnumerable<SearchPath> searchPaths, IInclusionPredicate<FileData> inclusionPredicate, CancellationToken cancellationToken)
         {
             var foundFiles = new List<FileData>();
 
@@ -92,7 +92,7 @@ namespace DuplicateFileTool
             return paths;
         }
 
-        private IEnumerable<FileData> FindPathFiles(string path, IReadOnlyCollection<string> excludePaths, int foundFilesCount, IInclusionPredicate inclusionPredicate, CancellationToken cancellationToken)
+        private IEnumerable<FileData> FindPathFiles(string path, IReadOnlyCollection<string> excludePaths, int foundFilesCount, IInclusionPredicate<FileData> inclusionPredicate, CancellationToken cancellationToken)
         {
             using var directoryEnumerator = new DirectoryEnumeration(path).GetEnumerator();
             var moreItems = false;
