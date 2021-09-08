@@ -4,10 +4,10 @@ namespace DuplicateFileTool.Commands
 {
     internal class ChangePageCommand : CommandBase
     {
-        private PagedObservableCollectionView<DuplicateGroup> Collection { get; }
+        private ObservableCollectionProxy<DuplicateGroup> Collection { get; }
         private Action RefreshCollectionView { get; }
 
-        public ChangePageCommand(PagedObservableCollectionView<DuplicateGroup> collection, Action refreshCollectionView)
+        public ChangePageCommand(ObservableCollectionProxy<DuplicateGroup> collection, Action refreshCollectionView)
         {
             Collection = collection;
             RefreshCollectionView = refreshCollectionView;
@@ -15,14 +15,20 @@ namespace DuplicateFileTool.Commands
 
         public override void Execute(object parameter)
         {
-            string command = parameter as string;
+            var command = parameter as string;
             switch (command)
             {
                 case "Next":
-                    Collection.Next();
+                    Collection.LoadNextPage();
                     break;
                 case "Previous":
-                    Collection.Previous();
+                    Collection.LoadPreviousPage();
+                    break;
+                case "First":
+                    Collection.LoadFirstPage();
+                    break;
+                case "Last":
+                    Collection.LoadLastPage();
                     break;
             }
 

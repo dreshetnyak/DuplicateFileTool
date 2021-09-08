@@ -63,6 +63,10 @@ namespace DuplicateFileTool
             }
         }
 
+        public bool HasPages => TotalPages != 0;
+        public bool NextPageExists => CurrentPage < TotalPages;
+        public bool PreviousPageExists => CurrentPage > 1;
+        
         public event PropertyChangedEventHandler PropertyChanged;
         public event NotifyCollectionChangedEventHandler CollectionChanged;
 
@@ -78,8 +82,32 @@ namespace DuplicateFileTool
             TotalPages = GetTotalPages(FilteredItems.Count, itemsPerPage);
             foreach (var item in GetPageItems(0))
                 Items.Add(item);
-            sourceCollection.Add();
+
             SourceCollection.CollectionChanged += OnSourceCollectionChanged;
+        }
+
+        public void LoadNextPage()
+        {
+            if (CurrentPage < TotalPages)
+                LoadPage(CurrentPage + 1);
+        }
+
+        public void LoadPreviousPage()
+        {
+            if (CurrentPage > 1)
+                LoadPage(CurrentPage - 1);
+        }
+
+        public void LoadFirstPage()
+        {
+            if (CurrentPage != 1)
+                LoadPage(1);
+        }
+
+        public void LoadLastPage()
+        {
+            if (CurrentPage != TotalPages)
+                LoadPage(TotalPages);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -95,6 +123,9 @@ namespace DuplicateFileTool
 
         private IEnumerable<T> GetPageItems(int page)
         {
+            if (page > 0)
+                page--;
+
             var itemsPerPage = ItemsPerPage;
             var startIndex = itemsPerPage * page;
             var endIndex = startIndex + itemsPerPage;
@@ -106,26 +137,30 @@ namespace DuplicateFileTool
 
         private void LoadPage(int page)
         {
-            List<T> oldList;
             if (Items.Count != 0)
             {
-                oldList = new List<T>(Items);
                 Items.Clear();
+                OnPropertyChanged(CountString);
+                OnPropertyChanged(IndexerName);
+                OnCollectionReset();
             }
-            else
-                oldList = null;
-
-            foreach (var item in GetPageItems(page))
-                Items.Add(item);
 
             CurrentPage = page;
+            var pageItems = GetPageItems(page).ToArray();
 
             OnPropertyChanged(CountString);
             OnPropertyChanged(IndexerName);
-            if (oldList != null)
-                OnCollectionChanged(NotifyCollectionChangedAction.Replace, (IList)Items, oldList, 0);
-            else
-                OnCollectionChanged(NotifyCollectionChangedAction.Add, (IList)Items, 0);
+
+            foreach (var item in pageItems)
+            {
+                var itemIndex = Items.Count;
+                Items.Add(item);
+                OnCollectionChanged(NotifyCollectionChangedAction.Add, item, itemIndex);
+            }
+
+            OnPropertyChanged(nameof(HasPages));
+            OnPropertyChanged(nameof(PreviousPageExists));
+            OnPropertyChanged(nameof(NextPageExists));
         }
 
         #region Collection<T> Overrides
@@ -219,7 +254,7 @@ namespace DuplicateFileTool
         private static int GetItemPage(int itemsPerPage, int itemIndex)
         {
             var itemPage = itemIndex / itemsPerPage;
-            return itemIndex % itemsPerPage != 0 ? itemPage + 1 : itemPage;
+            return itemIndex % itemsPerPage != 0 ? itemPage + 2 : itemPage + 1;
         }
 
         private static int InsertSorted(IList<T> filteredItems, IComparer<T> comparer, T item)

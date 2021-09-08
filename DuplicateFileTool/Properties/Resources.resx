@@ -438,4 +438,10 @@
   <data name="Ui_Results_Clear_Results" xml:space="preserve">
     <value>Clear all results</value>
   </data>
+  <data name="Ui_Results_Page" xml:space="preserve">
+    <value>Page</value>
+  </data>
+  <data name="Ui_Results_Page_Number_Split" xml:space="preserve">
+    <value>/</value>
+  </data>
 </root>

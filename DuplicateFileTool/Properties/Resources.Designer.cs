@@ -845,6 +845,24 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Page.
+        /// </summary>
+        public static string Ui_Results_Page {
+            get {
+                return ResourceManager.GetString("Ui_Results_Page", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to /.
+        /// </summary>
+        public static string Ui_Results_Page_Number_Split {
+            get {
+                return ResourceManager.GetString("Ui_Results_Page_Number_Split", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Clear Selection.
         /// </summary>
         public static string Ui_Results_Reset_selection {

@@ -88,7 +88,7 @@ namespace DuplicateFileTool
             }
         }
         public DuplicatesEngine Duplicates { get; }
-        public PagedObservableCollectionView<DuplicateGroup> DuplicateGroupsPageView { get; } //Stores the collection of duplicates groups that corresponds to the selected page
+        //public PagedObservableCollectionView<DuplicateGroup> DuplicateGroupsPageView { get; } //Stores the collection of duplicates groups that corresponds to the selected page
         public ObservableCollectionProxy<DuplicateGroup> DuplicateGroupsProxyView { get; }
         public bool IsSortOrderDescending
         {
@@ -228,8 +228,8 @@ namespace DuplicateFileTool
             Duplicates.Errors.CollectionChanged += (_, _) => Ui.IsErrorTabImageEnabled = Duplicates.Errors.Count != 0;
             Duplicates.DuplicateGroups.CollectionChanged += OnDuplicateGroupsCollectionChanged;
 
-            DuplicateGroupsPageView = new PagedObservableCollectionView<DuplicateGroup>(Duplicates.DuplicateGroups, 25); //TODO The number of the items per page should be taken from the configuration
-            DuplicateGroupsPageView.Collection.CollectionChanged += OnDuplicatesPageViewCollectionChanged;
+            //DuplicateGroupsPageView = new PagedObservableCollectionView<DuplicateGroup>(Duplicates.DuplicateGroups, 25); //TODO The number of the items per page should be taken from the configuration
+            //DuplicateGroupsPageView.Collection.CollectionChanged += OnDuplicatesPageViewCollectionChanged;
 
             var resultsGroupInclusionPredicate = new ResultsGroupInclusionPredicate(); //TODO
             var duplicateGroupsComparer = new DuplicateGroupComparer(); //TODO
@@ -250,7 +250,7 @@ namespace DuplicateFileTool
             DeleteMarkedFiles = new DeleteMarkedFilesCommand(Duplicates, () => RemoveEmptyDirectories, () => DeleteToRecycleBin);
             AddPath = new AddPathCommand(SearchPaths, () => SelectedFileTreeItem);
             OpenFileInExplorer = new OpenFileInExplorerCommand();
-            ChangePage = new ChangePageCommand(DuplicateGroupsPageView, () => OnPropertyChanged(nameof(DuplicateGroupsPageView.Collection)));
+            ChangePage = new ChangePageCommand(DuplicateGroupsProxyView, () => { }); //TODO was OnPropertyChanged(nameof(DuplicateGroupsPageView.Collection))
             ToggleDuplicateSortingOrder = new RelayCommand(_ => IsSortOrderDescending = !IsSortOrderDescending);
             ClearResults = new ClearResultsCommand(() => Duplicates.Clear());
 
@@ -287,11 +287,11 @@ namespace DuplicateFileTool
             ClearResults.Enabled = isEnabled;
         }
 
-        private void OnDuplicatesPageViewCollectionChanged(object _, NotifyCollectionChangedEventArgs args)
-        {
-            if (args.Action == NotifyCollectionChangedAction.Reset)
-                TreeViewReset?.Invoke(this, new TreeViewResetEventArgs(nameof(DuplicateGroupsPageView)));
-        }
+        //private void OnDuplicatesPageViewCollectionChanged(object _, NotifyCollectionChangedEventArgs args)
+        //{
+        //    if (args.Action == NotifyCollectionChangedAction.Reset)
+        //        TreeViewReset?.Invoke(this, new TreeViewResetEventArgs(nameof(DuplicateGroupsPageView)));
+        //}
 
         private void OnDuplicatesPropertyChanged(object sender, PropertyChangedEventArgs eventArgs)
         {
