@@ -123,7 +123,6 @@
     <Compile Include="ResultsGroupInclusionPredicate.cs" />
     <Compile Include="UiSwitch.cs" />
     <Compile Include="Observable.cs" />
-    <Compile Include="PagedObservableCollectionView.cs" />
     <Compile Include="TreeViewExtension.cs" />
     <Compile Include="UnmanagedMemory.cs" />
     <Compile Include="Utility.cs" />

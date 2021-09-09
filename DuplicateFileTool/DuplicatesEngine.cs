@@ -72,12 +72,13 @@ namespace DuplicateFileTool
         }
     }
 
-    [DebuggerDisplay("Group: {GroupNumber,nq}, Files: {FilesCount,nq}, Duplicated: {DuplicatedSize,nq}")]
+    [DebuggerDisplay("Group: {GroupNumber,nq}, Files: {FilesCount,nq}, Duplicated: {DuplicatedSizeText,nq}")]
     internal class DuplicateGroup : NotifyPropertyChanged
     {
         private int _groupNumber;
         private int _filesCount;
-        private string _duplicatedSize;
+        private long _duplicatedSize;
+        private string _duplicatedSizeText;
         private bool _isSelected;
 
         public int GroupNumber
@@ -102,7 +103,7 @@ namespace DuplicateFileTool
                 OnPropertyChanged();
             }
         }
-        public string DuplicatedSize
+        public long DuplicatedSize
         {
             get => _duplicatedSize;
             set
@@ -113,6 +114,18 @@ namespace DuplicateFileTool
                 OnPropertyChanged();
             }
         }
+        public string DuplicatedSizeText
+        {
+            get => _duplicatedSizeText;
+            set
+            {
+                if (_duplicatedSizeText == value)
+                    return;
+                _duplicatedSizeText = value;
+                OnPropertyChanged();
+            }
+        }
+
         public bool IsSelected
         {
             get => _isSelected;
@@ -136,7 +149,9 @@ namespace DuplicateFileTool
         private void OnDuplicateFilesCollectionChanged(object sender, NotifyCollectionChangedEventArgs eventArgs = null)
         {
             FilesCount = DuplicateFiles.Count;
-            DuplicatedSize = GetDuplicatedSize().BytesLengthToString();
+            var duplicatedSize = GetDuplicatedSize();
+            DuplicatedSize = duplicatedSize;
+            DuplicatedSizeText = duplicatedSize.BytesLengthToString();
         }
 
         private long GetDuplicatedSize()

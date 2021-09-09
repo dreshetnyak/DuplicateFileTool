@@ -737,15 +737,6 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Page {0} / {1}.
-        /// </summary>
-        public static string Ui_PageInfo_Page {
-            get {
-                return ResourceManager.GetString("Ui_PageInfo_Page", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Analyzing: .
         /// </summary>
         public static string Ui_Progress_Analyzing {

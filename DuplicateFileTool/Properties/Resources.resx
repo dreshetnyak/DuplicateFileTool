@@ -381,9 +381,6 @@
   <data name="Ui_ToolTip_Toggle_Unmark_For_Deletion" xml:space="preserve">
     <value>Unmark</value>
   </data>
-  <data name="Ui_PageInfo_Page" xml:space="preserve">
-    <value>Page {0} / {1}</value>
-  </data>
   <data name="Ui_Progress_Scanning" xml:space="preserve">
     <value>Scanning files: </value>
   </data>

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using DuplicateFileTool.Annotations;
@@ -39,7 +40,7 @@ namespace DuplicateFileTool
             get => _currentPage;
             private set
             {
-                _currentPage = value; 
+                _currentPage = value;
                 OnPropertyChanged();
             }
         }
@@ -48,7 +49,7 @@ namespace DuplicateFileTool
             get => _totalPages;
             private set
             {
-                _totalPages = value; 
+                _totalPages = value;
                 OnPropertyChanged();
             }
         }
@@ -62,6 +63,9 @@ namespace DuplicateFileTool
                 OnPropertyChanged();
             }
         }
+
+        public bool SelectNewItem { get; set; } = true;
+        public bool SortingEnabled { get; set; } = true;
 
         public bool HasPages => TotalPages != 0;
         public bool NextPageExists => CurrentPage < TotalPages;
@@ -80,10 +84,16 @@ namespace DuplicateFileTool
             FilteredItems.Sort(comparer);
 
             TotalPages = GetTotalPages(FilteredItems.Count, itemsPerPage);
-            foreach (var item in GetPageItems(0))
+            foreach (var item in GetPageItems(1))
                 Items.Add(item);
 
             SourceCollection.CollectionChanged += OnSourceCollectionChanged;
+        }
+
+        public void Sort()
+        {
+            FilteredItems.Sort(Comparer);
+            LoadPage(1);
         }
 
         public void LoadNextPage()
@@ -123,11 +133,9 @@ namespace DuplicateFileTool
 
         private IEnumerable<T> GetPageItems(int page)
         {
-            if (page > 0)
-                page--;
-
+            Debug.Assert(page != 0, "Page cannot be zero, the page is a number that starts from 1");
             var itemsPerPage = ItemsPerPage;
-            var startIndex = itemsPerPage * page;
+            var startIndex = itemsPerPage * (page - 1);
             var endIndex = startIndex + itemsPerPage;
             var filteredItemsCount = FilteredItems.Count;
 
@@ -144,6 +152,8 @@ namespace DuplicateFileTool
                 OnPropertyChanged(IndexerName);
                 OnCollectionReset();
             }
+
+            //TODO Here we should do differential, instead of clearing items we should go through existing and compare with the new one
 
             CurrentPage = page;
             var pageItems = GetPageItems(page).ToArray();
@@ -181,7 +191,7 @@ namespace DuplicateFileTool
             if (!InclusionPredicate.IsIncluded(item))
                 return;
 
-            var itemIndex = InsertSorted(FilteredItems, Comparer, item);
+            var itemIndex = InsertSorted(item);
             var itemPage = GetItemPage(ItemsPerPage, itemIndex);
             LoadPage(itemPage);
             SelectedItem = item;
@@ -226,19 +236,6 @@ namespace DuplicateFileTool
 
         #endregion
 
-        public void Move(int oldIndex, int newIndex)
-        {
-            throw new NotImplementedException();
-
-            //var obj = this[oldIndex];
-
-            //base.RemoveItem(oldIndex);
-            //base.InsertItem(newIndex, obj);
-
-            //OnPropertyChanged(IndexerName);
-            //OnCollectionChanged(NotifyCollectionChangedAction.Move, obj, newIndex, oldIndex);
-        }
-
         private void ResetTarget()
         {
             Items.Clear();
@@ -248,33 +245,42 @@ namespace DuplicateFileTool
 
             CurrentPage = 0;
             TotalPages = 0;
+
+            OnPropertyChanged(nameof(HasPages));
+            OnPropertyChanged(nameof(PreviousPageExists));
+            OnPropertyChanged(nameof(NextPageExists));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static int GetItemPage(int itemsPerPage, int itemIndex)
         {
+            itemIndex++; //Item number is used to determine the page number
             var itemPage = itemIndex / itemsPerPage;
-            return itemIndex % itemsPerPage != 0 ? itemPage + 2 : itemPage + 1;
+            return itemIndex % itemsPerPage != 0 ? itemPage + 1 : itemPage;
         }
 
-        private static int InsertSorted(IList<T> filteredItems, IComparer<T> comparer, T item)
+        private int InsertSorted(T item)
         {
-            var filteredItemsCount = filteredItems.Count;
-            if (comparer == null)
+            var filteredItemsCount = FilteredItems.Count;
+            if (Comparer == null)
                 return filteredItemsCount;
 
-            var index = 0;
-            for (; index < filteredItemsCount; index++)
+            int index;
+            if (Comparer != null && SortingEnabled)
             {
-                if (comparer.Compare(filteredItems[index], item) < 0)
-                    continue;
-                break;
+                for (index = 0; index < filteredItemsCount; index++)
+                {
+                    if (Comparer.Compare(FilteredItems[index], item) >= 0)
+                        break;
+                }
             }
+            else
+                index = filteredItemsCount;
 
             if (index < filteredItemsCount)
-                filteredItems.Insert(index, item);
+                FilteredItems.Insert(index, item);
             else
-                filteredItems.Add(item);
+                FilteredItems.Add(item);
 
             return index;
         }
@@ -296,7 +302,7 @@ namespace DuplicateFileTool
                     OnItemMoved(eventArgs.OldStartingIndex, eventArgs.NewStartingIndex);
                     break;
                 case NotifyCollectionChangedAction.Reset:
-                    ResetTarget();
+                    OnSourceCollectionReset();
                     break;
             }
         }
@@ -306,16 +312,28 @@ namespace DuplicateFileTool
             var newItem = SourceCollection[newItemIndex];
             if (!InclusionPredicate.IsIncluded(newItem))
                 return;
-            var filteredIndex = InsertSorted(FilteredItems, Comparer, newItem);
+            var filteredIndex = InsertSorted(newItem);
             var itemPage = GetItemPage(ItemsPerPage, filteredIndex);
 
             TotalPages = GetTotalPages(FilteredItems.Count, ItemsPerPage);
 
-            SelectedItem = newItem;
+            if (SelectNewItem)
+                SelectedItem = newItem;
+            else
+                itemPage = GetSelectedItemPage();
 
             LoadPage(itemPage);
         }
 
+        private int GetSelectedItemPage()
+        {
+            if (ReferenceEquals(SelectedItem, null))
+                return 1;
+            var selectedItemIndex = FilteredItems.IndexOf(SelectedItem);
+            return selectedItemIndex != -1
+                ? GetItemPage(ItemsPerPage, selectedItemIndex)
+                : 1;
+        }
         private void OnItemRemoved(IEnumerable removedSourceItems)
         {
             foreach (T removedSourceItem in removedSourceItems)
@@ -360,6 +378,15 @@ namespace DuplicateFileTool
         private void OnItemMoved(int oldStartingIndex, int newStartingIndex)
         {
             throw new NotImplementedException();
+        }
+
+        private void OnSourceCollectionReset()
+        {
+            ResetTarget();
+
+            OnPropertyChanged(CountString);
+            OnPropertyChanged(IndexerName);
+            OnCollectionReset();
         }
 
         #region Event Invokators
