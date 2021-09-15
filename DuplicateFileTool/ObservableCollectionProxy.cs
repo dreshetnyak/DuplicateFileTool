@@ -13,8 +13,8 @@ namespace DuplicateFileTool
 {
     internal sealed class ObservableCollectionProxy<T> : Collection<T>, INotifyCollectionChanged, INotifyPropertyChanged where T : class
     {
-        private const string CountString = nameof(Count);
-        private const string IndexerName = "Item[]";
+        private const string COUNT_STRING = nameof(Count);
+        private const string INDEXER_NAME = "Item[]";
 
         private int _itemsPerPage;
         private int _currentPage;
@@ -131,41 +131,59 @@ namespace DuplicateFileTool
             return pagesCount;
         }
 
-        private IEnumerable<T> GetPageItems(int page)
+        private T[] GetPageItems(int page)
         {
             Debug.Assert(page != 0, "Page cannot be zero, the page is a number that starts from 1");
             var itemsPerPage = ItemsPerPage;
             var startIndex = itemsPerPage * (page - 1);
             var endIndex = startIndex + itemsPerPage;
             var filteredItemsCount = FilteredItems.Count;
+            
+            var itemsCount = (endIndex < filteredItemsCount ? endIndex : filteredItemsCount) - startIndex;
+            var items = new T[itemsCount];
+            
+            for (var index = 0; index < itemsCount; index++)
+                items[index] = FilteredItems[startIndex + index];
 
-            for (var index = startIndex; index < endIndex && index < filteredItemsCount; index++)
-                yield return FilteredItems[index];
+            return items;
         }
 
         private void LoadPage(int page)
         {
-            if (Items.Count != 0)
+            CurrentPage = page;
+            var pageItems = GetPageItems(page);
+
+            var existingItemsCount = Items.Count;
+            var pageItemsLength = pageItems.Length;
+            for (var itemIndex = 0; itemIndex < pageItemsLength; itemIndex++)
             {
-                Items.Clear();
-                OnPropertyChanged(CountString);
-                OnPropertyChanged(IndexerName);
-                OnCollectionReset();
+                T existingItem = null;
+                var newItem = pageItems[itemIndex];
+                switch (itemIndex < existingItemsCount) //If item at the index exists
+                {
+                    case true when ReferenceEquals(newItem, existingItem = Items[itemIndex]):
+                        continue;
+                    case true:
+                        Items[itemIndex] = newItem;
+                        OnCollectionChanged(NotifyCollectionChangedAction.Replace, existingItem, newItem, itemIndex);
+                        break;
+                    default:
+                        Items.Add(newItem);
+                        OnCollectionChanged(NotifyCollectionChangedAction.Add, newItem, itemIndex);
+                        break;
+                }
             }
 
-            //TODO Here we should do differential, instead of clearing items we should go through existing and compare with the new one
-
-            CurrentPage = page;
-            var pageItems = GetPageItems(page).ToArray();
-
-            OnPropertyChanged(CountString);
-            OnPropertyChanged(IndexerName);
-
-            foreach (var item in pageItems)
+            if (pageItemsLength < existingItemsCount)
             {
-                var itemIndex = Items.Count;
-                Items.Add(item);
-                OnCollectionChanged(NotifyCollectionChangedAction.Add, item, itemIndex);
+                for (var indexToRemove = existingItemsCount - 1; indexToRemove >= pageItemsLength; indexToRemove--)
+                {
+                    var removedItem = Items[indexToRemove];
+                    Items.RemoveAt(indexToRemove);
+                    OnPropertyChanged(COUNT_STRING);
+                    OnPropertyChanged(INDEXER_NAME);
+                    OnCollectionChanged(NotifyCollectionChangedAction.Remove, removedItem, indexToRemove);
+                }
             }
 
             OnPropertyChanged(nameof(HasPages));
@@ -180,8 +198,8 @@ namespace DuplicateFileTool
             SourceCollection.Clear();
             ResetTarget();
 
-            OnPropertyChanged(CountString);
-            OnPropertyChanged(IndexerName);
+            OnPropertyChanged(COUNT_STRING);
+            OnPropertyChanged(INDEXER_NAME);
             OnCollectionReset();
         }
 
@@ -196,8 +214,8 @@ namespace DuplicateFileTool
             LoadPage(itemPage);
             SelectedItem = item;
 
-            OnPropertyChanged(CountString);
-            OnPropertyChanged(IndexerName);
+            OnPropertyChanged(COUNT_STRING);
+            OnPropertyChanged(INDEXER_NAME);
             OnCollectionChanged(NotifyCollectionChangedAction.Add, item, index);
         }
 
@@ -216,8 +234,8 @@ namespace DuplicateFileTool
                     ? Items[itemsCount - 1]
                     : default;
 
-            OnPropertyChanged(CountString);
-            OnPropertyChanged(IndexerName);
+            OnPropertyChanged(COUNT_STRING);
+            OnPropertyChanged(INDEXER_NAME);
             OnCollectionChanged(NotifyCollectionChangedAction.Remove, removedItem, index);
         }
 
@@ -230,7 +248,7 @@ namespace DuplicateFileTool
             Items[index] = item;
             SelectedItem = item;
 
-            OnPropertyChanged(IndexerName);
+            OnPropertyChanged(INDEXER_NAME);
             OnCollectionChanged(NotifyCollectionChangedAction.Replace, oldItem, item, index);
         }
 
@@ -384,8 +402,8 @@ namespace DuplicateFileTool
         {
             ResetTarget();
 
-            OnPropertyChanged(CountString);
-            OnPropertyChanged(IndexerName);
+            OnPropertyChanged(COUNT_STRING);
+            OnPropertyChanged(INDEXER_NAME);
             OnCollectionReset();
         }
 
