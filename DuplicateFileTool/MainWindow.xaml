@@ -216,13 +216,13 @@
                                 <DataGridComboBoxColumn Header="Inclusion" SelectedValueBinding="{Binding PathInclusionType}">
                                     <DataGridComboBoxColumn.ElementStyle>
                                         <Style TargetType="{x:Type ComboBox}">
-                                            <Setter Property="ItemsSource" Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.PathComparisonTypes}" />
+                                            <Setter Property="ItemsSource" Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.Config.PathComparisonTypes}" />
                                             <Setter Property="VerticalAlignment" Value="Center"/>
                                         </Style>
                                     </DataGridComboBoxColumn.ElementStyle>
                                     <DataGridComboBoxColumn.EditingElementStyle>
                                         <Style TargetType="{x:Type ComboBox}">
-                                            <Setter Property="ItemsSource" Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.PathComparisonTypes}" />
+                                            <Setter Property="ItemsSource" Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.Config.PathComparisonTypes}" />
                                             <Setter Property="VerticalAlignment" Value="Center"/>
                                         </Style>
                                     </DataGridComboBoxColumn.EditingElementStyle>
@@ -357,7 +357,7 @@
 
                                     <ComboBox Grid.Column="1" 
                                               SelectedItem="{Binding DuplicateGroupComparer.SelectedSortOrder, UpdateSourceTrigger=PropertyChanged}"
-                                              ItemsSource="{Binding SortOrderTypes, Mode=OneTime}" />
+                                              ItemsSource="{Binding Config.SortOrderTypes, Mode=OneTime}" />
 
                                     <Button Grid.Column="2" 
                                             Command="{Binding ToggleDuplicateSortingOrder}" 
@@ -370,7 +370,7 @@
                                                 <Style TargetType="{x:Type Image}">
                                                     <Setter Property="Source" Value="Images/ArrowUp.png" />
                                                     <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IsSortOrderDescending}" Value="True">
+                                                        <DataTrigger Binding="{Binding DuplicateGroupComparer.IsSortOrderDescending}" Value="True">
                                                             <Setter Property="Source" Value="Images/DownArrow.png" />
                                                         </DataTrigger>
                                                     </Style.Triggers>

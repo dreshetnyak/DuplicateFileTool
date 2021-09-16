@@ -10,6 +10,7 @@ namespace DuplicateFileTool
     internal class DuplicateGroupComparer : IComparer<DuplicateGroup>, INotifyPropertyChanged
     {
         private SortOrder _selectedSortOrder;
+        private bool _isSortOrderDescending;
 
         public SortOrder SelectedSortOrder
         {
@@ -23,9 +24,22 @@ namespace DuplicateFileTool
             }
         }
 
-        public DuplicateGroupComparer(SortOrder sortOrder)
+        public bool IsSortOrderDescending
+        {
+            get => _isSortOrderDescending;
+            set
+            {
+                if (_isSortOrderDescending == value)
+                    return;
+                _isSortOrderDescending = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public DuplicateGroupComparer(SortOrder sortOrder, bool isSortOrderDescending)
         {
             _selectedSortOrder = sortOrder;
+            _isSortOrderDescending = isSortOrderDescending;
         }
 
         public int Compare(DuplicateGroup left, DuplicateGroup right)
@@ -35,10 +49,10 @@ namespace DuplicateFileTool
 
             return SelectedSortOrder switch
             {
-                SortOrder.Size => CompareGroupSizes(left, right),
-                SortOrder.Name => CompareGroupNames(left, right),
-                SortOrder.Path => CompareGroupPaths(left, right),
-                SortOrder.Number => CompareGroupNumbers(left, right),
+                SortOrder.Size => IsSortOrderDescending ? CompareGroupSizes(right, left) : CompareGroupSizes(left, right),
+                SortOrder.Name => IsSortOrderDescending ? CompareGroupNames(right, left) : CompareGroupNames(left, right),
+                SortOrder.Path => IsSortOrderDescending ? CompareGroupPaths(right, left) : CompareGroupPaths(left, right),
+                SortOrder.Number => IsSortOrderDescending ? CompareGroupNumbers(right, left) : CompareGroupNumbers(left, right),
                 _ => 0
             };
         }

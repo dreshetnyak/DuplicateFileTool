@@ -3,6 +3,11 @@ using System.Reflection;
 
 namespace DuplicateFileTool.Configuration
 {
+    internal interface IChangeable
+    {
+        bool HasChanged { get; }
+    }
+
     internal static class ConfigurationManager
     {
         public static void LoadFromAppConfig(this object configObject)

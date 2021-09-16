@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Windows;
 
 namespace DuplicateFileTool
@@ -13,6 +14,15 @@ namespace DuplicateFileTool
         {
             InitializeComponent();
             DataContext = new MainViewModel(this);
+            Closed += OnWindowClosed;
+        }
+
+        private void OnWindowClosed(object sender, EventArgs e)
+        {
+            if (DataContext is not IDisposable disposable)
+                return;
+            try { disposable.Dispose(); }
+            catch { /* ignore */ }
         }
     }
 }

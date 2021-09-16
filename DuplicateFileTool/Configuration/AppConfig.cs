@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Configuration;
+using System.Linq;
+using System.Windows.Forms;
 
 namespace DuplicateFileTool.Configuration
 {
@@ -50,8 +52,15 @@ namespace DuplicateFileTool.Configuration
 
         public static void Set<T>(string parameterName, T value)
         {
+            var appSettings = Config.AppSettings.Settings;
             if (ReferenceEquals(value, null))
-                Config.AppSettings.Settings.Remove(parameterName);
+            {
+                appSettings.Remove(parameterName);
+                return;
+            }
+
+            if (appSettings.AllKeys.All(key => key != parameterName))
+                appSettings.Add(parameterName, value.ToString());
             else
                 Config.AppSettings.Settings[parameterName].Value = value.ToString();
         }

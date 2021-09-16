@@ -26,7 +26,7 @@ namespace DuplicateFileTool
             get => _hasChanged;
             set
             {
-                _hasChanged = value; 
+                _hasChanged = value;
                 OnPropertyChanged();
             }
         }

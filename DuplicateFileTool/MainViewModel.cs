@@ -14,7 +14,7 @@ namespace DuplicateFileTool
 {
     public enum InclusionType { Include, Exclude }
     public enum ByteSizeUnits { Bytes, Kilobytes, Megabytes, Gigabytes }
-    public enum SortOrder { None, Size, Name, Path, Number }
+    public enum SortOrder { Number, Size, Path, Name }
 
     internal class SearchPath : NotifyPropertyChanged
     {
@@ -52,25 +52,22 @@ namespace DuplicateFileTool
     }
 
     [Localizable(true)]
-    internal class MainViewModel : NotifyPropertyChanged
+    internal class MainViewModel : NotifyPropertyChanged, IDisposable
     {
         #region Backing Fields
         private IFileComparer _selectedFileComparer;
         private FileTreeItem _selectedFileTreeItem;
         private int _selectedTabIndex;
-        private string _output;
         private bool _removeEmptyDirectories;
         private bool _deleteToRecycleBin;
         private double _taskbarProgress;
         private string _selectedDuplicatePath;
-        private bool _isSortOrderDescending;
         private string _duplicatesSortingOrderToolTip;
 
         #endregion
 
         public ApplicationConfig Config { get; }
 
-        public InclusionType[] PathComparisonTypes { get; }
         public IInclusionPredicate<FileData> FileSearchInclusionPredicate { get; }
         public IReadOnlyCollection<IFileComparer> FileComparers { get; }
         public IFileComparer SelectedFileComparer
@@ -87,19 +84,7 @@ namespace DuplicateFileTool
             }
         }
         public DuplicatesEngine Duplicates { get; }
-        //public PagedObservableCollectionView<DuplicateGroup> DuplicateGroupsPageView { get; } //Stores the collection of duplicates groups that corresponds to the selected page
         public ObservableCollectionProxy<DuplicateGroup> DuplicateGroupsProxyView { get; }
-        public bool IsSortOrderDescending
-        {
-            get => _isSortOrderDescending;
-            set
-            {
-                if (_isSortOrderDescending == value)
-                    return;
-                _isSortOrderDescending = value;
-                OnPropertyChanged();
-            }
-        }
 
         public ObservableCollection<SearchPath> SearchPaths { get; } = new();
         public ObservableCollection<FileTreeItem> FileTree { get; } = new();
@@ -139,18 +124,8 @@ namespace DuplicateFileTool
                 OnPropertyChanged();
             }
         }
-        public SortOrder[] SortOrderTypes { get; }
         public DuplicateGroupComparer DuplicateGroupComparer { get; }
 
-        public string Output
-        {
-            get => _output;
-            set
-            {
-                _output = value;
-                OnPropertyChanged();
-            }
-        }
         public bool RemoveEmptyDirectories
         {
             get => _removeEmptyDirectories;
@@ -204,9 +179,8 @@ namespace DuplicateFileTool
             PropertyChanged += OnPropertyChanged;
 
             Config = new ApplicationConfig();
+
             SearchConfig = Config.SearchConfig;
-            PathComparisonTypes = Enum.GetValues(typeof(InclusionType)).OfType<object>().Cast<InclusionType>().ToArray();
-            SortOrderTypes = Enum.GetValues(typeof(SortOrder)).OfType<object>().Cast<SortOrder>().ToArray();
 
             FileSearchInclusionPredicate = new FileSearchInclusionPredicate(Config.SearchConfig);
             FileComparers = Config.FileComparers;
@@ -215,11 +189,10 @@ namespace DuplicateFileTool
             Duplicates.Errors.CollectionChanged += (_, _) => Ui.IsErrorTabImageEnabled = Duplicates.Errors.Count != 0;
             Duplicates.DuplicateGroups.CollectionChanged += OnDuplicateGroupsCollectionChanged;
 
-            //TODO IsSortOrderDescending should be propagated to the configuration
-            var resultsGroupInclusionPredicate = new ResultsGroupInclusionPredicate(); //TODO
-            DuplicateGroupComparer = new DuplicateGroupComparer(SortOrder.Number); //TODO initial sort order should be propagated to config
+            var resultsGroupInclusionPredicate = new ResultsGroupInclusionPredicate(); //TODO need to implement
+            DuplicateGroupComparer = new DuplicateGroupComparer(Config.ResultsConfig.SortOrder.Value, Config.ResultsConfig.SortDescending.Value);
             DuplicateGroupComparer.PropertyChanged += OnSortTypeChanged;
-            DuplicateGroupsProxyView = new ObservableCollectionProxy<DuplicateGroup>(Duplicates.DuplicateGroups, resultsGroupInclusionPredicate, DuplicateGroupComparer, 25); //TODO items per page should ne in the config
+            DuplicateGroupsProxyView = new ObservableCollectionProxy<DuplicateGroup>(Duplicates.DuplicateGroups, resultsGroupInclusionPredicate, DuplicateGroupComparer, Config.ResultsConfig.ItemsPerPage.Value);
 
             InitializeSelectedFileComparer();
 
@@ -237,8 +210,8 @@ namespace DuplicateFileTool
             DeleteMarkedFiles = new DeleteMarkedFilesCommand(Duplicates, () => RemoveEmptyDirectories, () => DeleteToRecycleBin);
             AddPath = new AddPathCommand(SearchPaths, () => SelectedFileTreeItem);
             OpenFileInExplorer = new OpenFileInExplorerCommand();
-            ChangePage = new ChangePageCommand(DuplicateGroupsProxyView, () => { }); //TODO was OnPropertyChanged(nameof(DuplicateGroupsPageView.Collection))
-            ToggleDuplicateSortingOrder = new RelayCommand(_ => IsSortOrderDescending = !IsSortOrderDescending);
+            ChangePage = new ChangePageCommand(DuplicateGroupsProxyView);
+            ToggleDuplicateSortingOrder = new RelayCommand(_ => DuplicateGroupComparer.IsSortOrderDescending = !DuplicateGroupComparer.IsSortOrderDescending);
             ClearResults = new ClearResultsCommand(() => Duplicates.Clear());
 
             var treeViewExtension = new TreeViewExtension(mainWindow);
@@ -249,6 +222,11 @@ namespace DuplicateFileTool
             UpdateFileTree();
         }
 
+        public void Dispose()
+        {
+            Config?.Dispose();
+        }
+
         private void OnFindDuplicatesStarting(object sender, EventArgs e)
         {
             DuplicateGroupsProxyView.SortingEnabled = false;
@@ -257,6 +235,7 @@ namespace DuplicateFileTool
 
         private void OnFindDuplicatesFinished(object o, EventArgs eventArgs)
         {
+            DuplicateGroupsProxyView.Sort();
             if (Duplicates.DuplicateGroups.Count != 0)
                 SelectedTabIndex = 1;
             DuplicateGroupsProxyView.SortingEnabled = true;
@@ -308,18 +287,22 @@ namespace DuplicateFileTool
                 case nameof(SelectedFileTreeItem):
                     OnSelectedFileTreeItemChanged();
                     break;
-                case nameof(IsSortOrderDescending):
-                    DuplicatesSortingOrderToolTip = IsSortOrderDescending
+            }
+        }
+        private void OnSortTypeChanged(object sender, PropertyChangedEventArgs eventArgs)
+        {
+            switch (eventArgs.PropertyName)
+            {
+                case nameof(DuplicateGroupComparer.SelectedSortOrder):
+                    DuplicateGroupsProxyView.Sort();
+                    break;
+                case nameof(DuplicateGroupComparer.IsSortOrderDescending):
+                    DuplicatesSortingOrderToolTip = DuplicateGroupComparer.IsSortOrderDescending
                         ? Resources.Ui_Duplicates_Sorting_Order_Descending
                         : Resources.Ui_Duplicates_Sorting_Order_Ascending;
                     DuplicateGroupsProxyView.Sort();
                     break;
             }
-        }
-        private void OnSortTypeChanged(object sender, PropertyChangedEventArgs eventArgs)
-        {
-            if (eventArgs.PropertyName == nameof(DuplicateGroupComparer.SelectedSortOrder))
-                DuplicateGroupsProxyView.Sort();
         }
 
         private void OnSelectedFileTreeItemChanged()

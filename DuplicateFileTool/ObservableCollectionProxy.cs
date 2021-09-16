@@ -157,6 +157,7 @@ namespace DuplicateFileTool
             var pageItemsLength = pageItems.Length;
             for (var itemIndex = 0; itemIndex < pageItemsLength; itemIndex++)
             {
+                // ReSharper disable once RedundantAssignment
                 T existingItem = null;
                 var newItem = pageItems[itemIndex];
                 switch (itemIndex < existingItemsCount) //If item at the index exists
@@ -308,24 +309,21 @@ namespace DuplicateFileTool
             switch (eventArgs.Action)
             {
                 case NotifyCollectionChangedAction.Add:
-                    OnItemAdded(eventArgs.NewStartingIndex);
+                    OnSourceItemAdded(eventArgs.NewStartingIndex);
                     break;
                 case NotifyCollectionChangedAction.Remove:
-                    OnItemRemoved(eventArgs.OldItems);
-                    break;
-                case NotifyCollectionChangedAction.Replace:
-                    OnItemReplaced(eventArgs.NewStartingIndex);
-                    break;
-                case NotifyCollectionChangedAction.Move:
-                    OnItemMoved(eventArgs.OldStartingIndex, eventArgs.NewStartingIndex);
+                    OnSourceItemRemoved(eventArgs.OldItems);
                     break;
                 case NotifyCollectionChangedAction.Reset:
                     OnSourceCollectionReset();
                     break;
+                default:
+                    Debug.Fail($"Source collection action '{eventArgs.Action}' is not supported");
+                    break;
             }
         }
 
-        private void OnItemAdded(int newItemIndex)
+        private void OnSourceItemAdded(int newItemIndex)
         {
             var newItem = SourceCollection[newItemIndex];
             if (!InclusionPredicate.IsIncluded(newItem))
@@ -352,7 +350,8 @@ namespace DuplicateFileTool
                 ? GetItemPage(ItemsPerPage, selectedItemIndex)
                 : 1;
         }
-        private void OnItemRemoved(IEnumerable removedSourceItems)
+
+        private void OnSourceItemRemoved(IEnumerable removedSourceItems)
         {
             foreach (T removedSourceItem in removedSourceItems)
             {
@@ -386,16 +385,6 @@ namespace DuplicateFileTool
 
                 SelectedItem = Items[itemIndex < itemsCount ? itemIndex : itemsCount - 1];
             }
-        }
-
-        private void OnItemReplaced(int replacedItemIndex)
-        {
-            throw new NotImplementedException();
-        }
-
-        private void OnItemMoved(int oldStartingIndex, int newStartingIndex)
-        {
-            throw new NotImplementedException();
         }
 
         private void OnSourceCollectionReset()

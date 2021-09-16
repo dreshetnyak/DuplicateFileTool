@@ -86,9 +86,7 @@ namespace DuplicateFileTool
                     return;
                 _value = value;
                 OnPropertyChanged();
-                var isValid = Validator == null || Validator.Validate(value, CultureInfo.CurrentCulture).IsValid;
-                IsValid = isValid;
-                IsInvalid = !isValid;
+                Validate();
             }
         }
         public bool IsValid
@@ -113,15 +111,23 @@ namespace DuplicateFileTool
                 OnPropertyChanged();
             }
         }
-
+        
         public ConfigurationProperty(string name, string description, T defaultValue, ValidationRule validator = null, bool isReadOnly = false, bool isHidden = false)
         {
             Name = name;
             Description = description;
             Validator = validator ?? new DefaultValidationRule();
-            Value = DefaultValue = defaultValue;
+            _value = DefaultValue = defaultValue;
             IsReadOnly = isReadOnly;
             IsHidden = isHidden;
+            Validate();
+        }
+
+        private void Validate()
+        {
+            var isValid = Validator == null || Validator.Validate(Value, CultureInfo.CurrentCulture).IsValid;
+            IsValid = isValid;
+            IsInvalid = !isValid;
         }
 
         #region INotifyPropertyChanged Implementation

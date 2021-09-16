@@ -4,45 +4,88 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using DuplicateFileTool.Properties;
 
 namespace DuplicateFileTool.Configuration
 {
-    internal class ApplicationConfig : NotifyPropertyChanged
+    internal class ApplicationConfig : NotifyPropertyChanged, IChangeable, IDisposable
     {
+        private bool _hasChanged;
         private bool _hasUnsavedChanges;
 
         public string ApplicationName { get; } = ConfigurationManager.GetAppName();
         public Logger Log { get; }
+        public bool HasChanged
+        {
+            get => _hasChanged;
+            private set
+            {
+                _hasChanged = value;
+                OnPropertyChanged();
+            }
+        }
         public bool HasUnsavedChanges
         {
             get => _hasUnsavedChanges;
-            private set
+            set
             {
+                if (_hasUnsavedChanges == value)
+                    return;
                 _hasUnsavedChanges = value;
                 OnPropertyChanged();
             }
         }
 
         public SearchConfiguration SearchConfig { get; } = new();
+        public ResultsConfiguration ResultsConfig { get; } = new();
         public IReadOnlyCollection<IFileComparer> FileComparers { get; }
+        public InclusionType[] PathComparisonTypes { get; }
+        public SortOrder[] SortOrderTypes { get; }
 
         public ApplicationConfig()
         {
             Log = new Logger(Logger.Target.Debug);
 
+            PathComparisonTypes = Enum.GetValues(typeof(InclusionType)).OfType<object>().Cast<InclusionType>().ToArray();
+            SortOrderTypes = Enum.GetValues(typeof(SortOrder)).OfType<object>().Cast<SortOrder>().ToArray();
+
+            try { this.LoadFromAppConfig(); }
+            catch (Exception ex) { Log.Write("Error: Loading application configuration from app config failed with the exception: " + ex); throw; }
+            PropertyChanged += OnConfigurationChanged;
+
             try { SearchConfig.LoadFromAppConfig(); }
             catch (Exception ex) { Log.Write("Error: Loading search configuration from app config failed with the exception: " + ex); throw; }
-            SearchConfig.PropertyChanged += OnSearchConfigChanged;
+            SearchConfig.PropertyChanged += OnConfigurationChanged;
+
+            try { ResultsConfig.LoadFromAppConfig(); }
+            catch (Exception ex) { Log.Write("Error: Loading results configuration from app config failed with the exception: " + ex); throw; }
+            SearchConfig.PropertyChanged += OnConfigurationChanged;
 
             FileComparers = GetFileComparers().ToArray();
-
-            HasUnsavedChanges = false;
         }
 
-        private void OnSearchConfigChanged(object sender, PropertyChangedEventArgs args)
+        public void Dispose()
         {
-            if (args.PropertyName == nameof(SearchConfiguration.HasChanged))
-                HasUnsavedChanges = SearchConfig.HasChanged;
+            if (HasUnsavedChanges)
+                SaveChanges();
+
+            Log?.Dispose();
+        }
+
+        private void SaveChanges()
+        {
+            if (HasChanged)
+                this.SaveToAppConfig();
+            if (SearchConfig.HasChanged)
+                SearchConfig.SaveToAppConfig();
+            if (ResultsConfig.HasChanged)
+                ResultsConfig.SaveToAppConfig();
+        }
+
+        private void OnConfigurationChanged(object sender, PropertyChangedEventArgs _)
+        {
+            if (sender is IChangeable { HasChanged: true })
+                HasUnsavedChanges = true;
         }
 
         private static IEnumerable<IFileComparer> GetFileComparers()

@@ -5,12 +5,10 @@ namespace DuplicateFileTool.Commands
     internal class ChangePageCommand : CommandBase
     {
         private ObservableCollectionProxy<DuplicateGroup> Collection { get; }
-        private Action RefreshCollectionView { get; }
 
-        public ChangePageCommand(ObservableCollectionProxy<DuplicateGroup> collection, Action refreshCollectionView)
+        public ChangePageCommand(ObservableCollectionProxy<DuplicateGroup> collection)
         {
             Collection = collection;
-            RefreshCollectionView = refreshCollectionView;
         }
 
         public override void Execute(object parameter)
@@ -31,8 +29,6 @@ namespace DuplicateFileTool.Commands
                     Collection.LoadLastPage();
                     break;
             }
-
-            RefreshCollectionView(); //Otherwise scrollbar does not return to the beginning of the tree
         }
     }
 }

@@ -313,6 +313,60 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to How many duplicate groups to display on a single results page.
+        /// </summary>
+        public static string Config_Results_Items_Per_Page_Description {
+            get {
+                return ResourceManager.GetString("Config_Results_Items_Per_Page_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Duplicate groups per page.
+        /// </summary>
+        public static string Config_Results_Items_Per_Page_Name {
+            get {
+                return ResourceManager.GetString("Config_Results_Items_Per_Page_Name", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Indicates if the results should be in a descending or ascending order.
+        /// </summary>
+        public static string Config_Results_Sort_Descending_Description {
+            get {
+                return ResourceManager.GetString("Config_Results_Sort_Descending_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Results Sorting Direction.
+        /// </summary>
+        public static string Config_Results_Sort_Descending_Name {
+            get {
+                return ResourceManager.GetString("Config_Results_Sort_Descending_Name", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Specified the duplicate group parameter to use for sorting results.
+        /// </summary>
+        public static string Config_Results_Sort_Order_Description {
+            get {
+                return ResourceManager.GetString("Config_Results_Sort_Order_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sorting Order.
+        /// </summary>
+        public static string Config_Results_Sort_Order_Name {
+            get {
+                return ResourceManager.GetString("Config_Results_Sort_Order_Name", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The file comparer that should be used to compare files during the duplicates search..
         /// </summary>
         public static string Configur_SelectedFileComparerGuid_Description {

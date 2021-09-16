@@ -441,4 +441,22 @@
   <data name="Ui_Results_Page_Number_Split" xml:space="preserve">
     <value>/</value>
   </data>
+  <data name="Config_Results_Sort_Descending_Description" xml:space="preserve">
+    <value>Indicates if the results should be in a descending or ascending order</value>
+  </data>
+  <data name="Config_Results_Sort_Descending_Name" xml:space="preserve">
+    <value>Results Sorting Direction</value>
+  </data>
+  <data name="Config_Results_Sort_Order_Description" xml:space="preserve">
+    <value>Specified the duplicate group parameter to use for sorting results</value>
+  </data>
+  <data name="Config_Results_Sort_Order_Name" xml:space="preserve">
+    <value>Sorting Order</value>
+  </data>
+  <data name="Config_Results_Items_Per_Page_Description" xml:space="preserve">
+    <value>How many duplicate groups to display on a single results page</value>
+  </data>
+  <data name="Config_Results_Items_Per_Page_Name" xml:space="preserve">
+    <value>Duplicate groups per page</value>
+  </data>
 </root>

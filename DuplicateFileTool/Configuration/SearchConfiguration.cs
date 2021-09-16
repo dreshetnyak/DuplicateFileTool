@@ -5,11 +5,6 @@ using DuplicateFileTool.Properties;
 
 namespace DuplicateFileTool.Configuration
 {
-    internal interface IChangeable
-    {
-        bool HasChanged { get; }
-    }
-
     [Localizable(true)]
     internal class SearchConfiguration : NotifyPropertyChanged, IChangeable
     {
@@ -80,6 +75,12 @@ namespace DuplicateFileTool.Configuration
         {
             ChangeTracker = new PropertiesChangeTracker<SearchConfiguration>(this);
             ChangeTracker.PropertyChanged += (_, _) => OnPropertyChanged(nameof(HasChanged));
+            MaximumFilesOpenedAtOnce.PropertyChanged += OnMaximumFilesOpenedAtOnceChanged;
+        }
+
+        private void OnMaximumFilesOpenedAtOnceChanged(object sender, PropertyChangedEventArgs eventArgs)
+        {
+            FileReader.MaxFileHandlesCount = MaximumFilesOpenedAtOnce.Value;
         }
     }
 }
