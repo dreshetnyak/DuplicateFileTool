@@ -9,16 +9,28 @@ namespace DuplicateFileTool.Commands
 {
     internal class AutoSelectByPathCommand : CommandBase
     {
-        private Action<long> UpdateToDeleteSize { get; }
+        private string _path;
         private ObservableCollection<DuplicateGroup> DuplicateFileGroups { get; }
-        public Func<string> SelectedDuplicatePath { get; }
 
-        public AutoSelectByPathCommand(ObservableCollection<DuplicateGroup> duplicateFileGroups, Func<string> selectedDuplicatePath, Action<long> updateToDeleteSize)
+        public string Path
+        {
+            get => _path;
+            set
+            {
+                if (_path == value)
+                    return;
+                _path = value;
+                Enabled = !string.IsNullOrEmpty(value);
+                OnPropertyChanged();
+            }
+        }
+
+        public event UpdateToDeleteEventHandler FilesAutoMarkedForDeletion;
+        
+        public AutoSelectByPathCommand(ObservableCollection<DuplicateGroup> duplicateFileGroups)
         {
             Enabled = false;
             DuplicateFileGroups = duplicateFileGroups;
-            SelectedDuplicatePath = selectedDuplicatePath;
-            UpdateToDeleteSize = updateToDeleteSize;
         }
 
         public override void Execute(object parameter)
@@ -30,11 +42,15 @@ namespace DuplicateFileTool.Commands
 
         private string GetThePathForSelection()
         {
+            var path = Path;
+            if (path == null)
+                return null;
+
             using var dialog = new FolderBrowserDialog
             {
                 Description = Resources.Ui_AutoSelectByPath_Description,
                 RootFolder = Environment.SpecialFolder.Desktop,
-                SelectedPath = new FileInfo(SelectedDuplicatePath()).DirectoryName,
+                SelectedPath = new FileInfo(path).DirectoryName,
                 ShowNewFolderButton = false
             };
 
@@ -63,8 +79,13 @@ namespace DuplicateFileTool.Commands
             foreach (var duplicateFile in duplicatesForMarking)
             {
                 duplicateFile.IsMarkedForDeletion = true;
-                UpdateToDeleteSize?.Invoke(duplicateFile.FileData.Size);
+                OnFilesMarkedForDeletion(1, duplicateFile.FileData.Size);
             }
+        }
+
+        protected virtual void OnFilesMarkedForDeletion(long count, long size)
+        {
+            FilesAutoMarkedForDeletion?.Invoke(this, new UpdateToDeleteEventArgs(count, size));
         }
     }
 }

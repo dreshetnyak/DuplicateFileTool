@@ -154,7 +154,7 @@
     <value>Error: {0}</value>
   </data>
   <data name="Log_Performing_deletion_of_the_marked_duplicates" xml:space="preserve">
-    <value>Performing deletion of the marked duplicates:</value>
+    <value>Performing deletion of the marked duplicates.</value>
   </data>
   <data name="Error_Failed_to_close_the_file_search_handle" xml:space="preserve">
     <value>Failed to close the file search handle. </value>

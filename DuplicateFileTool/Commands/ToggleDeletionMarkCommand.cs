@@ -2,16 +2,23 @@
 
 namespace DuplicateFileTool.Commands
 {
+    internal class UpdateToDeleteEventArgs : EventArgs
+    {
+        public long Count { get; }
+        public long Size { get; set; }
+
+        public UpdateToDeleteEventArgs(long count, long size)
+        {
+            Count = count;
+            Size = size;
+        }
+    }
+
+    internal delegate void UpdateToDeleteEventHandler(object sender, UpdateToDeleteEventArgs eventArgs);
+    
     internal class ToggleDeletionMarkCommand : CommandBase
     {
-        private Action<long> UpdateToDeleteSize { get; }
-        public Action<long> UpdateToDeleteCount { get; }
-
-        public ToggleDeletionMarkCommand(Action<long> updateToDeleteSize, Action<long> updateToDeleteCount)
-        {
-            UpdateToDeleteSize = updateToDeleteSize;
-            UpdateToDeleteCount = updateToDeleteCount;
-        }
+        public event UpdateToDeleteEventHandler DeletionMarkToggle;
 
         public override void Execute(object parameter)
         {
@@ -22,13 +29,19 @@ namespace DuplicateFileTool.Commands
                     return;
 
                 var isMarkedForDeletion = duplicateFile.IsMarkedForDeletion = !duplicateFile.IsMarkedForDeletion;
-                UpdateToDeleteSize?.Invoke(isMarkedForDeletion ? duplicateFile.FileData.Size : -duplicateFile.FileData.Size);
-                UpdateToDeleteCount?.Invoke(isMarkedForDeletion ? 1 : -1);
+                var size = isMarkedForDeletion ? duplicateFile.FileData.Size : -duplicateFile.FileData.Size;
+                var count = isMarkedForDeletion ? 1 : -1;
+                OnDeletionMarkToggle(count, size);
             }
             finally
             {
                 Enabled = true;
             }
+        }
+
+        protected virtual void OnDeletionMarkToggle(long count, long size)
+        {
+            DeletionMarkToggle?.Invoke(this, new UpdateToDeleteEventArgs(count, size));
         }
     }
 }

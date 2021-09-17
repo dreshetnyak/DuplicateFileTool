@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace DuplicateFileTool
 {
@@ -13,7 +14,7 @@ namespace DuplicateFileTool
         public MainWindow()
         {
             InitializeComponent();
-            DataContext = new MainViewModel(this);
+            DataContext = new MainViewModel(ResultsTreeView);
             Closed += OnWindowClosed;
         }
 

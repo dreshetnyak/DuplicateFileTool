@@ -39,14 +39,14 @@ namespace DuplicateFileTool
             return false;
         }
 
-        public bool TrySet(string name, object value)
+        public bool TrySet(string name, string value)
         {
             var property = GetPropertyInfo(name);
             if (property == default)
                 return false;
 
             object convertedValue;
-            try { convertedValue = Convert.ChangeType(value, property.PropertyType); }
+            try { convertedValue = FromString(value, property.PropertyType); }
             catch { return false; }
 
             try { property.SetValue(ReflectedObject, convertedValue); }
@@ -67,6 +67,15 @@ namespace DuplicateFileTool
             return ReflectedObjectType
                 .GetProperties(BindingFlags)
                 .FirstOrDefault(property => property.Name == name);
+        }
+
+        private static object FromString(string str, Type type)
+        {
+            if (type.IsEnum)
+                return Enum.Parse(type, str);
+            return type != typeof(Guid)
+                ? Convert.ChangeType(str, type)
+                : Guid.Parse(str);
         }
     }
 }

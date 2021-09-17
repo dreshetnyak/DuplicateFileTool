@@ -105,7 +105,7 @@ namespace DuplicateFileTool
 
                 if (unmarkedFilesCount < 1)
                 {
-                    OnDeletionMessage(Resources.Warning_Encountered_a_group_with_all_files_selected, MessageType.Warning);
+                    Application.Current.Dispatcher.Invoke(() => OnDeletionMessage(Resources.Warning_Encountered_a_group_with_all_files_selected, MessageType.Warning));
                     UnmarkAll(duplicateFileGroup, deletionState);
                     continue;
                 }
@@ -152,11 +152,11 @@ namespace DuplicateFileTool
 
                 var fileData = duplicatedFile.FileData;
                 var fullFileName = fileData.FullName;
-                OnDeletionMessage(string.Format(Resources.Log_Deleting_Name_Size, fullFileName, duplicatedFile.FileSize));
+                Application.Current.Dispatcher.Invoke(() => OnDeletionMessage(string.Format(Resources.Log_Deleting_Name_Size, fullFileName, duplicatedFile.FileSize)));
 
                 try
                 {
-                    FileSystem.DeleteFile(fullFileName, deleteToRecycleBin);
+                    FileSystem.DeleteFile(fileData, deleteToRecycleBin);
                     var indexClosure = index;
                     Application.Current.Dispatcher.Invoke(() => duplicateFiles.RemoveAt(indexClosure));
                     index--;
@@ -170,13 +170,13 @@ namespace DuplicateFileTool
                 }
                 catch (FileSystemException ex)
                 {
-                    OnDeletionMessage(string.Format(Resources.Log_Error_Deleting_failed_Name, ex.FileFullName) + ' ' + string.Format(Resources.Log_Error_Deleting_failed_Exception, ex.Message), MessageType.Error);
+                    Application.Current.Dispatcher.Invoke(() => OnDeletionMessage(string.Format(Resources.Log_Error_Deleting_failed_Name, ex.FileFullName) + ' ' + string.Format(Resources.Log_Error_Deleting_failed_Exception, ex.Message), MessageType.Error));
                     continue;
                 }
                 finally
                 {
                     deletionStatus.CurrentFileForDeletionIndex++;
-                    OnDeletionStateChanged(deletionStatus);
+                    Application.Current.Dispatcher.Invoke(() => OnDeletionStateChanged(deletionStatus));
                 }
 
                 cancellationToken.ThrowIfCancellationRequested();
@@ -186,8 +186,8 @@ namespace DuplicateFileTool
                     continue;
 
                 FileSystem.DeleteDirectoryTreeWithParents(dirPath,
-                    message => OnDeletionMessage(string.Format(Resources.Log_Deleting_Name, message) + Environment.NewLine),
-                    (path, errorMessage) => OnDeletionMessage(path, errorMessage, MessageType.Error),
+                    message => Application.Current.Dispatcher.Invoke(() => OnDeletionMessage(string.Format(Resources.Log_Deleting_Name, message) + Environment.NewLine)),
+                    (path, errorMessage) => Application.Current.Dispatcher.Invoke(() => OnDeletionMessage(path, errorMessage, MessageType.Error)),
                     deleteToRecycleBin);
             }
         }

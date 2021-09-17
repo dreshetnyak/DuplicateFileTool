@@ -209,21 +209,13 @@ namespace DuplicateFileTool
         }
 
         //TODO implement deleteToRecycleBin
-        public static void DeleteFile(string fileFullName, bool deleteToRecycleBin = false)
-        {
-            if (!Win32.DeleteFile(fileFullName))
-                throw new FileSystemException(fileFullName, new Win32Exception(Marshal.GetLastWin32Error()).Message);
-        }
-
-        public static void DeleteFile(FileData fileData)
+        public static void DeleteFile(FileData fileData, bool deleteToRecycleBin = false)
         {
             if (fileData.Attributes.IsReadonly)
                 RemoveFileReadonlyAttribute(fileData);
 
-            if (Win32.DeleteFile(fileData.FullName))
-                return;
-
-            throw new FileSystemException(fileData.FullName, new Win32Exception(Marshal.GetLastWin32Error()).Message);
+            if (!Win32.DeleteFile(fileData.FullName))
+                throw new FileSystemException(fileData.FullName, new Win32Exception(Marshal.GetLastWin32Error()).Message);
         }
 
         public static bool RemoveFileReadonlyAttribute(FileData fileData)

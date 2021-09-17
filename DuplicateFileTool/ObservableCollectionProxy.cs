@@ -70,7 +70,8 @@ namespace DuplicateFileTool
         public bool HasPages => TotalPages != 0;
         public bool NextPageExists => CurrentPage < TotalPages;
         public bool PreviousPageExists => CurrentPage > 1;
-        
+
+        public event EventHandler PageChanged;
         public event PropertyChangedEventHandler PropertyChanged;
         public event NotifyCollectionChangedEventHandler CollectionChanged;
 
@@ -92,6 +93,8 @@ namespace DuplicateFileTool
 
         public void Sort()
         {
+            if (TotalPages == 0)
+                return;
             FilteredItems.Sort(Comparer);
             LoadPage(1);
         }
@@ -110,7 +113,7 @@ namespace DuplicateFileTool
 
         public void LoadFirstPage()
         {
-            if (CurrentPage != 1)
+            if (CurrentPage != 1 && TotalPages != 0)
                 LoadPage(1);
         }
 
@@ -133,7 +136,9 @@ namespace DuplicateFileTool
 
         private T[] GetPageItems(int page)
         {
-            Debug.Assert(page != 0, "Page cannot be zero, the page is a number that starts from 1");
+            if (page == 0)
+                return Array.Empty<T>();
+
             var itemsPerPage = ItemsPerPage;
             var startIndex = itemsPerPage * (page - 1);
             var endIndex = startIndex + itemsPerPage;
@@ -150,6 +155,7 @@ namespace DuplicateFileTool
 
         private void LoadPage(int page)
         {
+            var pageChanged = CurrentPage != page;
             CurrentPage = page;
             var pageItems = GetPageItems(page);
 
@@ -167,10 +173,12 @@ namespace DuplicateFileTool
                     case true:
                         Items[itemIndex] = newItem;
                         OnCollectionChanged(NotifyCollectionChangedAction.Replace, existingItem, newItem, itemIndex);
+                        pageChanged = true;
                         break;
                     default:
                         Items.Add(newItem);
                         OnCollectionChanged(NotifyCollectionChangedAction.Add, newItem, itemIndex);
+                        pageChanged = true;
                         break;
                 }
             }
@@ -184,12 +192,15 @@ namespace DuplicateFileTool
                     OnPropertyChanged(COUNT_STRING);
                     OnPropertyChanged(INDEXER_NAME);
                     OnCollectionChanged(NotifyCollectionChangedAction.Remove, removedItem, indexToRemove);
+                    pageChanged = true;
                 }
             }
 
             OnPropertyChanged(nameof(HasPages));
             OnPropertyChanged(nameof(PreviousPageExists));
             OnPropertyChanged(nameof(NextPageExists));
+            if (pageChanged)
+                OnPageChanged();
         }
 
         #region Collection<T> Overrides
@@ -369,8 +380,10 @@ namespace DuplicateFileTool
                 var itemIndex = Items.IndexOf(removedSourceItem);
                 if (itemIndex != -1)
                 {
-                    selectedItemWasRemoved = SelectedItem != null && Items[itemIndex] == SelectedItem;
+                    var itemToRemove = Items[itemIndex];
+                    selectedItemWasRemoved = SelectedItem != null && itemToRemove == SelectedItem;
                     Items.RemoveAt(itemIndex);
+                    OnCollectionChanged(NotifyCollectionChangedAction.Remove, itemToRemove, itemIndex);
                 }
                 else
                     selectedItemWasRemoved = false;
@@ -406,6 +419,7 @@ namespace DuplicateFileTool
         private void OnCollectionChanged(NotifyCollectionChangedAction action, object item, int index) => CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(action, item, index));
         private void OnCollectionChanged(NotifyCollectionChangedAction action, object oldItem, object newItem, int index) => CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(action, newItem, oldItem, index));
         private void OnCollectionReset() => CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+        private void OnPageChanged() => PageChanged?.Invoke(this, EventArgs.Empty);
 
         #endregion
     }

@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using DuplicateFileTool.Properties;
 
 namespace DuplicateFileTool.Configuration
 {
@@ -18,6 +17,7 @@ namespace DuplicateFileTool.Configuration
         public bool HasChanged
         {
             get => _hasChanged;
+            // ReSharper disable once UnusedMember.Local
             private set
             {
                 _hasChanged = value;
@@ -59,7 +59,7 @@ namespace DuplicateFileTool.Configuration
 
             try { ResultsConfig.LoadFromAppConfig(); }
             catch (Exception ex) { Log.Write("Error: Loading results configuration from app config failed with the exception: " + ex); throw; }
-            SearchConfig.PropertyChanged += OnConfigurationChanged;
+            ResultsConfig.PropertyChanged += OnConfigurationChanged;
 
             FileComparers = GetFileComparers().ToArray();
         }
@@ -84,7 +84,7 @@ namespace DuplicateFileTool.Configuration
 
         private void OnConfigurationChanged(object sender, PropertyChangedEventArgs _)
         {
-            if (sender is IChangeable { HasChanged: true })
+            if (!HasUnsavedChanges && sender is IChangeable { HasChanged: true })
                 HasUnsavedChanges = true;
         }
 

@@ -94,7 +94,6 @@
     <Compile Include="Commands\AddPathCommand.cs" />
     <Compile Include="Commands\AutoSelectByPathCommand.cs" />
     <Compile Include="Commands\ChangePageCommand.cs" />
-    <Compile Include="Commands\ClearResultsCommand.cs" />
     <Compile Include="Commands\CommandBase.cs" />
     <Compile Include="Commands\DeleteMarkedFilesCommand.cs" />
     <Compile Include="Commands\FindDuplicatesCommand.cs" />

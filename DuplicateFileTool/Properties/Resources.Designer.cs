@@ -638,7 +638,7 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Performing deletion of the marked duplicates:.
+        ///   Looks up a localized string similar to Performing deletion of the marked duplicates..
         /// </summary>
         public static string Log_Performing_deletion_of_the_marked_duplicates {
             get {

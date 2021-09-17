@@ -11,18 +11,23 @@ namespace DuplicateFileTool
     internal class DuplicatesSearchProgressEventArgs : EventArgs
     {
         public string FilePath { get; }
+        public bool HasStats { get; }
         public int CurrentFileIndex { get; }
         public int TotalFilesCount { get; }
         public int DuplicateFilesCount { get; }
         public long DuplicatedTotalSize { get; set; }
 
-        public DuplicatesSearchProgressEventArgs(string filePath, int currentFileIndex, int totalFilesCount, int duplicateFilesCount, long duplicatedTotalSize)
+        public DuplicatesSearchProgressEventArgs(string filePath, SearchContext context)
         {
             FilePath = filePath;
-            CurrentFileIndex = currentFileIndex;
-            TotalFilesCount = totalFilesCount;
-            DuplicateFilesCount = duplicateFilesCount;
-            DuplicatedTotalSize = duplicatedTotalSize;
+            if (context != null)
+                HasStats = true;
+            else
+                return;
+            CurrentFileIndex = context.CurrentFileIndex;
+            TotalFilesCount = context.TotalFilesCount;
+            DuplicateFilesCount = context.DuplicateFilesCount;
+            DuplicatedTotalSize = context.DuplicatedTotalSize;
         }
     }
 
@@ -54,18 +59,18 @@ namespace DuplicateFileTool
         public int CompleteMismatch { get; set; }
     }
 
+    internal class SearchContext
+    {
+        public IFileComparerConfig ComparerConfig { get; set; }
+        public int CurrentFileIndex { get; set; }
+        public int TotalFilesCount { get; set; }
+        public int DuplicateGroupsCount { get; set; }
+        public int DuplicateFilesCount { get; set; }
+        public long DuplicatedTotalSize { get; set; }
+    }
+
     internal class DuplicatesSearch
     {
-        private class SearchContext
-        {
-            public IFileComparerConfig ComparerConfig { get; set; }
-            public int CurrentFileIndex { get; set; }
-            public int TotalFilesCount { get; set; }
-            public int DuplicateGroupsCount { get; set; }
-            public int DuplicateFilesCount { get; set; }
-            public long DuplicatedTotalSize { get; set; }
-        }
-
         public event DuplicatesGroupFoundEventHandler DuplicatesGroupFound;
         public event DuplicatesSearchProgressEventHandler DuplicatesSearchProgress;
         public event FileSystemErrorEventHandler FileSystemError;
@@ -88,7 +93,7 @@ namespace DuplicateFileTool
                 context.DuplicateGroupsCount += groupDuplicates.Count;
                 context.DuplicateFilesCount += groupDuplicates.Sum(group => group.Count);
                 context.DuplicatedTotalSize += GetGroupDuplicatedSize(groupDuplicates);
-                OnDuplicatesSearchProgress(groupDuplicates.First().First().ComparableFile.FileData.FullName, context);
+                OnDuplicatesSearchProgress(context);
 
                 foreach (var group in groupDuplicates)
                     OnDuplicatesGroupFound(group);
@@ -117,7 +122,7 @@ namespace DuplicateFileTool
                     if (ContainsFile(duplicates, fileFromGroup))
                         continue;
 
-                    OnDuplicatesSearchProgress(fileFromGroup.FileData.FileName, context);
+                    OnDuplicatesSearchProgress(fileFromGroup.FileData.FullName);
                 
                     var fileFromGroupDuplicates = GetFileDuplicates(fileFromGroup, fileGroup, context, cancellationToken);
 
@@ -181,9 +186,14 @@ namespace DuplicateFileTool
             DuplicatesGroupFound?.Invoke(this, new DuplicatesGroupFoundEventArgs(duplicatesGroup));
         }
         
-        private void OnDuplicatesSearchProgress(string filePath, SearchContext context)
+        private void OnDuplicatesSearchProgress(SearchContext context, string filePath = null)
         {
-            DuplicatesSearchProgress?.Invoke(this, new DuplicatesSearchProgressEventArgs(filePath, context.CurrentFileIndex, context.TotalFilesCount, context.DuplicateFilesCount, context.DuplicatedTotalSize));
+            DuplicatesSearchProgress?.Invoke(this, new DuplicatesSearchProgressEventArgs(filePath, context));
+        }
+
+        private void OnDuplicatesSearchProgress(string filePath)
+        {
+            DuplicatesSearchProgress?.Invoke(this, new DuplicatesSearchProgressEventArgs(filePath, null));
         }
 
         protected virtual void OnFileSystemError(string path, string message, Exception exception = null)

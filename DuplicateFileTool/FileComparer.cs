@@ -82,13 +82,21 @@ namespace DuplicateFileTool
             get => _value;
             set
             {
-                if (IsReadOnly)
+                if (IsReadOnly || Equals(_value, value))
                     return;
                 _value = value;
                 OnPropertyChanged();
                 Validate();
             }
         }
+
+        private static bool Equals(T currentValue, T newValue)
+        {
+            return !ReferenceEquals(currentValue, null)
+                ? !ReferenceEquals(newValue, null) && currentValue.Equals(newValue)
+                : !ReferenceEquals(newValue, null);
+        }
+
         public bool IsValid
         {
             get => _isValid;

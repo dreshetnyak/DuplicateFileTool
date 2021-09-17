@@ -386,6 +386,8 @@ namespace DuplicateFileTool
             DuplicatedTotalSize = 0;
             ToBeDeletedSize = 0;
             ToBeDeletedCount = 0;
+            ProgressText = "";
+            ProgressPercentage = 0;
             GC.Collect();
         }
 
@@ -411,7 +413,8 @@ namespace DuplicateFileTool
 
         private void OnCandidatesSearchProgress(object sender, CandidatesSearchProgressEventArgs eventArgs)
         {
-            UpdateProgress(Resources.Ui_Progress_Analyzing + eventArgs.FilePath, eventArgs.TotalFilesCount, eventArgs.CurrentFileIndex);
+            ProgressText = Resources.Ui_Progress_Analyzing + eventArgs.FilePath;
+            UpdateProgressStats(eventArgs.TotalFilesCount, eventArgs.CurrentFileIndex);
             CandidateGroupsCount = eventArgs.CandidateGroupsCount;
             CandidateFilesCount = eventArgs.CandidateFilesCount;
             CandidatesTotalSize = eventArgs.CandidatesTotalSize;
@@ -419,14 +422,18 @@ namespace DuplicateFileTool
 
         private void OnDuplicatesSearchProgress(object sender, DuplicatesSearchProgressEventArgs eventArgs)
         {
-            UpdateProgress(Resources.Ui_Progress_Comparing + eventArgs.FilePath, eventArgs.TotalFilesCount, eventArgs.CurrentFileIndex);
+            var filePath = eventArgs.FilePath;
+            if (filePath != null)
+                ProgressText = Resources.Ui_Progress_Comparing + filePath;
+            if (!eventArgs.HasStats) 
+                return;
+            UpdateProgressStats(eventArgs.TotalFilesCount, eventArgs.CurrentFileIndex);
             DuplicateFilesCount = eventArgs.DuplicateFilesCount;
             DuplicatedTotalSize = eventArgs.DuplicatedTotalSize;
         }
 
-        private void UpdateProgress(string progressMessage, int totalFilesCount, int currentFileIndex)
+        private void UpdateProgressStats(int totalFilesCount, int currentFileIndex)
         {
-            ProgressText = progressMessage;
             TotalFilesCount = totalFilesCount;
             CurrentFileIndex = currentFileIndex;
             ProgressPercentage = (int)((double)currentFileIndex * 10000 / totalFilesCount);
@@ -461,7 +468,7 @@ namespace DuplicateFileTool
             ProgressText = deletionMessage.Text;
             var deletionMessageType = deletionMessage.Type;
             if (deletionMessageType is MessageType.Error or MessageType.Warning)
-                Errors.Add(new ErrorMessage(deletionMessage.Path, deletionMessage.Text, deletionMessageType));
+                Application.Current.Dispatcher.Invoke(() => Errors.Add(new ErrorMessage(deletionMessage.Path, deletionMessage.Text, deletionMessageType)));
         }
 
         private void DeletionStateChanged(object sender, DeletionStateEventArgs eventArgs)

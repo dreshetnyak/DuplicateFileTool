@@ -356,6 +356,7 @@
                                     <TextBlock Grid.Column="0" Text="Sort by:" VerticalAlignment="Center" FontFamily="Consolas" FontSize="14" Margin="3,0,3,0" />
 
                                     <ComboBox Grid.Column="1" 
+                                              MinWidth="72"
                                               SelectedItem="{Binding DuplicateGroupComparer.SelectedSortOrder, UpdateSourceTrigger=PropertyChanged}"
                                               ItemsSource="{Binding Config.SortOrderTypes, Mode=OneTime}" />
 
@@ -486,8 +487,7 @@
                                 </Grid>
                             </Border>
                         </Grid>
-                        <!--DuplicateGroupsPageView.Collection-->
-                        <TreeView Grid.Row="1" ItemsSource="{Binding DuplicateGroupsProxyView}" Margin="0,0,3,0">
+                        <TreeView Grid.Row="1" x:Name="ResultsTreeView" ItemsSource="{Binding DuplicateGroupsProxyView}" Margin="0,0,3,0">
                             <TreeView.Resources>
                                 <Style TargetType="{x:Type TreeViewItem}">
                                     <Setter Property="IsExpanded" Value="True" />

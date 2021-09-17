@@ -4,11 +4,13 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using DuplicateFileTool.Annotations;
+using DuplicateFileTool.Configuration;
 
 namespace DuplicateFileTool
 {
     internal class DuplicateGroupComparer : IComparer<DuplicateGroup>, INotifyPropertyChanged
     {
+        public ResultsConfiguration Config { get; }
         private SortOrder _selectedSortOrder;
         private bool _isSortOrderDescending;
 
@@ -20,6 +22,7 @@ namespace DuplicateFileTool
                 if (_selectedSortOrder == value)
                     return;
                 _selectedSortOrder = value;
+                Config.SortOrder.Value = value;
                 OnPropertyChanged();
             }
         }
@@ -32,14 +35,16 @@ namespace DuplicateFileTool
                 if (_isSortOrderDescending == value)
                     return;
                 _isSortOrderDescending = value;
+                Config.SortDescending.Value = value;
                 OnPropertyChanged();
             }
         }
 
-        public DuplicateGroupComparer(SortOrder sortOrder, bool isSortOrderDescending)
+        public DuplicateGroupComparer(ResultsConfiguration config)
         {
-            _selectedSortOrder = sortOrder;
-            _isSortOrderDescending = isSortOrderDescending;
+            Config = config;
+            _selectedSortOrder = config.SortOrder.Value;
+            _isSortOrderDescending = config.SortDescending.Value;
         }
 
         public int Compare(DuplicateGroup left, DuplicateGroup right)
