@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace DuplicateFileTool
 {
@@ -93,6 +94,19 @@ namespace DuplicateFileTool
             return chIdx != -1
                 ? str.Substring(chIdx + 1)
                 : string.Empty;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int Count(this string src, char ch)
+        {
+            var count = 0;
+            for (var charIndex = 0; charIndex < src.Length; charIndex++)
+            {
+                if (src[charIndex] == ch)
+                    count++;
+            }
+
+            return count;
         }
 
         public static DateTime ToDateTime(this Win32.FILETIME fileTime)

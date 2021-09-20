@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -70,17 +71,59 @@ namespace DuplicateFileTool.Commands
         {
             return duplicateFileGroup.DuplicateFiles
                 .Where(file => !file.IsMarkedForDeletion) //Among files not marked for deletion
-                .Any(file => !file.FileFullName.StartsWith(selectedPath));
+                .Any(file => !FullFileNameStartsWithPath(file.FileFullName, selectedPath));
         }
 
         private void MarkDuplicatesInGroup(DuplicateGroup duplicateFileGroup, string selectedPath)
         {
-            var duplicatesForMarking = duplicateFileGroup.DuplicateFiles.Where(file => !file.IsMarkedForDeletion && file.FileFullName.StartsWith(selectedPath));
-            foreach (var duplicateFile in duplicatesForMarking)
+            foreach (var duplicateFile in duplicateFileGroup.DuplicateFiles)
             {
+                if (duplicateFile.IsMarkedForDeletion || !FullFileNameStartsWithPath(duplicateFile.FileFullName, selectedPath))
+                    continue;
                 duplicateFile.IsMarkedForDeletion = true;
                 OnFilesMarkedForDeletion(1, duplicateFile.FileData.Size);
             }
+        }
+
+        private static bool FullFileNameStartsWithPath(string fullFileName, string startsWithPath)
+        {
+            var fullFileNamePathItems = GetPathItems(fullFileName);
+            var startsWithPathItems = GetPathItems(startsWithPath);
+
+            var fullFileNamePathItemsCount = fullFileNamePathItems.Count;
+            var startsWithPathItemsCount = startsWithPathItems.Count;
+
+            if (fullFileNamePathItemsCount < startsWithPathItemsCount)
+                return false;
+
+            for (var index = 0; index < startsWithPathItems.Count; index++)
+            {
+                if (!startsWithPathItems[index].Equals(fullFileNamePathItems[index], StringComparison.CurrentCultureIgnoreCase))
+                    return false;
+            }
+
+            return true;
+        }
+        
+        private static List<string> GetPathItems(string path)
+        {
+            var pathDirInfo = new DirectoryInfo(path);
+            if ((pathDirInfo.Attributes & System.IO.FileAttributes.Archive) == System.IO.FileAttributes.Archive)
+            {
+                pathDirInfo = pathDirInfo.Parent;
+                if (pathDirInfo == null)
+                    throw new ApplicationException("Archive parent directory does not exist");
+            }
+
+            var currentDir = pathDirInfo;
+            var pathItems = new List<string>(path.Count(System.IO.Path.PathSeparator) + 1);
+            do
+            {
+                pathItems.Add(currentDir.Name);
+            } while ((currentDir = currentDir.Parent) != null);
+
+            pathItems.Reverse();
+            return pathItems;
         }
 
         protected virtual void OnFilesMarkedForDeletion(long count, long size)
