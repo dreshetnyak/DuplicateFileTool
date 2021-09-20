@@ -104,7 +104,7 @@ namespace DuplicateFileTool
 
         private static string GetPathAdaptedForSearch(string path)
         {
-            var adaptedPath = !path.StartsWith(@"\\?\") ? @"\\?\" + path : path;
+            var adaptedPath = FileSystem.MakeLongPath(path);
             return adaptedPath.EndsWith("\\") ? adaptedPath + '*' : adaptedPath + "\\*";
         }
 

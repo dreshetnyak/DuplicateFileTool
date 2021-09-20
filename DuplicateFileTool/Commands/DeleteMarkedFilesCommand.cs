@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Linq;
 using System.Threading;
+using DuplicateFileTool.Configuration;
 
 namespace DuplicateFileTool.Commands
 {
@@ -9,18 +10,16 @@ namespace DuplicateFileTool.Commands
     internal class DeleteMarkedFilesCommand : CommandBase
     {
         private DuplicatesEngine Duplicates { get; }
-        private Func<bool> RemoveEmptyDirs { get; }
-        private Func<bool> DeleteToRecycleBin { get; }
+        private ResultsConfiguration ResultsConfig { get; }
 
         private static readonly object CtsLock = new();
         private CancellationTokenSource Cts { get; set; }
         
-        public DeleteMarkedFilesCommand(DuplicatesEngine duplicates, Func<bool> removeEmptyDirs, Func<bool> deleteToRecycleBin)
+        public DeleteMarkedFilesCommand(DuplicatesEngine duplicates, ResultsConfiguration resultsConfig)
         {
             Enabled = false;
             Duplicates = duplicates;
-            RemoveEmptyDirs = removeEmptyDirs;
-            DeleteToRecycleBin = deleteToRecycleBin;
+            ResultsConfig = resultsConfig;
         }
 
         public override async void Execute(object parameter)
@@ -35,7 +34,7 @@ namespace DuplicateFileTool.Commands
                     ctx = Cts.Token;
                 }
 
-                await Duplicates.RemoveDuplicates(Duplicates.DuplicateGroups, RemoveEmptyDirs(), DeleteToRecycleBin(), ctx);
+                await Duplicates.RemoveDuplicates(Duplicates.DuplicateGroups, ResultsConfig.RemoveEmptyDirectories.Value, ResultsConfig.DeleteToRecycleBin.Value, ctx);
             }
             finally
             {

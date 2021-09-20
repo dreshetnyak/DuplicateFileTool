@@ -459,4 +459,16 @@
   <data name="Config_Results_Items_Per_Page_Name" xml:space="preserve">
     <value>Duplicate groups per page</value>
   </data>
+  <data name="Config_Results_Delete_To_Recycle_Bin_Description" xml:space="preserve">
+    <value>Indicates if the duplicated files and directories should be deleted to the recycle bin or deleted permanently</value>
+  </data>
+  <data name="Config_Results_Delete_To_Recycle_Bin_Name" xml:space="preserve">
+    <value>Delete to recycle bin</value>
+  </data>
+  <data name="Config_Results_Remove_Empty_Directories_Description" xml:space="preserve">
+    <value>Specifies if after delition the file directory is empty if we should remove the empty directory or not</value>
+  </data>
+  <data name="Config_Results_Remove_Empty_Directories_Name" xml:space="preserve">
+    <value>Remove empty directories</value>
+  </data>
 </root>

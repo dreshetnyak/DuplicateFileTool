@@ -61,10 +61,7 @@ namespace DuplicateFileTool
         private IFileComparer _selectedFileComparer;
         private FileTreeItem _selectedFileTreeItem;
         private int _selectedTabIndex;
-        private bool _removeEmptyDirectories;
-        private bool _deleteToRecycleBin;
         private double _taskbarProgress;
-        private string _selectedDuplicatePath;
         private string _duplicatesSortingOrderToolTip;
 
         #endregion
@@ -109,15 +106,6 @@ namespace DuplicateFileTool
                 OnPropertyChanged();
             }
         }
-        public string SelectedDuplicatePath
-        {
-            get => _selectedDuplicatePath;
-            set
-            {
-                _selectedDuplicatePath = value; 
-                OnPropertyChanged();
-            }
-        }
         public string DuplicatesSortingOrderToolTip
         {
             get => _duplicatesSortingOrderToolTip;
@@ -129,24 +117,6 @@ namespace DuplicateFileTool
         }
         public DuplicateGroupComparer DuplicateGroupComparer { get; }
 
-        public bool RemoveEmptyDirectories
-        {
-            get => _removeEmptyDirectories;
-            set
-            {
-                _removeEmptyDirectories = value; 
-                OnPropertyChanged();
-            }
-        }
-        public bool DeleteToRecycleBin
-        {
-            get => _deleteToRecycleBin;
-            set
-            {
-                _deleteToRecycleBin = value; 
-                OnPropertyChanged();
-            }
-        }
         public double TaskbarProgress
         {
             get => _taskbarProgress;
@@ -175,8 +145,7 @@ namespace DuplicateFileTool
         public SearchConfiguration SearchConfig { get; }
         public UiSwitch Ui { get; } = new();
 
-        //TODO get rid of ResultsTreeView
-        public MainViewModel(TreeView resultsTreeView)
+        public MainViewModel(TreeView resultsTreeView) //TODO get rid of resultsTreeView
         {
             ResultsTreeView = resultsTreeView;
             PropertyChanged += OnPropertyChanged;
@@ -216,8 +185,10 @@ namespace DuplicateFileTool
             AutoSelectByPath.FilesAutoMarkedForDeletion += OnUpdateToDelete;
             DuplicateFile.ItemSelected += OnDuplicateFileSelected;
 
+            //TODO refactor delegates to events
             ResetSelection = new ResetSelectionCommand(Duplicates.DuplicateGroups, sizeDelta => Duplicates.ToBeDeletedSize += sizeDelta, countDelta => Duplicates.ToBeDeletedCount += countDelta);
-            DeleteMarkedFiles = new DeleteMarkedFilesCommand(Duplicates, () => RemoveEmptyDirectories, () => DeleteToRecycleBin);
+            
+            DeleteMarkedFiles = new DeleteMarkedFilesCommand(Duplicates, Config.ResultsConfig);
             AddPath = new AddPathCommand(SearchPaths, () => SelectedFileTreeItem);
             OpenFileInExplorer = new OpenFileInExplorerCommand();
             ChangePage = new ChangePageCommand(DuplicateGroupsProxyView);

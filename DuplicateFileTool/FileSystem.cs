@@ -192,9 +192,7 @@ namespace DuplicateFileTool
 
         public static FileData GetFileSystemItemData(string path)
         {
-            var adaptedPath = !path.StartsWith(@"\\?\") ? @"\\?\" + path : path;
-
-            var findHandle = Win32.FindFirstFile(adaptedPath, out var foundFileInfo);
+            var findHandle = Win32.FindFirstFile(MakeLongPath(path), out var foundFileInfo);
             if (findHandle.IsInvalidHandle())
                 throw new FileSystemException(path, new Win32Exception(Marshal.GetLastWin32Error()).Message);
 
@@ -294,6 +292,7 @@ namespace DuplicateFileTool
             }
         }
         
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string MakeLongPath(string path)
         {
             return !path.StartsWith(@"\\?\") ? @"\\?\" + path : path;

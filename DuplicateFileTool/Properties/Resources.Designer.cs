@@ -313,6 +313,24 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Indicates if the duplicated files and directories should be deleted to the recycle bin or deleted permanently.
+        /// </summary>
+        public static string Config_Results_Delete_To_Recycle_Bin_Description {
+            get {
+                return ResourceManager.GetString("Config_Results_Delete_To_Recycle_Bin_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Delete to recycle bin.
+        /// </summary>
+        public static string Config_Results_Delete_To_Recycle_Bin_Name {
+            get {
+                return ResourceManager.GetString("Config_Results_Delete_To_Recycle_Bin_Name", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to How many duplicate groups to display on a single results page.
         /// </summary>
         public static string Config_Results_Items_Per_Page_Description {
@@ -327,6 +345,24 @@ namespace DuplicateFileTool.Properties {
         public static string Config_Results_Items_Per_Page_Name {
             get {
                 return ResourceManager.GetString("Config_Results_Items_Per_Page_Name", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Specifies if after delition the file directory is empty if we should remove the empty directory or not.
+        /// </summary>
+        public static string Config_Results_Remove_Empty_Directories_Description {
+            get {
+                return ResourceManager.GetString("Config_Results_Remove_Empty_Directories_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Remove empty directories.
+        /// </summary>
+        public static string Config_Results_Remove_Empty_Directories_Name {
+            get {
+                return ResourceManager.GetString("Config_Results_Remove_Empty_Directories_Name", resourceCulture);
             }
         }
         
