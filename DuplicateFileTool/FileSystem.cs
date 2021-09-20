@@ -233,12 +233,7 @@ namespace DuplicateFileTool
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool PathExists(string path)
         {
-            const string longPathPrefix = @"\\?\";
-            if (path == null)
-                return false;
-            if (!path.StartsWith(longPathPrefix, StringComparison.Ordinal))
-                path = longPathPrefix + path;
-            return Win32.GetFileAttributes(path) != Win32.INVALID_FILE_ATTRIBUTES;
+            return Win32.GetFileAttributes(MakeLongPath(path)) != Win32.INVALID_FILE_ATTRIBUTES;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
