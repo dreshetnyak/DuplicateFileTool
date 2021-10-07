@@ -45,7 +45,7 @@ namespace DuplicateFileTool
             IComparableFileFactory comparableFileFactory,
             CancellationToken cancellationToken)
         {
-            var stopwatch = Stopwatch.StartNew();
+            //var stopwatch = Stopwatch.StartNew();
 
             var duplicateCandidates = new List<IComparableFile[]>(256);
 
@@ -106,9 +106,9 @@ namespace DuplicateFileTool
                 }
             }
 
-            stopwatch.Stop();
-            var elapsed = TimeSpan.FromMilliseconds(stopwatch.ElapsedMilliseconds);
-            System.Windows.MessageBox.Show($"Candidates search time: {elapsed:c}");
+            //stopwatch.Stop();
+            //var elapsed = TimeSpan.FromMilliseconds(stopwatch.ElapsedMilliseconds);
+            //System.Windows.MessageBox.Show($"Candidates search time: {elapsed:c}");
 
             return duplicateCandidates;
         }
