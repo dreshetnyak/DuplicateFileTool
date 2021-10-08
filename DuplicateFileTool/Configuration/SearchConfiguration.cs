@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using DuplicateFileTool.Properties;
 
@@ -8,6 +9,8 @@ namespace DuplicateFileTool.Configuration
     [Localizable(true)]
     internal class SearchConfiguration : NotifyPropertyChanged, IChangeable
     {
+        private bool _hasExtensions;
+
         public ConfigurationProperty<int> MaximumFilesOpenedAtOnce { get; } = new(
             Resources.Config_MaximumFilesOpenedAtOnce_Name,
             Resources.Config_MaximumFilesOpenedAtOnce_Description,
@@ -64,6 +67,17 @@ namespace DuplicateFileTool.Configuration
             InclusionType.Include);
 
         public ObservableCollection<ObservableString> Extensions { get; set; } = new();
+        public bool HasExtensions
+        {
+            get => _hasExtensions;
+            set
+            {
+                if (_hasExtensions == value)
+                    return;
+                _hasExtensions = value;
+                OnPropertyChanged();
+            }
+        }
 
         #endregion
 
@@ -76,6 +90,7 @@ namespace DuplicateFileTool.Configuration
             ChangeTracker = new PropertiesChangeTracker<SearchConfiguration>(this);
             ChangeTracker.PropertyChanged += (_, _) => OnPropertyChanged(nameof(HasChanged));
             MaximumFilesOpenedAtOnce.PropertyChanged += OnMaximumFilesOpenedAtOnceChanged;
+            Extensions.CollectionChanged += (_, _) => HasExtensions = Extensions.Count != 0;
         }
 
         private void OnMaximumFilesOpenedAtOnceChanged(object sender, PropertyChangedEventArgs eventArgs)

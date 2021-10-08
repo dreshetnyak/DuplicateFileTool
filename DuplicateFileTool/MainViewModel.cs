@@ -139,6 +139,10 @@ namespace DuplicateFileTool
         public ChangePageCommand ChangePage { get; }
         public RelayCommand ToggleDuplicateSortingOrder { get; }
         public RelayCommand ClearResults { get; }
+        public RelayCommand ClearErrors { get; }
+        public RelayCommand ClearSearchPaths { get; }
+        public AddOrRemoveExtensionsCommand AddOrRemoveExtensions { get; }
+        public RelayCommand ClearExtensions { get; }
 
         #endregion
 
@@ -194,6 +198,10 @@ namespace DuplicateFileTool
             ChangePage = new ChangePageCommand(DuplicateGroupsProxyView);
             ToggleDuplicateSortingOrder = new RelayCommand(_ => DuplicateGroupComparer.IsSortOrderDescending = !DuplicateGroupComparer.IsSortOrderDescending);
             ClearResults = new RelayCommand(_ => Duplicates.Clear());
+            ClearErrors = new RelayCommand(_ => Duplicates.Errors.Clear());
+            ClearSearchPaths = new RelayCommand(_ => SearchPaths.Clear());
+            ClearExtensions = new RelayCommand(_ => SearchConfig.Extensions.Clear());
+            AddOrRemoveExtensions = new AddOrRemoveExtensionsCommand(SearchConfig.Extensions);
 
             UpdateFileTree();
         }

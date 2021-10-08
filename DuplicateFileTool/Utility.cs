@@ -12,9 +12,11 @@ namespace DuplicateFileTool
         public MessageType Type { get; }
         public string Text { get; }
         public string Path { get; }
+        public DateTime Timestamp { get; }
 
         public ErrorMessage(string path, string message, MessageType messageType = MessageType.Information)
         {
+            Timestamp = DateTime.Now;
             Path = path ?? "";
             Text = message;
             Type = messageType;
@@ -22,6 +24,7 @@ namespace DuplicateFileTool
 
         public ErrorMessage(string message, MessageType messageType = MessageType.Information)
         {
+            Timestamp = DateTime.Now;
             Path = "";
             Text = message;
             Type = messageType;

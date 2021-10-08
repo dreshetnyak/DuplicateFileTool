@@ -710,6 +710,15 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Add or remove extensions.
+        /// </summary>
+        public static string Ui_Add_Or_Remove_Search_Extensions_Title {
+            get {
+                return ResourceManager.GetString("Ui_Add_Or_Remove_Search_Extensions_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Select the path where the duplicated files should be automatically selected for deletion..
         /// </summary>
         public static string Ui_AutoSelectByPath_Description {
@@ -800,6 +809,15 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Clear errors list.
+        /// </summary>
+        public static string Ui_Errors_Clear {
+            get {
+                return ResourceManager.GetString("Ui_Errors_Clear", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Errors.
         /// </summary>
         public static string Ui_Errors_Tab_Header {
@@ -809,11 +827,47 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Add.
+        /// </summary>
+        public static string Ui_Extensions_Add {
+            get {
+                return ResourceManager.GetString("Ui_Extensions_Add", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cancel.
+        /// </summary>
+        public static string Ui_Extensions_Cancel {
+            get {
+                return ResourceManager.GetString("Ui_Extensions_Cancel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Extensions.
         /// </summary>
         public static string Ui_Extensions_GroupBox_Header {
             get {
                 return ResourceManager.GetString("Ui_Extensions_GroupBox_Header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Remove.
+        /// </summary>
+        public static string Ui_Extensions_Remove {
+            get {
+                return ResourceManager.GetString("Ui_Extensions_Remove", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Extension types.
+        /// </summary>
+        public static string Ui_Extensions_Types_Header {
+            get {
+                return ResourceManager.GetString("Ui_Extensions_Types_Header", resourceCulture);
             }
         }
         
@@ -1025,11 +1079,38 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Add or remove search extensions.
+        /// </summary>
+        public static string Ui_ToolTip_Add_Or_Remove_Search_Extensions {
+            get {
+                return ResourceManager.GetString("Ui_ToolTip_Add_Or_Remove_Search_Extensions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Add selected to the list.
         /// </summary>
         public static string Ui_ToolTip_Add_selected_to_the_list {
             get {
                 return ResourceManager.GetString("Ui_ToolTip_Add_selected_to_the_list", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Clear extensions list.
+        /// </summary>
+        public static string Ui_ToolTip_Clear_Extensions_List {
+            get {
+                return ResourceManager.GetString("Ui_ToolTip_Clear_Extensions_List", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Clear search paths.
+        /// </summary>
+        public static string Ui_ToolTip_Clear_Search_Paths {
+            get {
+                return ResourceManager.GetString("Ui_ToolTip_Clear_Search_Paths", resourceCulture);
             }
         }
         

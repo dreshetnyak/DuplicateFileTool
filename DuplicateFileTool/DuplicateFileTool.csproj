@@ -91,6 +91,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Commands\AddOrRemoveExtensionsCommand.cs" />
     <Compile Include="Commands\AddPathCommand.cs" />
     <Compile Include="Commands\AutoSelectByPathCommand.cs" />
     <Compile Include="Commands\ChangePageCommand.cs" />
@@ -142,6 +143,9 @@
     <Compile Include="ReflectionExtensions.cs" />
     <Compile Include="ViewExtensions.cs" />
     <Compile Include="Win32.cs" />
+    <Compile Include="Windows\AddOrRemoveExtensions.xaml.cs">
+      <DependentUpon>AddOrRemoveExtensions.xaml</DependentUpon>
+    </Compile>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -155,6 +159,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Windows\AddOrRemoveExtensions.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -277,6 +285,7 @@
   <ItemGroup>
     <Resource Include="Images\DownArrow.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>if exist "$(SolutionDir)BuildVersionIncrement.exe" "$(SolutionDir)BuildVersionIncrement.exe" "$(ProjectDir)Properties\AssemblyInfo.cs"</PreBuildEvent>

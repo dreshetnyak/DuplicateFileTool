@@ -471,4 +471,31 @@
   <data name="Config_Results_Remove_Empty_Directories_Name" xml:space="preserve">
     <value>Remove empty directories</value>
   </data>
+  <data name="Ui_Errors_Clear" xml:space="preserve">
+    <value>Clear errors list</value>
+  </data>
+  <data name="Ui_ToolTip_Clear_Extensions_List" xml:space="preserve">
+    <value>Clear extensions list</value>
+  </data>
+  <data name="Ui_ToolTip_Clear_Search_Paths" xml:space="preserve">
+    <value>Clear search paths</value>
+  </data>
+  <data name="Ui_Add_Or_Remove_Search_Extensions_Title" xml:space="preserve">
+    <value>Add or remove extensions</value>
+  </data>
+  <data name="Ui_ToolTip_Add_Or_Remove_Search_Extensions" xml:space="preserve">
+    <value>Add or remove search extensions</value>
+  </data>
+  <data name="Ui_Extensions_Add" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="Ui_Extensions_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Ui_Extensions_Remove" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="Ui_Extensions_Types_Header" xml:space="preserve">
+    <value>Extension types</value>
+  </data>
 </root>
