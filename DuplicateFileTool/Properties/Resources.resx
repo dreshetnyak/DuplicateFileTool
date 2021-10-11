@@ -498,4 +498,22 @@
   <data name="Ui_Extensions_Types_Header" xml:space="preserve">
     <value>Extension types</value>
   </data>
+  <data name="Ui_Extensions_Audio" xml:space="preserve">
+    <value>Audio</value>
+  </data>
+  <data name="Ui_Extensions_Documents" xml:space="preserve">
+    <value>Documents</value>
+  </data>
+  <data name="Ui_Extensions_Extension_Header_Extension" xml:space="preserve">
+    <value>Extension</value>
+  </data>
+  <data name="Ui_Extensions_Extension_Header_Type" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="Ui_Extensions_Source" xml:space="preserve">
+    <value>Source code</value>
+  </data>
+  <data name="Ui_Extensions_Video" xml:space="preserve">
+    <value>Video</value>
+  </data>
 </root>

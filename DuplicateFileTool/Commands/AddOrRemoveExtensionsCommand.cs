@@ -43,7 +43,8 @@ namespace DuplicateFileTool.Commands
             {
                 CanExecuteCommand = false;
 
-                var dialogWindow = new AddOrRemoveExtensions();
+                var modelView = new AddOrRemoveExtensionsModelView();
+                var dialogWindow = new AddOrRemoveExtensions(modelView);
                 dialogWindow.ShowDialog();
 
             }

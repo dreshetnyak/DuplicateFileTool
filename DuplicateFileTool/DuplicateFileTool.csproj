@@ -91,6 +91,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="AddOrRemoveExtensionsModelView.cs" />
     <Compile Include="Commands\AddOrRemoveExtensionsCommand.cs" />
     <Compile Include="Commands\AddPathCommand.cs" />
     <Compile Include="Commands\AutoSelectByPathCommand.cs" />
@@ -285,7 +286,21 @@
   <ItemGroup>
     <Resource Include="Images\DownArrow.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Images\Remove.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Audio.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Document.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Source.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Video.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>if exist "$(SolutionDir)BuildVersionIncrement.exe" "$(SolutionDir)BuildVersionIncrement.exe" "$(ProjectDir)Properties\AssemblyInfo.cs"</PreBuildEvent>
