@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:DuplicateFileTool.Windows"
         xmlns:resx="clr-namespace:DuplicateFileTool.Properties"
         Title="{x:Static resx:Resources.Ui_Add_Or_Remove_Search_Extensions_Title}"
+        WindowStartupLocation="CenterOwner"
         mc:Ignorable="d"
         Height="300" Width="350">
     <Window.Resources>

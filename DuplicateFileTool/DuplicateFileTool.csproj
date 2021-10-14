@@ -106,6 +106,7 @@
     <Compile Include="Configuration\AppConfig.cs" />
     <Compile Include="Configuration\ConfigurationManager.cs" />
     <Compile Include="Configuration\ApplicationConfig.cs" />
+    <Compile Include="Configuration\ExtensionsConfiguration.cs" />
     <Compile Include="Configuration\ResultsConfiguration.cs" />
     <Compile Include="Configuration\SearchConfiguration.cs" />
     <Compile Include="Converters\BooleanToVisibilityConverter.cs" />

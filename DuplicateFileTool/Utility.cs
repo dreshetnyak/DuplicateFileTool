@@ -57,7 +57,7 @@ namespace DuplicateFileTool
         }
     }
 
-    internal static class Extensions
+    internal static class ExtensionMethods
     {
         public static T[] SubArray<T>(this T[] source, int offset, int length = -1)
         {
