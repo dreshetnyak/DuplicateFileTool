@@ -200,8 +200,9 @@ namespace DuplicateFileTool
             ClearResults = new RelayCommand(_ => Duplicates.Clear());
             ClearErrors = new RelayCommand(_ => Duplicates.Errors.Clear());
             ClearSearchPaths = new RelayCommand(_ => SearchPaths.Clear());
+
             ClearExtensions = new RelayCommand(_ => SearchConfig.Extensions.Clear());
-            AddOrRemoveExtensions = new AddOrRemoveExtensionsCommand(SearchConfig.Extensions);
+            AddOrRemoveExtensions = new AddOrRemoveExtensionsCommand(SearchConfig.Extensions, Config.ExtensionsConfig);
 
             UpdateFileTree();
         }

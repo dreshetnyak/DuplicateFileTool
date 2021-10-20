@@ -827,6 +827,69 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Audio.
+        /// </summary>
+        public static string Ui_Extension_Type_Name_Audio {
+            get {
+                return ResourceManager.GetString("Ui_Extension_Type_Name_Audio", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Binary.
+        /// </summary>
+        public static string Ui_Extension_Type_Name_Binaries {
+            get {
+                return ResourceManager.GetString("Ui_Extension_Type_Name_Binaries", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Document.
+        /// </summary>
+        public static string Ui_Extension_Type_Name_Documents {
+            get {
+                return ResourceManager.GetString("Ui_Extension_Type_Name_Documents", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Image.
+        /// </summary>
+        public static string Ui_Extension_Type_Name_Images {
+            get {
+                return ResourceManager.GetString("Ui_Extension_Type_Name_Images", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Source code.
+        /// </summary>
+        public static string Ui_Extension_Type_Name_SourceCode {
+            get {
+                return ResourceManager.GetString("Ui_Extension_Type_Name_SourceCode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Other.
+        /// </summary>
+        public static string Ui_Extension_Type_Name_Unknown {
+            get {
+                return ResourceManager.GetString("Ui_Extension_Type_Name_Unknown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Video.
+        /// </summary>
+        public static string Ui_Extension_Type_Name_Video {
+            get {
+                return ResourceManager.GetString("Ui_Extension_Type_Name_Video", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Add.
         /// </summary>
         public static string Ui_Extensions_Add {
@@ -836,29 +899,11 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Audio.
-        /// </summary>
-        public static string Ui_Extensions_Audio {
-            get {
-                return ResourceManager.GetString("Ui_Extensions_Audio", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Cancel.
         /// </summary>
         public static string Ui_Extensions_Cancel {
             get {
                 return ResourceManager.GetString("Ui_Extensions_Cancel", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Documents.
-        /// </summary>
-        public static string Ui_Extensions_Documents {
-            get {
-                return ResourceManager.GetString("Ui_Extensions_Documents", resourceCulture);
             }
         }
         
@@ -899,29 +944,11 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Source code.
-        /// </summary>
-        public static string Ui_Extensions_Source {
-            get {
-                return ResourceManager.GetString("Ui_Extensions_Source", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Extension types.
         /// </summary>
         public static string Ui_Extensions_Types_Header {
             get {
                 return ResourceManager.GetString("Ui_Extensions_Types_Header", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Video.
-        /// </summary>
-        public static string Ui_Extensions_Video {
-            get {
-                return ResourceManager.GetString("Ui_Extensions_Video", resourceCulture);
             }
         }
         

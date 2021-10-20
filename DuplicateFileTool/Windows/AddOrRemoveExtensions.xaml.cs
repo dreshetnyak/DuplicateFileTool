@@ -7,10 +7,11 @@ namespace DuplicateFileTool.Windows
     /// </summary>
     public partial class AddOrRemoveExtensions : Window
     {
-        public AddOrRemoveExtensions(AddOrRemoveExtensionsModelView modelView)
+        public AddOrRemoveExtensions(IAddOrRemoveExtensionsViewModel modelView)
         {
             InitializeComponent();
             DataContext = modelView;
+            Owner = Application.Current.MainWindow;
         }
     }
 }

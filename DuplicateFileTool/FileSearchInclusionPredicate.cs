@@ -45,12 +45,12 @@ namespace DuplicateFileTool
             if (extensions.Count == 0)
                 return true;
 
-            switch (SearchConfig.ExtensionInclusionType.Value)
+            return SearchConfig.ExtensionInclusionType.Value switch
             {
-                case InclusionType.Include: return extensions.Any(ext => ext.Value.Equals(fileExtension, StringComparison.OrdinalIgnoreCase));
-                case InclusionType.Exclude: return extensions.All(ext => !ext.Value.Equals(fileExtension, StringComparison.OrdinalIgnoreCase));
-                default: throw new ApplicationException(Resources.Error_Unknown_file_extension_inclusion_type);
-            }
+                InclusionType.Include => extensions.Any(ext => ext.Extension.Equals(fileExtension, StringComparison.OrdinalIgnoreCase)),
+                InclusionType.Exclude => extensions.All(ext => !ext.Extension.Equals(fileExtension, StringComparison.OrdinalIgnoreCase)),
+                _ => throw new ApplicationException(Resources.Error_Unknown_file_extension_inclusion_type)
+            };
         }
 
         private static long GetSizeInBytes(long size, ByteSizeUnits byteSizeUnits)

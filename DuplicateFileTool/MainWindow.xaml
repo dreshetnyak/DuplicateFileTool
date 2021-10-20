@@ -290,7 +290,8 @@
                                           MinColumnWidth="80"
                                           ItemsSource="{Binding SearchConfig.Extensions, Mode=TwoWay}">
                                     <DataGrid.Columns>
-                                        <DataGridTextColumn Binding="{Binding Value}" />
+                                        <DataGridTextColumn Binding="{Binding Extension}" Width="60" />
+                                        <DataGridTextColumn Binding="{Binding TypeName}" Width="80" />
                                     </DataGrid.Columns>
                                 </DataGrid>
 
@@ -312,10 +313,10 @@
                                         <Image RenderOptions.BitmapScalingMode="Fant" Height="16" Margin="2,2,2,0">
                                             <Image.Style>
                                                 <Style TargetType="{x:Type Image}">
-                                                    <Setter Property="Source" Value="Images/Add.png" />
+                                                    <Setter Property="Source" Value="Images/AddRemove.png" />
                                                     <Style.Triggers>
                                                         <Trigger Property="IsEnabled" Value="False">
-                                                            <Setter Property="Source" Value="Images/Add.png" />
+                                                            <Setter Property="Source" Value="Images/AddRemoveGray.png" />
                                                         </Trigger>
                                                     </Style.Triggers>
                                                 </Style>

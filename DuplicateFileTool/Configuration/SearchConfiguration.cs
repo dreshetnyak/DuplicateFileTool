@@ -34,7 +34,8 @@ namespace DuplicateFileTool.Configuration
         public ConfigurationProperty<Guid> SelectedFileComparerGuid { get; } = new(
             Resources.Configur_SelectedFileComparerGuid_Name,
             Resources.Configur_SelectedFileComparerGuid_Description,
-            Guid.Parse(@"56E94DDC-1021-49D5-8DB1-FF1C92710978"),
+            // ReSharper disable once LocalizableElement
+            Guid.Parse("56E94DDC-1021-49D5-8DB1-FF1C92710978"),
             isHidden: true);
 
         #region File size inclusion parameters
@@ -65,7 +66,7 @@ namespace DuplicateFileTool.Configuration
             Resources.Config_ExtensionInclusionType_Description,
             InclusionType.Include);
 
-        public ObservableCollection<ObservableString> Extensions { get; set; } = new();
+        public ObservableCollection<FileExtension> Extensions { get; set; } = new();
         public bool HasExtensions
         {
             get => _hasExtensions;

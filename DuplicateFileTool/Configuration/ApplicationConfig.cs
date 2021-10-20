@@ -38,6 +38,7 @@ namespace DuplicateFileTool.Configuration
 
         public SearchConfiguration SearchConfig { get; } = new();
         public ResultsConfiguration ResultsConfig { get; } = new();
+        public ExtensionsConfiguration ExtensionsConfig { get; } = new();
         public IReadOnlyCollection<IFileComparer> FileComparers { get; }
         public InclusionType[] PathComparisonTypes { get; }
         public SortOrder[] SortOrderTypes { get; }
@@ -46,6 +47,7 @@ namespace DuplicateFileTool.Configuration
         {
             Log = new Logger(Logger.Target.Debug);
 
+            //TODO need to be update with the names that is taken from the resources
             PathComparisonTypes = Enum.GetValues(typeof(InclusionType)).OfType<object>().Cast<InclusionType>().ToArray();
             SortOrderTypes = Enum.GetValues(typeof(SortOrder)).OfType<object>().Cast<SortOrder>().ToArray();
 
@@ -59,6 +61,10 @@ namespace DuplicateFileTool.Configuration
 
             try { ResultsConfig.LoadFromAppConfig(); }
             catch (Exception ex) { Log.Write("Error: Loading results configuration from app config failed with the exception: " + ex); throw; }
+            ResultsConfig.PropertyChanged += OnConfigurationChanged;
+
+            try { ExtensionsConfig.LoadFromAppConfig(); }
+            catch (Exception ex) { Log.Write("Error: Loading extensions configuration from app config failed with the exception: " + ex); throw; }
             ResultsConfig.PropertyChanged += OnConfigurationChanged;
 
             FileComparers = GetFileComparers().ToArray();
@@ -80,6 +86,8 @@ namespace DuplicateFileTool.Configuration
                 SearchConfig.SaveToAppConfig();
             if (ResultsConfig.HasChanged)
                 ResultsConfig.SaveToAppConfig();
+            if (ExtensionsConfig.HasChanged)
+                ExtensionsConfig.SaveToAppConfig();
         }
 
         private void OnConfigurationChanged(object sender, PropertyChangedEventArgs _)
