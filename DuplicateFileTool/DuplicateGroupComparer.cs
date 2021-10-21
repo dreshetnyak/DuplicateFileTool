@@ -5,9 +5,11 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using DuplicateFileTool.Annotations;
 using DuplicateFileTool.Configuration;
+using DuplicateFileTool.Properties;
 
 namespace DuplicateFileTool
 {
+    [Localizable(true)]
     internal class DuplicateGroupComparer : IComparer<DuplicateGroup>, INotifyPropertyChanged
     {
         public ResultsConfiguration Config { get; }

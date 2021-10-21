@@ -1,0 +1,105 @@
+﻿Pending work:
+
+Bug. Results page navigation buttons is active diring search, but the navigation is not allowed.
+
+New. Page navigation tooltips text should be in the resources.
+New. Sort the files in the files tree.
+New. Search paths list add switches that allow to turn off or no the path for the current search.
+Improvement. The files in the groups is not sorted, need to sort it by path for it to be consistent over all groups.
+
+New. Add monitoring to refresh the file tree view whenever the file structure is updated.
+Improvement. Status bar is updated too fast, need an update delay.
+New. Add quick filter for the file tree.
+New. Add filter to the results list.
+New. Show folders of duplicated groups with folders comparing, should appear below the list of results.
+New. Add selected file preview. Characteristics of images.
+New. Implement deletion to recycle bin.
+New. Implement right click on file tree to open in file explorer.
+Bug. Deleting files is extremely slow in some cases because every time a file is deleted the results page is been reloaded (Need to disable Results while deleting and load the page only at the end).
+New. If a duplicate file is found in a folder add all files from that folder to the search. That should be an optional behavior.
+New. Populate the settings page.
+New. Open file on double click in results and in the file tree.
+Create the installer.
+Move clear all results button to the right panel, or should we put it to the toolbar?
+Can we add columns to the files list, to indicate mod. date, size, etc?
+Under the files tree add a panel where we can see free space on the disks.
+
+=========================================================================
+Releases:
+
+DuplicateFileTool 1.0.492: 2021-10-21
+New. Added a dialog that can add or remove search extensions in a bulk based on the extensions type.
+New. Search extensions list now has the column indicating the extension type.
+New. Now the Search and the cancel search buttons icons is gray when the buttons is not active.
+Bug. Disk labels was missing in the files tree.
+Bug. It was impossible to add search extensions manually to the list.
+Bug. Exception was thrown when trying to edit a search extension type by double clicking on it.
+New. Results page navigation icons replaced.
+New. Results page navigation added the buttons for the first and the last pages.
+Fix. Changed the row height in the search estensions list.
+Fix. On the results page reduced the height of the toolbar.
+Fix. Sort order now goes as text from the resources instead of as enum id.
+Fix. Search paths include/exclude text should be in the resources.
+Fix. Search paths table headers was hardcoded, now taken from the resources.
+New. Search paths list add icons to include/exclude.
+
+DuplicateFileTool 1.0.436: 2021-10-08
+New. Add a timestamp column to the errors list.
+New. Add a context menu to clear the errors list.
+New. Add button to clear search paths list.
+New. Add button to clear extensions list.
+
+DuplicateFileTool 1.0.395: 2021-10-07
+Fix. Disabled debug code.
+
+DuplicateFileTool 1.0.394: 2021-09-20
+Minor optimization to finalize the merge of two commits.
+
+DuplicateFileTool 1.0.392: 2021-09-20
+Bug. When auto selecting a folder if there is another folder with a different name that starts the same as selected the other folder also gets selected.
+Bug. After deletion the empty directories has not been removed despite the settings.
+
+DuplicateFileTool 1.0.368: 2021-09-20
+Bug. After deletion the empty directories has not been removed despite the settings.
+Minor code optimizations.
+
+DuplicateFileTool 1.0.364: 2021-09-17
+Bug. Results configuration was not saved to the app config.
+Bug. Loading configuration was throwing exceptions for some types.
+Bug. Results configuration was not propagated to configuration.
+Bug. When loading config we set HasChanged was set for all properties.
+Bug. If a search path was deleted from the list and it is equal to the one that is selected the selected path is not re-enabled.
+Bug. When switching to a new results page the page is not scrolled to the top.
+Fix. Set the minimum width for the sort order combo box, so it doesn’t change when different values is selected.
+Bug. If clean all results is performed that does not clean the status bar messages.
+Bug. Auto select by path results in exception if no path is selected.
+Bug. After selecting files in all groups by using AutoSelectByPath when the files is located on different disks the delete selected files and clear selection buttons becomes disabled. 
+Bug. Auto select by path is enabled when there is no selected path.
+Bug. Unhandled exception was occurring on deletion in cases when there was a deletion error.
+Bug. Unable to delete read-only files resulting in access denied error.
+Bug. When deleting files the status bar message does not show that file that is been deleted.
+Bug. When deleting files the progress text and percentage was not updated.
+Bug. When comparing files some of the progress messages has full file names some short file names. The names was displayed twice.
+
+DuplicateFileTool 1.0.268: 2021-08-12
+Working on the implementation of the filtering and paging class.
+
+DuplicateFileTool 1.0.261: 2021-08-04
+Results sorting menu is now disabled during duplicates search.
+Minor refactoring, getting ready to implement sorting.
+
+DuplicateFileTool 1.0.259: 2021-08-03
+Added tabs icons.
+Corrected the application title name.
+Reset errors when search restarts.
+Added settings tab with about program info.
+Search size entry is now validated, non-digits not allowed.
+Clear selection now is disabled when nothing is selected.
+Results tab buttons is now disabled during a search.
+Delete selected files now is disabled when no files is selected.
+Select by path is now disabled when the results window is empty.
+Moved Minimum/Maximum labels into the resources.
+Bug. Duplicates Group number is not incremented, it is always zero.
+Auto select by path was not browsing to the path of the currently selected file.
+Added clear results button.
+Added sorting menu, but not yet wired it.

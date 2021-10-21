@@ -25,7 +25,7 @@ namespace DuplicateFileTool.Configuration
         private FileExtensionType _type;
         private string _extension;
 
-        private IExtensionsTypeConverter ExtensionConverter { get; }
+        public static IExtensionsTypeConverter ExtensionConverter { get; set; }
 
         public FileExtensionType Type
         {
@@ -39,7 +39,7 @@ namespace DuplicateFileTool.Configuration
                 OnPropertyChanged(nameof(TypeName));
             }
         }
-        public string TypeName => ExtensionConverter.GetExtensionTypeName(Type);
+        public string TypeName => ExtensionConverter?.GetExtensionTypeName(Type) ?? "";
 
         public string Extension
         {
@@ -55,16 +55,20 @@ namespace DuplicateFileTool.Configuration
             }
         }
 
-        public FileExtension(string extension, IExtensionsTypeConverter extensionConverter)
+        public FileExtension()
         {
-            ExtensionConverter = extensionConverter;
-            _extension = extension;
-            _type = ExtensionConverter.GetExtensionType(extension);
+            _extension = "";
+            _type = FileExtensionType.Other;
         }
 
-        public FileExtension(string extension, FileExtensionType type, IExtensionsTypeConverter extensionConverter)
+        public FileExtension(string extension)
         {
-            ExtensionConverter = extensionConverter;
+            _extension = extension;
+            _type = ExtensionConverter?.GetExtensionType(extension) ?? FileExtensionType.Other;
+        }
+
+        public FileExtension(string extension, FileExtensionType type)
+        {
             _extension = extension;
             _type = type;
         }
@@ -73,7 +77,7 @@ namespace DuplicateFileTool.Configuration
 
         public object Clone()
         {
-            return new FileExtension(Extension, Type, ExtensionConverter);
+            return new FileExtension(Extension, Type);
         }
 
         #endregion
@@ -140,6 +144,7 @@ namespace DuplicateFileTool.Configuration
 
         public ExtensionsConfiguration()
         {
+            FileExtension.ExtensionConverter = this;
             Extensions = new ObservableCollection<FileExtension>(GetFileExtensions(ExtensionsSettings.Value));
             SubscribeToExtensionsChanges();
 
@@ -167,7 +172,7 @@ namespace DuplicateFileTool.Configuration
                 throw new ApplicationException("Invalid extensions configuration data, type and extensions divider not found");
 
             var fileExtensionType = ParseFileType(typeDataSplit[0]);
-            return ParseExtensions(typeDataSplit[1]).Select(extension => new FileExtension(extension, fileExtensionType, this));
+            return ParseExtensions(typeDataSplit[1]).Select(extension => new FileExtension(extension, fileExtensionType));
         }
 
         private static FileExtensionType ParseFileType(string fileTypeData)

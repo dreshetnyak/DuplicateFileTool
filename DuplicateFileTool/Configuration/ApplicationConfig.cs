@@ -4,9 +4,34 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using DuplicateFileTool.Properties;
 
 namespace DuplicateFileTool.Configuration
 {
+    internal class SortOrderData
+    {
+        public SortOrder Order { get; }
+        public string Name { get; }
+
+        public SortOrderData(SortOrder order, string name)
+        {
+            Order = order;
+            Name = name;
+        }
+    }
+
+    internal class InclusionTypeData
+    {
+        public InclusionType Type { get; }
+        public string Name { get; }
+
+        public InclusionTypeData(InclusionType type, string name)
+        {
+            Type = type;
+            Name = name;
+        }
+    }
+
     internal class ApplicationConfig : NotifyPropertyChanged, IChangeable, IDisposable
     {
         private bool _hasChanged;
@@ -40,16 +65,15 @@ namespace DuplicateFileTool.Configuration
         public ResultsConfiguration ResultsConfig { get; } = new();
         public ExtensionsConfiguration ExtensionsConfig { get; } = new();
         public IReadOnlyCollection<IFileComparer> FileComparers { get; }
-        public InclusionType[] PathComparisonTypes { get; }
-        public SortOrder[] SortOrderTypes { get; }
+        public InclusionTypeData[] PathComparisonTypes { get; }
+        public SortOrderData[] SortOrderTypes { get; }
 
         public ApplicationConfig()
         {
             Log = new Logger(Logger.Target.Debug);
 
-            //TODO need to be update with the names that is taken from the resources
-            PathComparisonTypes = Enum.GetValues(typeof(InclusionType)).OfType<object>().Cast<InclusionType>().ToArray();
-            SortOrderTypes = Enum.GetValues(typeof(SortOrder)).OfType<object>().Cast<SortOrder>().ToArray();
+            PathComparisonTypes = GetComparisonTypesData();
+            SortOrderTypes = GetSortOrderData();
 
             try { this.LoadFromAppConfig(); }
             catch (Exception ex) { Log.Write("Error: Loading application configuration from app config failed with the exception: " + ex); throw; }
@@ -68,6 +92,26 @@ namespace DuplicateFileTool.Configuration
             ResultsConfig.PropertyChanged += OnConfigurationChanged;
 
             FileComparers = GetFileComparers().ToArray();
+        }
+
+        private static InclusionTypeData[] GetComparisonTypesData()
+        {
+            return new InclusionTypeData[]
+            {
+                new(InclusionType.Include, Resources.Ui_Search_Path_Include),
+                new(InclusionType.Exclude, Resources.Ui_Search_Path_Exclude)
+            };
+        }
+
+        private static SortOrderData[] GetSortOrderData()
+        {
+            return new SortOrderData[]
+            {
+                new(SortOrder.Number, Resources.Ui_Results_Sorting_By_Number),
+                new(SortOrder.Size, Resources.Ui_Results_Sorting_By_Size),
+                new(SortOrder.Path, Resources.Ui_Results_Sorting_By_Path),
+                new(SortOrder.Name, Resources.Ui_Results_Sorting_By_Name)
+            };
         }
 
         public void Dispose()

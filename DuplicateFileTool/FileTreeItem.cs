@@ -148,7 +148,7 @@ namespace DuplicateFileTool
                     cAlternate = drive.Name
                 });
 
-                yield return new FileTreeItem(fileData, drive.Name);
+                yield return new FileTreeItem(fileData, drive.Description);
             }
         }
 

@@ -1097,6 +1097,42 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Name.
+        /// </summary>
+        public static string Ui_Results_Sorting_By_Name {
+            get {
+                return ResourceManager.GetString("Ui_Results_Sorting_By_Name", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Number.
+        /// </summary>
+        public static string Ui_Results_Sorting_By_Number {
+            get {
+                return ResourceManager.GetString("Ui_Results_Sorting_By_Number", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Path.
+        /// </summary>
+        public static string Ui_Results_Sorting_By_Path {
+            get {
+                return ResourceManager.GetString("Ui_Results_Sorting_By_Path", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Size.
+        /// </summary>
+        public static string Ui_Results_Sorting_By_Size {
+            get {
+                return ResourceManager.GetString("Ui_Results_Sorting_By_Size", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Results.
         /// </summary>
         public static string Ui_Results_Tab_Header {
@@ -1111,6 +1147,42 @@ namespace DuplicateFileTool.Properties {
         public static string Ui_Search_Button_Text {
             get {
                 return ResourceManager.GetString("Ui_Search_Button_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Exclude.
+        /// </summary>
+        public static string Ui_Search_Path_Exclude {
+            get {
+                return ResourceManager.GetString("Ui_Search_Path_Exclude", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Include.
+        /// </summary>
+        public static string Ui_Search_Path_Include {
+            get {
+                return ResourceManager.GetString("Ui_Search_Path_Include", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Inclusion.
+        /// </summary>
+        public static string Ui_Search_Paths_Header_Inclusion {
+            get {
+                return ResourceManager.GetString("Ui_Search_Paths_Header_Inclusion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Path.
+        /// </summary>
+        public static string Ui_Search_Paths_Header_Path {
+            get {
+                return ResourceManager.GetString("Ui_Search_Paths_Header_Path", resourceCulture);
             }
         }
         
@@ -1228,6 +1300,42 @@ namespace DuplicateFileTool.Properties {
         public static string Ui_ToolTip_Open_File_In_Explorer {
             get {
                 return ResourceManager.GetString("Ui_ToolTip_Open_File_In_Explorer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Go to the first page.
+        /// </summary>
+        public static string Ui_ToolTip_Results_Page_First {
+            get {
+                return ResourceManager.GetString("Ui_ToolTip_Results_Page_First", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Go to the last page.
+        /// </summary>
+        public static string Ui_ToolTip_Results_Page_Last {
+            get {
+                return ResourceManager.GetString("Ui_ToolTip_Results_Page_Last", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Go to the next page.
+        /// </summary>
+        public static string Ui_ToolTip_Results_Page_Next {
+            get {
+                return ResourceManager.GetString("Ui_ToolTip_Results_Page_Next", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Go to the previous page.
+        /// </summary>
+        public static string Ui_ToolTip_Results_Page_Previous {
+            get {
+                return ResourceManager.GetString("Ui_ToolTip_Results_Page_Previous", resourceCulture);
             }
         }
         

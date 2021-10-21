@@ -29,8 +29,17 @@ namespace DuplicateFileTool
             {
                 _pathInclusionType = value;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(PathInclusionTypeName));
             }
         }
+
+
+        public string PathInclusionTypeName => PathInclusionType switch
+        {
+            InclusionType.Include => Resources.Ui_Search_Path_Include,
+            InclusionType.Exclude => Resources.Ui_Search_Path_Exclude,
+            _ => ""
+        };
 
         public string Path
         {
@@ -42,6 +51,7 @@ namespace DuplicateFileTool
             }
         }
 
+        // ReSharper disable once UnusedMember.Global
         public SearchPath()
         { }
 

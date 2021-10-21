@@ -307,6 +307,27 @@
   <ItemGroup>
     <Resource Include="Images\AddRemoveGray.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Binary.png" />
+    <Resource Include="Images\Image.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\CancelGray.png" />
+    <Resource Include="Images\StartGray.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Changes.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\First.png" />
+    <Resource Include="Images\FirstGray.png" />
+    <Resource Include="Images\Last.png" />
+    <Resource Include="Images\LastGray.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Exclude.png" />
+    <Resource Include="Images\Include.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>if exist "$(SolutionDir)BuildVersionIncrement.exe" "$(SolutionDir)BuildVersionIncrement.exe" "$(ProjectDir)Properties\AssemblyInfo.cs"</PreBuildEvent>
