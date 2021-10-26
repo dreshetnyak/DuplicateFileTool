@@ -127,7 +127,7 @@ namespace DuplicateFileTool
         {
             directoryContent.Sort((left, right) => left.Attributes.IsDirectory != right.Attributes.IsDirectory
                 ? left.Attributes.IsDirectory ? -1 : 1
-                : string.Compare(left.FileName, right.FileName, StringComparison.Ordinal));
+                : string.Compare(left.FileName, right.FileName, StringComparison.OrdinalIgnoreCase));
         }
 
         public static IEnumerable<FileTreeItem> GetFileSystemItemsForDrives()

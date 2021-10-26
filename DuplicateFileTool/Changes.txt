@@ -1,9 +1,5 @@
 ﻿Pending work:
 
-Bug. Results page navigation buttons is active diring search, but the navigation is not allowed.
-
-New. Page navigation tooltips text should be in the resources.
-New. Sort the files in the files tree.
 New. Search paths list add switches that allow to turn off or no the path for the current search.
 Improvement. The files in the groups is not sorted, need to sort it by path for it to be consistent over all groups.
 
@@ -26,6 +22,10 @@ Under the files tree add a panel where we can see free space on the disks.
 
 =========================================================================
 Releases:
+
+DuplicateFileTool 1.0.496: 2021-10-26
+Bug. Results page navigation buttons is active diring search, but the navigation is not allowed.
+Bug. When the files in the file tree was sorted by the name the there was a upper/lower case distinction, so the upper case was going first and lower at the end of the list.
 
 DuplicateFileTool 1.0.492: 2021-10-21
 New. Added a dialog that can add or remove search extensions in a bulk based on the extensions type.
