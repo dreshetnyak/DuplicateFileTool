@@ -1,4 +1,4 @@
-﻿Pending work:
+﻿Backlog:
 
 New. Search paths list add switches that allow to turn off or no the path for the current search.
 Improvement. The files in the groups is not sorted, need to sort it by path for it to be consistent over all groups.
@@ -21,7 +21,10 @@ Can we add columns to the files list, to indicate mod. date, size, etc?
 Under the files tree add a panel where we can see free space on the disks.
 
 =========================================================================
-Releases:
+Done:
+
+DuplicateFileTool 1.0.520: 2021-11-09
+Bug. When the search is in progress the button to clean search paths list is enabled and functional.
 
 DuplicateFileTool 1.0.496: 2021-10-26
 Bug. Results page navigation buttons is active diring search, but the navigation is not allowed.

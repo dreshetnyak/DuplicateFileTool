@@ -242,6 +242,7 @@ namespace DuplicateFileTool
             Ui.IsCancelSearchEnabled = FindDuplicates.CanCancel;
             Ui.IsUiEntryEnabled = FindDuplicates.Enabled;
             Ui.IsSearchPathsListReadOnly = !FindDuplicates.Enabled;
+            Ui.IsSearchEnabled = SearchPaths.Count != 0 && FindDuplicates.Enabled;
             OnUpdateAddPathEnabled();
         }
 

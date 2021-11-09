@@ -953,6 +953,15 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Open in the Explorer.
+        /// </summary>
+        public static string Ui_File_Tree_Context_Menu_Open_File_In_Explorer {
+            get {
+                return ResourceManager.GetString("Ui_File_Tree_Context_Menu_Open_File_In_Explorer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to , Files: .
         /// </summary>
         public static string Ui_Files {

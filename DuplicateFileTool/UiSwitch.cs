@@ -10,6 +10,7 @@ namespace DuplicateFileTool
         private bool _isCancelSearchEnabled;
         private bool _isSearchEnabled;
         private bool _isErrorTabImageEnabled;
+        private bool _isClearPathsListEnabled;
 
         public bool IsAddPathEnabled
         {
@@ -56,7 +57,16 @@ namespace DuplicateFileTool
             get => _isSearchEnabled;
             set
             {
-                _isSearchEnabled = value; 
+                _isSearchEnabled = value;
+                OnPropertyChanged();
+            }
+        }
+        public bool IsClearPathsListEnabled
+        {
+            get => _isClearPathsListEnabled;
+            set
+            {
+                _isClearPathsListEnabled = value; 
                 OnPropertyChanged();
             }
         }

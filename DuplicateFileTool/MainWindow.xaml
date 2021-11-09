@@ -18,8 +18,22 @@
         <converters:BooleanToVisibilityConverter x:Key="BoolVisibilityConverter" />
         <converters:LongConverter x:Key="LongConverter" />
 
+        <Label x:Key="DummyLabel" />
+
         <HierarchicalDataTemplate DataType="{x:Type local:FileTreeItem}" ItemsSource="{Binding Children}">
             <StackPanel Orientation="Horizontal">
+                <StackPanel.ContextMenu>
+                    <ContextMenu StaysOpen="False">
+                        <!-- Command and CommandParameter should be be fixed.  -->
+                        <MenuItem Header="{x:Static resx:Resources.Ui_File_Tree_Context_Menu_Open_File_In_Explorer}" 
+                                  Command="{DynamicResource DummyLabel}"
+                                  CommandParameter="{Binding}">
+                            <MenuItem.Icon>
+                                <Image Source="Images/OpenFolder.png" RenderOptions.BitmapScalingMode="Fant" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                    </ContextMenu>
+                </StackPanel.ContextMenu>
                 <Image Source="{Binding ItemIcon, UpdateSourceTrigger=PropertyChanged}" Margin="0,1,8,1" VerticalAlignment="Center" />
                 <TextBlock Text="{Binding ItemName}" VerticalAlignment="Center" Margin="0,1,5,1" />
             </StackPanel>
