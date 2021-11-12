@@ -55,7 +55,11 @@ namespace DuplicateFileTool
         {
             return obj.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public).Where(property => property.PropertyType == typeof(T));
         }
-        
+
+        public static IEnumerable<object> GetGenericPropertiesObjects([NotNull] this object obj, Type implementsInterfaceType)
+        {
+            return obj.GetType().GetPropertiesThatImplementGeneric(implementsInterfaceType).Select(property => property.GetValue(obj));
+        }
 
         //public static T GetAttribute<T>(this Type objectType) where T : class
         //{

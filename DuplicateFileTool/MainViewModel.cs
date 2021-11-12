@@ -345,8 +345,7 @@ namespace DuplicateFileTool
         }
         
         private void InitializeSelectedFileComparer()
-        {
-            
+        {            
             // ReSharper disable LocalizableElement
             Debug.Assert(Config != null, "Initializing the selected file comparer while the Config object is null");
             Debug.Assert(Config.SearchConfig != null, "Initializing the selected file comparer while the Config.SearchConfig object is null");

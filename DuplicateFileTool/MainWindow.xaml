@@ -5,7 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DuplicateFileTool"
         xmlns:resx="clr-namespace:DuplicateFileTool.Properties"
+        xmlns:controls="clr-namespace:DuplicateFileTool.Controls"
         xmlns:converters="clr-namespace:DuplicateFileTool.Converters"
+        xmlns:commands="clr-namespace:DuplicateFileTool.Commands"
         mc:Ignorable="d"
         Icon="DuplicateFileTool.ico"
         Title="{Binding Config.ApplicationName, Mode=OneTime}" Height="650" Width="1000" MinHeight="378" MinWidth="500"
@@ -17,8 +19,7 @@
         <converters:EnumBooleanConverter x:Key="EnumBoolConverter" />
         <converters:BooleanToVisibilityConverter x:Key="BoolVisibilityConverter" />
         <converters:LongConverter x:Key="LongConverter" />
-
-        <Label x:Key="DummyLabel" />
+        <commands:OpenFileInExplorerCommand x:Key="OpenFileInExplorer" />
 
         <HierarchicalDataTemplate DataType="{x:Type local:FileTreeItem}" ItemsSource="{Binding Children}">
             <StackPanel Orientation="Horizontal">
@@ -26,7 +27,7 @@
                     <ContextMenu StaysOpen="False">
                         <!-- Command and CommandParameter should be be fixed.  -->
                         <MenuItem Header="{x:Static resx:Resources.Ui_File_Tree_Context_Menu_Open_File_In_Explorer}" 
-                                  Command="{DynamicResource DummyLabel}"
+                                  Command="{DynamicResource OpenFileInExplorer}"
                                   CommandParameter="{Binding}">
                             <MenuItem.Icon>
                                 <Image Source="Images/OpenFolder.png" RenderOptions.BitmapScalingMode="Fant" />
@@ -57,7 +58,7 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="22"/>
                 </Grid.ColumnDefinitions>
-
+                
                 <Button Grid.Column="0" Visibility="{Binding IsMarkForDeletionVisible, Mode=OneWay, Converter={StaticResource BoolVisibilityConverter}}" 
                         Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" 
                         Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.ToggleDeletionMark}"
@@ -74,18 +75,20 @@
                     <Image Source="Images/Undo.png" HorizontalAlignment="Left" RenderOptions.BitmapScalingMode="Fant" />
                 </Button>
 
-                <TextBlock Grid.Column="1" Text="{Binding FileFullName}" Margin="0,0,5,0" VerticalAlignment="Center">
-                    <TextBlock.Style>
-                        <Style TargetType="TextBlock">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsMarkedForDeletion, Mode=OneWay}" Value="True">
-                                    <Setter Property="TextDecorations" Value="Strikethrough" />
-                                    <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </TextBlock.Style>
-                </TextBlock>
+                <ContentControl Grid.Column="1" MouseDoubleClick="OnOpenWithDefaultApp">
+                    <TextBlock Text="{Binding FileFullName}" Margin="0,0,5,0" VerticalAlignment="Center">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsMarkedForDeletion, Mode=OneWay}" Value="True">
+                                        <Setter Property="TextDecorations" Value="Strikethrough" />
+                                        <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </ContentControl>
 
                 <Button Grid.Column="2" Margin="0,1,5,1" 
                         Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
@@ -835,22 +838,93 @@
                         <Label Content="{x:Static resx:Resources.Ui_Settings_Tab_Header}" />
                     </StackPanel>
                 </TabItem.Header>
-                <Grid VerticalAlignment="Center" HorizontalAlignment="Center">
+                <Grid Margin="3">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition />
-                        <ColumnDefinition />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
-                    <GroupBox Grid.Column="1" Header="{x:Static resx:Resources.Ui_About_the_Program_Header}" Width="300">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <Image Grid.Column="0" Source="Images/Info.png" Height="34" RenderOptions.BitmapScalingMode="Fant" Margin="1,3,0,0" VerticalAlignment="Top" />
-                            <TextBlock Grid.Column="1" Text="{x:Static resx:Resources.Ui_About_the_Program_Text}" TextWrapping="Wrap" Margin="5,0,0,0" />
-                        </Grid>
-                    </GroupBox>
+                    <Grid Grid.Column="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <GroupBox Grid.Row="0" Header="Selected File Comparer">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <ComboBox Grid.Row="0" Margin="0,3,0,0"
+                                          ItemsSource="{Binding FileComparers}" DisplayMemberPath="Name.Value" 
+                                          SelectedItem="{Binding SelectedFileComparer}" />
+                                <TextBlock Grid.Row="1" Text="Description:" Margin="3,3,3,0" />
+                                <TextBlock Grid.Row="2" TextWrapping="Wrap" Margin="3,0,3,0"
+                                           Text="{Binding SelectedFileComparer.Description.Value, TargetNullValue='N/A'}" />
+
+                            </Grid>
+
+                        </GroupBox>
+
+                        <Border Grid.Row="1"
+                                ToolTip="TODO"
+                                BorderBrush="LightGray" 
+                                BorderThickness="1" 
+                                CornerRadius="10,10,10,10"
+                                Margin="0,3,0,0"
+                                Background="Transparent">
+                            <Expander Header="Search Configuration">
+                                <controls:ConfigGrid DataContext="{Binding Config.SearchConfigParams}" Margin="2,4,2,8" />
+                            </Expander>
+                        </Border>
+
+                        <Border Grid.Row="2"
+                                ToolTip="TODO"
+                                BorderBrush="LightGray" 
+                                BorderThickness="1" 
+                                CornerRadius="10,10,10,10"
+                                Margin="0,3,0,0"
+                                Background="Transparent">
+                            <Expander Header="Extensions Configuration">
+                                <controls:ConfigGrid DataContext="{Binding Config.ExtensionsConfigParams}" Margin="2,4,2,8" />
+                            </Expander>
+                        </Border>
+
+                        <Border Grid.Row="3"
+                                ToolTip="TODO"
+                                BorderBrush="LightGray" 
+                                BorderThickness="1" 
+                                CornerRadius="10,10,10,10"
+                                Margin="0,3,0,0"
+                                Background="Transparent">
+                            <Expander Header="Results Configuration">
+                                <controls:ConfigGrid DataContext="{Binding Config.ResultsConfigParams}" Margin="2,4,2,8" />
+                            </Expander>
+                        </Border>
+
+                    </Grid>
+
+                    <Grid Grid.Column="1">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <GroupBox Grid.Row="0" Header="{x:Static resx:Resources.Ui_About_the_Program_Header}" Width="300">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Image Grid.Column="0" Source="Images/Info.png" Height="34" RenderOptions.BitmapScalingMode="Fant" Margin="1,3,0,0" VerticalAlignment="Top" />
+                                <TextBlock Grid.Column="1" Text="{x:Static resx:Resources.Ui_About_the_Program_Text}" TextWrapping="Wrap" Margin="5,0,0,0" />
+                            </Grid>
+                        </GroupBox>
+
+                    </Grid>
 
                 </Grid>
 

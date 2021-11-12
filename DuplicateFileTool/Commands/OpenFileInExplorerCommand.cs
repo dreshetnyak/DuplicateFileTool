@@ -9,14 +9,17 @@ namespace DuplicateFileTool.Commands
             try
             {
                 Enabled = false;
-                if (parameter is not DuplicateFile duplicateFile)
+                
+                string filePathName;
+                if (parameter is DuplicateFile duplicateFile)
+                    filePathName = duplicateFile.FileFullName;
+                else if (parameter is FileTreeItem fileTreeItem)
+                    filePathName = fileTreeItem.ItemPath;
+                else
                     return;
 
-                var filePathName = duplicateFile.FileFullName;
-                if (!FileSystem.PathExists(filePathName))
-                    return;
-
-                Process.Start("explorer.exe", $"/select, \"{filePathName}\"");
+                if (FileSystem.PathExists(filePathName))
+                    Process.Start("explorer.exe", $"/select, \"{filePathName}\"");
             }
             finally
             {

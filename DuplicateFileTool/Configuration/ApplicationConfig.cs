@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
@@ -61,9 +62,13 @@ namespace DuplicateFileTool.Configuration
             }
         }
 
-        public SearchConfiguration SearchConfig { get; } = new();
-        public ResultsConfiguration ResultsConfig { get; } = new();
-        public ExtensionsConfiguration ExtensionsConfig { get; } = new();
+        public SearchConfiguration SearchConfig { get; }
+        public ObservableCollection<object> SearchConfigParams { get; }
+        public ExtensionsConfiguration ExtensionsConfig { get; }
+        public ObservableCollection<object> ExtensionsConfigParams { get; }
+        public ResultsConfiguration ResultsConfig { get; }
+        public ObservableCollection<object> ResultsConfigParams { get; }
+
         public IReadOnlyCollection<IFileComparer> FileComparers { get; }
         public InclusionTypeData[] PathComparisonTypes { get; }
         public SortOrderData[] SortOrderTypes { get; }
@@ -71,6 +76,13 @@ namespace DuplicateFileTool.Configuration
         public ApplicationConfig()
         {
             Log = new Logger(Logger.Target.Debug);
+
+            SearchConfig = new();
+            SearchConfigParams = new ObservableCollection<object>(SearchConfig.GetGenericPropertiesObjects(typeof(IConfigurationProperty<>)));
+            ExtensionsConfig = new();
+            ExtensionsConfigParams = new ObservableCollection<object>(ExtensionsConfig.GetGenericPropertiesObjects(typeof(IConfigurationProperty<>)));
+            ResultsConfig = new();
+            ResultsConfigParams = new ObservableCollection<object>(ResultsConfig.GetGenericPropertiesObjects(typeof(IConfigurationProperty<>)));
 
             PathComparisonTypes = GetComparisonTypesData();
             SortOrderTypes = GetSortOrderData();

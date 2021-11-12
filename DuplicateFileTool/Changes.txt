@@ -1,8 +1,9 @@
 ﻿Backlog:
 
+New. Populate the settings page.
+
 New. Search paths list add switches that allow to turn off or no the path for the current search.
 Improvement. The files in the groups is not sorted, need to sort it by path for it to be consistent over all groups.
-
 New. Add monitoring to refresh the file tree view whenever the file structure is updated.
 Improvement. Status bar is updated too fast, need an update delay.
 New. Add quick filter for the file tree.
@@ -10,11 +11,8 @@ New. Add filter to the results list.
 New. Show folders of duplicated groups with folders comparing, should appear below the list of results.
 New. Add selected file preview. Characteristics of images.
 New. Implement deletion to recycle bin.
-New. Implement right click on file tree to open in file explorer.
 Bug. Deleting files is extremely slow in some cases because every time a file is deleted the results page is been reloaded (Need to disable Results while deleting and load the page only at the end).
 New. If a duplicate file is found in a folder add all files from that folder to the search. That should be an optional behavior.
-New. Populate the settings page.
-New. Open file on double click in results and in the file tree.
 Create the installer.
 Move clear all results button to the right panel, or should we put it to the toolbar?
 Can we add columns to the files list, to indicate mod. date, size, etc?
@@ -22,6 +20,10 @@ Under the files tree add a panel where we can see free space on the disks.
 
 =========================================================================
 Done:
+
+DuplicateFileTool 1.0.x: 2021-11-11
+New. Implement right click on file tree to open in file explorer.
+New. Open file on double click in results and in the file tree.
 
 DuplicateFileTool 1.0.520: 2021-11-09
 Bug. When the search is in progress the button to clean search paths list is enabled and functional.
