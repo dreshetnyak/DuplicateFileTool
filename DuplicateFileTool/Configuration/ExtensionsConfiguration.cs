@@ -133,12 +133,16 @@ namespace DuplicateFileTool.Configuration
         
         public ObservableCollection<FileExtension> Extensions { get; }
 
-        private ConfigurationProperty<string> ExtensionsSettings { get; } = new(
-            Resources.Config_Results_Sort_Descending_Name,
-            Resources.Config_Results_Sort_Descending_Description,
+        public ConfigurationProperty<string> ExtensionsSettings { get; } = new(
+            Resources.Config_Extensions_Name,
+            Resources.Config_Extensions_Description,
             DEFAULT_EXTENSIONS);
 
-        public bool HasChanged => ChangeTracker.HasChanged;
+        public bool HasChanged
+        {
+            get => ChangeTracker.HasChanged;
+            set => ChangeTracker.HasChanged = value;
+        }
 
         private PropertiesChangeTracker<ExtensionsConfiguration> ChangeTracker { get; }
 

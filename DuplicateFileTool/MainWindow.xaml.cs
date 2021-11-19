@@ -4,6 +4,7 @@ using System.Windows;
 using System.Diagnostics;
 using System.Windows.Controls;
 using System.IO;
+using System.Windows.Navigation;
 
 namespace DuplicateFileTool
 {

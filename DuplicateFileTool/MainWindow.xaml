@@ -262,6 +262,7 @@
                                 <Style x:Key="InclusionImage" TargetType="{x:Type Image}">
                                     <Setter Property="Source" Value="Images/Include.png" />
                                     <Style.Triggers>
+                                        <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
                                         <DataTrigger Binding="{Binding PathInclusionTypeName}" Value="Exclude">
                                             <Setter Property="Source" Value="Images/Exclude.png" />
                                         </DataTrigger>
@@ -765,9 +766,6 @@
             </TabItem>
 
             <TabItem MinHeight="22" MinWidth="90">
-                <TabItem.Resources>
-
-                </TabItem.Resources>
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal" ToolTip="{x:Static resx:Resources.Ui_ToolTip_Errors_Tab}">
                         <Image IsEnabled="{Binding Ui.IsErrorTabImageEnabled}" Height="16" RenderOptions.BitmapScalingMode="Fant" Margin="0,3,0,0">
@@ -838,39 +836,78 @@
                         <Label Content="{x:Static resx:Resources.Ui_Settings_Tab_Header}" />
                     </StackPanel>
                 </TabItem.Header>
-                <Grid Margin="3">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-
-                    <Grid Grid.Column="0">
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled" 
+                              VerticalScrollBarVisibility="Auto"
+                              Margin="3">
+                    <Grid Margin="0,0,3,0">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
-                        <GroupBox Grid.Row="0" Header="Selected File Comparer">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                </Grid.RowDefinitions>
-                                <ComboBox Grid.Row="0" Margin="0,3,0,0"
-                                          ItemsSource="{Binding FileComparers}" DisplayMemberPath="Name.Value" 
-                                          SelectedItem="{Binding SelectedFileComparer}" />
-                                <TextBlock Grid.Row="1" Text="Description:" Margin="3,3,3,0" />
-                                <TextBlock Grid.Row="2" TextWrapping="Wrap" Margin="3,0,3,0"
-                                           Text="{Binding SelectedFileComparer.Description.Value, TargetNullValue='N/A'}" />
+                        
+                        <Grid Grid.Row="0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <GroupBox Grid.Column="0" Header="Selected File Comparer" Margin="0,0,2,0">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <ComboBox Grid.Row="0" Margin="0,3,0,0"
+                                              ItemsSource="{Binding FileComparers}" DisplayMemberPath="Name.Value" 
+                                              SelectedItem="{Binding SelectedFileComparer}" />
+                                    <TextBlock Grid.Row="1" Text="Description:" Margin="3,3,3,0" />
+                                    <TextBlock Grid.Row="2" TextWrapping="Wrap" Margin="3,0,3,0"
+                                               Text="{Binding SelectedFileComparer.Description.Value, TargetNullValue='N/A'}" />
+                                </Grid>
+                            </GroupBox>
+                            <GroupBox Grid.Column="1" Header="{x:Static resx:Resources.Ui_About_the_Program_Header}" Width="300">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Image Grid.Column="0" Source="Images/Info.png" Height="34" RenderOptions.BitmapScalingMode="Fant" Margin="1,3,0,0" VerticalAlignment="Top" />
 
-                            </Grid>
+                                    <Grid Grid.Column="1">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
 
-                        </GroupBox>
+                                        <TextBlock Grid.Row="0" Text="{x:Static resx:Resources.Ui_About_the_Program_Text}" TextWrapping="Wrap" Margin="5,0,0,0" />
+
+                                        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="5,0,0,0">
+                                            <TextBlock Text="{x:Static resx:Resources.Ui_About_Visit}" />
+                                            <TextBlock TextWrapping="Wrap" Margin="3,0,0,0">
+                                                <Hyperlink Command="{Binding Navigate}" 
+                                                           CommandParameter="{x:Static resx:Resources.Ui_About_Program_Site_Url}"
+                                                           ToolTip="{x:Static resx:Resources.Ui_About_Program_Site_Url}">
+                                                    <TextBlock Text="{x:Static resx:Resources.Ui_About_Program_Site}" />
+                                                </Hyperlink>
+                                            </TextBlock>
+                                            <TextBlock  TextWrapping="Wrap" Margin="3,0,0,0">
+                                                <Hyperlink Command="{Binding Navigate}" 
+                                                           CommandParameter="{x:Static resx:Resources.Ui_About_Source_Site_Url}"
+                                                           ToolTip="{x:Static resx:Resources.Ui_About_Source_Site_Url}">
+                                                    <TextBlock Text="{x:Static resx:Resources.Ui_About_Source_Site}" />
+                                                </Hyperlink>
+                                            </TextBlock>
+                                        </StackPanel>
+                                    </Grid>
+                                </Grid>
+                            </GroupBox>
+                        </Grid>
 
                         <Border Grid.Row="1"
-                                ToolTip="TODO"
+                                ToolTip="{x:Static resx:Resources.Ui_ToolTip_Config_Search}"
                                 BorderBrush="LightGray" 
                                 BorderThickness="1" 
                                 CornerRadius="10,10,10,10"
@@ -882,7 +919,7 @@
                         </Border>
 
                         <Border Grid.Row="2"
-                                ToolTip="TODO"
+                                ToolTip="{x:Static resx:Resources.Ui_ToolTip_Config_Extensions}"
                                 BorderBrush="LightGray" 
                                 BorderThickness="1" 
                                 CornerRadius="10,10,10,10"
@@ -894,7 +931,7 @@
                         </Border>
 
                         <Border Grid.Row="3"
-                                ToolTip="TODO"
+                                ToolTip="{x:Static resx:Resources.Ui_ToolTip_Config_Results}"
                                 BorderBrush="LightGray" 
                                 BorderThickness="1" 
                                 CornerRadius="10,10,10,10"
@@ -906,28 +943,7 @@
                         </Border>
 
                     </Grid>
-
-                    <Grid Grid.Column="1">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
-
-                        <GroupBox Grid.Row="0" Header="{x:Static resx:Resources.Ui_About_the_Program_Header}" Width="300">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-                                <Image Grid.Column="0" Source="Images/Info.png" Height="34" RenderOptions.BitmapScalingMode="Fant" Margin="1,3,0,0" VerticalAlignment="Top" />
-                                <TextBlock Grid.Column="1" Text="{x:Static resx:Resources.Ui_About_the_Program_Text}" TextWrapping="Wrap" Margin="5,0,0,0" />
-                            </Grid>
-                        </GroupBox>
-
-                    </Grid>
-
-                </Grid>
-
+                </ScrollViewer>
             </TabItem>
         </TabControl>
 

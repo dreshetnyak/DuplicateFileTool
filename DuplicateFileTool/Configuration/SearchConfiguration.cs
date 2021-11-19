@@ -81,7 +81,11 @@ namespace DuplicateFileTool.Configuration
 
         #endregion
 
-        public bool HasChanged => ChangeTracker.HasChanged;
+        public bool HasChanged
+        {
+            get => ChangeTracker.HasChanged;
+            set => ChangeTracker.HasChanged = value;
+        }
 
         private PropertiesChangeTracker<SearchConfiguration> ChangeTracker { get; }
 

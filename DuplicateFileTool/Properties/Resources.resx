@@ -442,10 +442,10 @@
     <value>/</value>
   </data>
   <data name="Config_Results_Sort_Descending_Description" xml:space="preserve">
-    <value>Indicates if the results should be in a descending or ascending order</value>
+    <value>Indicates if the results should be sorted in a descending is checked or otherwise ascending order</value>
   </data>
   <data name="Config_Results_Sort_Descending_Name" xml:space="preserve">
-    <value>Results Sorting Direction</value>
+    <value>Sort Results Descending</value>
   </data>
   <data name="Config_Results_Sort_Order_Description" xml:space="preserve">
     <value>Specified the duplicate group parameter to use for sorting results</value>
@@ -563,5 +563,44 @@
   </data>
   <data name="Ui_File_Tree_Context_Menu_Open_File_In_Explorer" xml:space="preserve">
     <value>Open in the Explorer</value>
+  </data>
+  <data name="Config_DataGrid_Header_Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="Config_DataGrid_Header_Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="Config_DataGrid_Header_Value" xml:space="preserve">
+    <value>Value</value>
+  </data>
+  <data name="Config_Extensions_Description" xml:space="preserve">
+    <value>Those extensions will be included in the dialog that adds or removes extensions from the search</value>
+  </data>
+  <data name="Config_Extensions_Name" xml:space="preserve">
+    <value>Configured extensions</value>
+  </data>
+  <data name="Ui_About_Program_Site" xml:space="preserve">
+    <value>[Program Site]</value>
+  </data>
+  <data name="Ui_About_Program_Site_Url" xml:space="preserve">
+    <value>http://dft.garbledgab.com</value>
+  </data>
+  <data name="Ui_About_Source_Site" xml:space="preserve">
+    <value>[Source Code]</value>
+  </data>
+  <data name="Ui_About_Source_Site_Url" xml:space="preserve">
+    <value>https://github.com/dreshetnyak/DuplicateFileTool</value>
+  </data>
+  <data name="Ui_About_Visit" xml:space="preserve">
+    <value>Visit my pages:</value>
+  </data>
+  <data name="Ui_ToolTip_Config_Extensions" xml:space="preserve">
+    <value>Search extensions default parameters configuration</value>
+  </data>
+  <data name="Ui_ToolTip_Config_Results" xml:space="preserve">
+    <value>Results page default parameters configuration</value>
+  </data>
+  <data name="Ui_ToolTip_Config_Search" xml:space="preserve">
+    <value>Search page default parameters configuration</value>
   </data>
 </root>

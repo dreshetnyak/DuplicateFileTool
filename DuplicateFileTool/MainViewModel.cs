@@ -33,7 +33,6 @@ namespace DuplicateFileTool
             }
         }
 
-
         public string PathInclusionTypeName => PathInclusionType switch
         {
             InclusionType.Include => Resources.Ui_Search_Path_Include,
@@ -153,6 +152,7 @@ namespace DuplicateFileTool
         public RelayCommand ClearSearchPaths { get; }
         public AddOrRemoveExtensionsCommand AddOrRemoveExtensions { get; }
         public RelayCommand ClearExtensions { get; }
+        public RelayCommand Navigate { get; }
 
         #endregion
 
@@ -213,6 +213,7 @@ namespace DuplicateFileTool
 
             ClearExtensions = new RelayCommand(_ => SearchConfig.Extensions.Clear());
             AddOrRemoveExtensions = new AddOrRemoveExtensionsCommand(SearchConfig.Extensions, Config.ExtensionsConfig);
+            Navigate = new RelayCommand(parameter => Process.Start(new ProcessStartInfo((string)parameter)));
 
             UpdateFileTree();
         }

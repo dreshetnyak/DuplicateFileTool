@@ -37,6 +37,18 @@ namespace DuplicateFileTool.Configuration
     {
         private bool _hasChanged;
         private bool _hasUnsavedChanges;
+        private static readonly InclusionTypeData[] PathComparisonTypesData = 
+        {
+            new(InclusionType.Include, Resources.Ui_Search_Path_Include),
+            new(InclusionType.Exclude, Resources.Ui_Search_Path_Exclude)
+        };
+        private static readonly SortOrderData[] SortOrderTypesData =
+        {
+            new(SortOrder.Number, Resources.Ui_Results_Sorting_By_Number),
+            new(SortOrder.Size, Resources.Ui_Results_Sorting_By_Size),
+            new(SortOrder.Path, Resources.Ui_Results_Sorting_By_Path),
+            new(SortOrder.Name, Resources.Ui_Results_Sorting_By_Name)
+        };
 
         public string ApplicationName { get; } = ConfigurationManager.GetAppName();
         public Logger Log { get; }
@@ -70,60 +82,60 @@ namespace DuplicateFileTool.Configuration
         public ObservableCollection<object> ResultsConfigParams { get; }
 
         public IReadOnlyCollection<IFileComparer> FileComparers { get; }
-        public InclusionTypeData[] PathComparisonTypes { get; }
-        public SortOrderData[] SortOrderTypes { get; }
+
+        public InclusionTypeData[] PathComparisonTypes => PathComparisonTypesData;
+        public SortOrderData[] SortOrderTypes => SortOrderTypesData;
 
         public ApplicationConfig()
         {
             Log = new Logger(Logger.Target.Debug);
 
-            SearchConfig = new();
-            SearchConfigParams = new ObservableCollection<object>(SearchConfig.GetGenericPropertiesObjects(typeof(IConfigurationProperty<>)));
-            ExtensionsConfig = new();
-            ExtensionsConfigParams = new ObservableCollection<object>(ExtensionsConfig.GetGenericPropertiesObjects(typeof(IConfigurationProperty<>)));
-            ResultsConfig = new();
-            ResultsConfigParams = new ObservableCollection<object>(ResultsConfig.GetGenericPropertiesObjects(typeof(IConfigurationProperty<>)));
-
-            PathComparisonTypes = GetComparisonTypesData();
-            SortOrderTypes = GetSortOrderData();
+            SearchConfig = new SearchConfiguration();
+            SearchConfigParams = new ObservableCollection<object>(SearchConfig
+                .GetGenericPropertiesObjects(typeof(IConfigurationProperty<>))
+                .Where(IsParameterIncluded));
+            
+            ExtensionsConfig = new ExtensionsConfiguration();
+            ExtensionsConfigParams = new ObservableCollection<object>(ExtensionsConfig
+                .GetGenericPropertiesObjects(typeof(IConfigurationProperty<>))
+                .Where(IsParameterIncluded));
+          
+            ResultsConfig = new ResultsConfiguration();
+            ResultsConfigParams = new ObservableCollection<object>(ResultsConfig
+                .GetGenericPropertiesObjects(typeof(IConfigurationProperty<>))
+                .Where(IsParameterIncluded));
 
             try { this.LoadFromAppConfig(); }
             catch (Exception ex) { Log.Write("Error: Loading application configuration from app config failed with the exception: " + ex); throw; }
+            HasChanged = false;
             PropertyChanged += OnConfigurationChanged;
 
             try { SearchConfig.LoadFromAppConfig(); }
             catch (Exception ex) { Log.Write("Error: Loading search configuration from app config failed with the exception: " + ex); throw; }
+            SearchConfig.HasChanged = false;
             SearchConfig.PropertyChanged += OnConfigurationChanged;
 
             try { ResultsConfig.LoadFromAppConfig(); }
             catch (Exception ex) { Log.Write("Error: Loading results configuration from app config failed with the exception: " + ex); throw; }
+            ResultsConfig.HasChanged = false;
             ResultsConfig.PropertyChanged += OnConfigurationChanged;
 
             try { ExtensionsConfig.LoadFromAppConfig(); }
             catch (Exception ex) { Log.Write("Error: Loading extensions configuration from app config failed with the exception: " + ex); throw; }
-            ResultsConfig.PropertyChanged += OnConfigurationChanged;
+            ExtensionsConfig.HasChanged = false;
+            ExtensionsConfig.PropertyChanged += OnConfigurationChanged;
 
             FileComparers = GetFileComparers().ToArray();
         }
 
-        private static InclusionTypeData[] GetComparisonTypesData()
+        private static bool IsParameterIncluded(object parameter)
         {
-            return new InclusionTypeData[]
-            {
-                new(InclusionType.Include, Resources.Ui_Search_Path_Include),
-                new(InclusionType.Exclude, Resources.Ui_Search_Path_Exclude)
-            };
-        }
+            var itemType = parameter.GetType();
+            if (!itemType.ImplementsInterfaceGeneric(typeof(IConfigurationProperty<>)))
+                return false;
 
-        private static SortOrderData[] GetSortOrderData()
-        {
-            return new SortOrderData[]
-            {
-                new(SortOrder.Number, Resources.Ui_Results_Sorting_By_Number),
-                new(SortOrder.Size, Resources.Ui_Results_Sorting_By_Size),
-                new(SortOrder.Path, Resources.Ui_Results_Sorting_By_Path),
-                new(SortOrder.Name, Resources.Ui_Results_Sorting_By_Name)
-            };
+            var isHiddenProperty = itemType.GetProperty(nameof(IConfigurationProperty<int>.IsHidden));
+            return isHiddenProperty != null && isHiddenProperty.GetValue(parameter) is false;
         }
 
         public void Dispose()

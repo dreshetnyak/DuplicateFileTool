@@ -19,7 +19,7 @@ namespace DuplicateFileTool.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class Resources {
@@ -187,6 +187,33 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Description.
+        /// </summary>
+        public static string Config_DataGrid_Header_Description {
+            get {
+                return ResourceManager.GetString("Config_DataGrid_Header_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Name.
+        /// </summary>
+        public static string Config_DataGrid_Header_Name {
+            get {
+                return ResourceManager.GetString("Config_DataGrid_Header_Name", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Value.
+        /// </summary>
+        public static string Config_DataGrid_Header_Value {
+            get {
+                return ResourceManager.GetString("Config_DataGrid_Header_Value", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to If enabled the program will skip the hidden files and directories..
         /// </summary>
         public static string Config_ExcludeHiddenFiles_Description {
@@ -255,6 +282,24 @@ namespace DuplicateFileTool.Properties {
         public static string Config_ExtensionInclusionType_Name {
             get {
                 return ResourceManager.GetString("Config_ExtensionInclusionType_Name", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Those extensions will be included in the dialog that adds or removes extensions from the search.
+        /// </summary>
+        public static string Config_Extensions_Description {
+            get {
+                return ResourceManager.GetString("Config_Extensions_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Configured extensions.
+        /// </summary>
+        public static string Config_Extensions_Name {
+            get {
+                return ResourceManager.GetString("Config_Extensions_Name", resourceCulture);
             }
         }
         
@@ -367,7 +412,7 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Indicates if the results should be in a descending or ascending order.
+        ///   Looks up a localized string similar to Indicates if the results should be sorted in a descending is checked or otherwise ascending order.
         /// </summary>
         public static string Config_Results_Sort_Descending_Description {
             get {
@@ -376,7 +421,7 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Results Sorting Direction.
+        ///   Looks up a localized string similar to Sort Results Descending.
         /// </summary>
         public static string Config_Results_Sort_Descending_Name {
             get {
@@ -692,6 +737,42 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to [Program Site].
+        /// </summary>
+        public static string Ui_About_Program_Site {
+            get {
+                return ResourceManager.GetString("Ui_About_Program_Site", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to http://dft.garbledgab.com.
+        /// </summary>
+        public static string Ui_About_Program_Site_Url {
+            get {
+                return ResourceManager.GetString("Ui_About_Program_Site_Url", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to [Source Code].
+        /// </summary>
+        public static string Ui_About_Source_Site {
+            get {
+                return ResourceManager.GetString("Ui_About_Source_Site", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to https://github.com/dreshetnyak/DuplicateFileTool.
+        /// </summary>
+        public static string Ui_About_Source_Site_Url {
+            get {
+                return ResourceManager.GetString("Ui_About_Source_Site_Url", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to About the program.
         /// </summary>
         public static string Ui_About_the_Program_Header {
@@ -706,6 +787,15 @@ namespace DuplicateFileTool.Properties {
         public static string Ui_About_the_Program_Text {
             get {
                 return ResourceManager.GetString("Ui_About_the_Program_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Visit my pages:.
+        /// </summary>
+        public static string Ui_About_Visit {
+            get {
+                return ResourceManager.GetString("Ui_About_Visit", resourceCulture);
             }
         }
         
@@ -1273,6 +1363,33 @@ namespace DuplicateFileTool.Properties {
         public static string Ui_ToolTip_Clear_Search_Paths {
             get {
                 return ResourceManager.GetString("Ui_ToolTip_Clear_Search_Paths", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Search extensions default parameters configuration.
+        /// </summary>
+        public static string Ui_ToolTip_Config_Extensions {
+            get {
+                return ResourceManager.GetString("Ui_ToolTip_Config_Extensions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Results page default parameters configuration.
+        /// </summary>
+        public static string Ui_ToolTip_Config_Results {
+            get {
+                return ResourceManager.GetString("Ui_ToolTip_Config_Results", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Search page default parameters configuration.
+        /// </summary>
+        public static string Ui_ToolTip_Config_Search {
+            get {
+                return ResourceManager.GetString("Ui_ToolTip_Config_Search", resourceCulture);
             }
         }
         

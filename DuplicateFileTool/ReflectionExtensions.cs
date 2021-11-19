@@ -47,18 +47,22 @@ namespace DuplicateFileTool
         
         public static IEnumerable<PropertyInfo> GetPropertiesThatImplementGeneric(this Type type, Type implementsInterfaceType)
         {
-            return type.GetProperties(BindingFlags.Instance | BindingFlags.Public).Where(property =>
-                property.PropertyType.ImplementsInterfaceGeneric(implementsInterfaceType));
+            return type.GetProperties(BindingFlags.Instance | BindingFlags.Public)
+                .Where(property => property.PropertyType.ImplementsInterfaceGeneric(implementsInterfaceType));
         }
 
         public static IEnumerable<PropertyInfo> GetPropertiesOfType<T>([NotNull] this object obj, BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.Public)
         {
-            return obj.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public).Where(property => property.PropertyType == typeof(T));
+            return obj.GetType()
+                .GetProperties(BindingFlags.Instance | BindingFlags.Public)
+                .Where(property => property.PropertyType == typeof(T));
         }
 
         public static IEnumerable<object> GetGenericPropertiesObjects([NotNull] this object obj, Type implementsInterfaceType)
         {
-            return obj.GetType().GetPropertiesThatImplementGeneric(implementsInterfaceType).Select(property => property.GetValue(obj));
+            return obj.GetType()
+                .GetPropertiesThatImplementGeneric(implementsInterfaceType)
+                .Select(property => property.GetValue(obj));
         }
 
         //public static T GetAttribute<T>(this Type objectType) where T : class

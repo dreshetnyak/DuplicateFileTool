@@ -116,10 +116,9 @@
     <Compile Include="Converters\BooleanToVisibilityConverter.cs" />
     <Compile Include="Converters\DataConversion.cs" />
     <Compile Include="Converters\EnumBooleanConverter.cs" />
-    <Compile Include="Converters\EnumObjectToEnumerationConverter.cs" />
     <Compile Include="Converters\LongConverter.cs" />
+    <Compile Include="Converters\NegateBoolConverter.cs" />
     <Compile Include="DuplicateGroupComparer.cs" />
-    <Compile Include="EnumEnumerationExtension.cs" />
     <Compile Include="IInclusionPredicate.cs" />
     <Compile Include="ObservableCollectionProxy.cs" />
     <Compile Include="DirectoryEnumeration.cs" />
@@ -130,6 +129,7 @@
     <Compile Include="DuplicatesSearch.cs" />
     <Compile Include="FileSearchInclusionPredicate.cs" />
     <Compile Include="ResultsGroupInclusionPredicate.cs" />
+    <Compile Include="TemplateSelector.cs" />
     <Compile Include="UiSwitch.cs" />
     <Compile Include="TreeViewExtension.cs" />
     <Compile Include="UnmanagedMemory.cs" />

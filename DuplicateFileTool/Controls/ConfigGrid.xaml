@@ -3,10 +3,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:system="clr-namespace:System;assembly=mscorlib"
              xmlns:local="clr-namespace:DuplicateFileTool"
-             xmlns:converters="clr-namespace:DuplicateFileTool.Converters"
              xmlns:resx="clr-namespace:DuplicateFileTool.Properties"
+             xmlns:converters="clr-namespace:DuplicateFileTool.Converters"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <DataGrid CanUserAddRows="False"
@@ -16,88 +15,58 @@
               AutoGenerateColumns="False" 
               MinRowHeight="25"
               AlternatingRowBackground="Bisque" 
-              ItemsSource="{Binding}">
+              ItemsSource="{Binding}"
+              d:DataContext="{d:DesignInstance Type={x:Type local:IConfigurationProperty`1}}">
         <DataGrid.Resources>
-            <converters:EnumObjectToEnumerationConverter x:Key="EnumObjectToEnumeration" />
+            <converters:NegateBoolConverter x:Key="NegateBool" />
 
-            <Style x:Key="TextBoxStyle" TargetType="{x:Type DataGridCell}">
+            <Style TargetType="{x:Type DataGridCell}">
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="{x:Type DataGridCell}">
                             <Grid Background="{TemplateBinding Background}">
-                                <ContentPresenter VerticalAlignment="Center" />
+                                <ContentPresenter VerticalAlignment="Center" Margin="3,0,3,0" />
                             </Grid>
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>
             </Style>
 
-            <DataTemplate x:Key="TypeSelectorTemplate">
-                <ContentPresenter Content="{Binding Value}" VerticalAlignment="Center" >
-                    <ContentPresenter.Resources>
-                        <DataTemplate DataType="{x:Type system:String}">
-                            <TextBlock Text="{Binding Path=.}" /> 
-                        </DataTemplate>
-                        <DataTemplate DataType="{x:Type system:Int32}">
-                            <TextBlock Text="{Binding Path=.}" />
-                        </DataTemplate>
-                        <DataTemplate DataType="{x:Type system:Int64}">
-                            <TextBlock Text="{Binding Path=.}" />
-                        </DataTemplate>
-                        <DataTemplate DataType="{x:Type system:Boolean}">
-                            <CheckBox IsChecked="{Binding Path=.}" />
-                        </DataTemplate>
-                        <DataTemplate DataType="{x:Type system:Enum}">
-                            <TextBlock Text="{Binding Path=.}" />
-                        </DataTemplate>
-                        
-                    </ContentPresenter.Resources>
-                </ContentPresenter>
+            <local:ConfigTemplateSelector x:Key="ConfigTemplateSelector" />
+            <local:ConfigEditTemplateSelector x:Key="ConfigEditTemplateSelector" />
+            <!-- The keys below is used from is used in ConfigTemplateSelector/ConfigEditTemplateSelector code -->
+            <!-- ReSharper disable Xaml.RedundantResource -->
+            <DataTemplate x:Key="TextBlockTemplate">
+                <TextBlock Text="{Binding Value}" />
             </DataTemplate>
-
-            <DataTemplate x:Key="EditingTypeSelectorTemplate">
-                <ContentPresenter Content="{Binding Value}" VerticalAlignment="Center" >
-                    <ContentPresenter.Resources>
-                        <DataTemplate DataType="{x:Type system:String}">
-                            <TextBox Text="{Binding Path=.}" />
-                        </DataTemplate>
-                        <DataTemplate DataType="{x:Type system:Int32}">
-                            <TextBox Text="{Binding Path=.}" />
-                        </DataTemplate>
-                        <DataTemplate DataType="{x:Type system:Int64}">
-                            <TextBox Text="{Binding Path=.}" />
-                        </DataTemplate>
-                        <DataTemplate DataType="{x:Type system:Boolean}">
-                            <CheckBox IsChecked="{Binding Path=.}" />
-                        </DataTemplate>
-                        <DataTemplate DataType="{x:Type system:Enum}">
-                            <!--<ComboBox ItemsSource="{TODO}" SelectedItem="{Binding Path=.}" />-->
-                        </DataTemplate>
-                        
-                    </ContentPresenter.Resources>
-                </ContentPresenter>
+            <DataTemplate x:Key="TextBoxTemplate">
+                <TextBox Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}" />
             </DataTemplate>
+            <DataTemplate x:Key="CheckBoxTemplate">
+                <CheckBox IsChecked="{Binding Value, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding IsReadOnly, Converter={StaticResource NegateBool}}" />
+            </DataTemplate>
+            <DataTemplate x:Key="ComboBoxTemplate">
+                <ComboBox x:Name="ComboBox" 
+                          IsEnabled="{Binding IsReadOnly, Converter={StaticResource NegateBool}}"
+                          ItemsSource="{Binding Options}" 
+                          SelectedItem="{Binding Value, UpdateSourceTrigger=PropertyChanged}" />
+            </DataTemplate>
+            <!-- ReSharper restore Xaml.RedundantResource -->
 
         </DataGrid.Resources>
 
         <DataGrid.Columns>
-            <!--<DataGridTemplateColumn Header="{x:Static resx:Resources.Ui_Search_Paths_Header_Inclusion}" 
-                                                            CellTemplate="{StaticResource InclusionSelectionTemplate}" 
-                                                            CellEditingTemplate="{StaticResource EditingSuccessConditionTemplate}" />-->
-
-            <DataGridTextColumn Header="Name" 
+            <DataGridTextColumn Header="{x:Static resx:Resources.Config_DataGrid_Header_Name}" 
                                 IsReadOnly="True" 
-                                Binding="{Binding Name, Mode=OneTime}" 
-                                CellStyle="{StaticResource TextBoxStyle}" />
+                                Binding="{Binding Name, Mode=OneTime}" />
 
-            <DataGridTemplateColumn Header="Value" 
-                                    CellTemplate="{StaticResource TypeSelectorTemplate}" 
-                                    CellEditingTemplate="{StaticResource EditingTypeSelectorTemplate}" />
+            <DataGridTemplateColumn Header="{x:Static resx:Resources.Config_DataGrid_Header_Value}"
+                                    CellTemplateSelector="{StaticResource ConfigTemplateSelector}"
+                                    CellEditingTemplateSelector="{StaticResource ConfigEditTemplateSelector}" />
 
-            <DataGridTextColumn Header="Description" 
+            <DataGridTextColumn Header="{x:Static resx:Resources.Config_DataGrid_Header_Description}" 
                                 IsReadOnly="True" 
-                                Binding="{Binding Description, Mode=OneTime}" 
-                                CellStyle="{StaticResource TextBoxStyle}" />
+                                Binding="{Binding Description, Mode=OneTime}" />
 
         </DataGrid.Columns>
     </DataGrid>

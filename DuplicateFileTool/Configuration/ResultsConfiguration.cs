@@ -27,12 +27,17 @@ namespace DuplicateFileTool.Configuration
             Resources.Config_Results_Remove_Empty_Directories_Name,
             Resources.Config_Results_Remove_Empty_Directories_Description,
             true);
+
         public ConfigurationProperty<bool> DeleteToRecycleBin { get; } = new(
             Resources.Config_Results_Delete_To_Recycle_Bin_Name,
             Resources.Config_Results_Delete_To_Recycle_Bin_Description,
             false);
 
-        public bool HasChanged => ChangeTracker.HasChanged;
+        public bool HasChanged
+        {
+            get => ChangeTracker.HasChanged;
+            set => ChangeTracker.HasChanged = value;
+        }
 
         private PropertiesChangeTracker<ResultsConfiguration> ChangeTracker { get; }
 

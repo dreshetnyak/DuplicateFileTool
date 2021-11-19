@@ -1,11 +1,12 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Controls;
-using System.Windows.Documents;
 using DuplicateFileTool.Annotations;
 using DuplicateFileTool.Properties;
 
@@ -61,6 +62,7 @@ namespace DuplicateFileTool
         ValidationRule Validator { get; }   // Validation Rule for the value
         public T DefaultValue { get; }      // Default value
         T Value { get; set; }               // The property value
+        T[] Options { get; }                // In a case of en Enum will contain all Enum values
     }
 
     internal class ConfigurationProperty<T> : IConfigurationProperty<T>
@@ -91,6 +93,7 @@ namespace DuplicateFileTool
                 Validate();
             }
         }
+        public T[] Options { get; }
 
         private static bool Equals(T currentValue, T newValue)
         {
@@ -130,7 +133,16 @@ namespace DuplicateFileTool
             _value = DefaultValue = defaultValue;
             IsReadOnly = isReadOnly;
             IsHidden = isHidden;
+            Options = GetOptions();
+
             Validate();
+        }
+
+        private static T[] GetOptions()
+        {
+            return typeof(T) is { IsEnum: true } 
+                ? Enum.GetValues(typeof(T)).Cast<T>().ToArray() 
+                : Array.Empty<T>();
         }
 
         private void Validate()
@@ -138,6 +150,11 @@ namespace DuplicateFileTool
             var isValid = Validator == null || Validator.Validate(Value, CultureInfo.CurrentCulture).IsValid;
             IsValid = isValid;
             IsInvalid = !isValid;
+        }
+
+        public override string ToString()
+        {
+            return !ReferenceEquals(Value, null) ? Value.ToString() : "";
         }
 
         #region INotifyPropertyChanged Implementation

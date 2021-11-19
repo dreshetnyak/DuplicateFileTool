@@ -4,22 +4,16 @@ using System.Windows.Data;
 
 namespace DuplicateFileTool.Converters
 {
-    internal class EnumObjectToEnumerationConverter : IValueConverter
+    internal class NegateBoolConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value == null)
-                return Array.Empty<object>();
-
-            var enumObjType = value.GetType();
-            return enumObjType.IsEnum
-                ? Enum.GetValues(enumObjType)
-                : Array.Empty<object>();
+            return value is bool boolValue ? !boolValue : null;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            throw new NotImplementedException();
+            return value is bool boolValue ? !boolValue : null;
         }
     }
 }
