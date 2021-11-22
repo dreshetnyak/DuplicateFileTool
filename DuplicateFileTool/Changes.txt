@@ -1,5 +1,6 @@
 ﻿Backlog:
 
+New. Make program multilingual.
 New. Search paths list add switches that allow to turn off or no the path for the current search.
 Improvement. The files in the groups is not sorted, need to sort it by path for it to be consistent over all groups.
 New. Add monitoring to refresh the file tree view whenever the file structure is updated.
@@ -18,6 +19,9 @@ Under the files tree add a panel where we can see free space on the disks.
 
 =========================================================================
 Done:
+
+DuplicateFileTool 1.0.700: 2021-11-22
+Fix. Some code refactoring.
 
 DuplicateFileTool 1.0.694: 2021-11-19
 New. Implement right click on file tree to open in file explorer.

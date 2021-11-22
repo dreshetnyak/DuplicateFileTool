@@ -199,9 +199,9 @@ namespace DuplicateFileTool
             AutoSelectByPath.FilesAutoMarkedForDeletion += OnUpdateToDelete;
             DuplicateFile.ItemSelected += OnDuplicateFileSelected;
 
-            //TODO refactor delegates to events
-            ResetSelection = new ResetSelectionCommand(Duplicates.DuplicateGroups, sizeDelta => Duplicates.ToBeDeletedSize += sizeDelta, countDelta => Duplicates.ToBeDeletedCount += countDelta);
-            
+            ResetSelection = new ResetSelectionCommand(Duplicates.DuplicateGroups);
+            ResetSelection.UpdateToDeleteSize += OnUpdateToDelete;
+
             DeleteMarkedFiles = new DeleteMarkedFilesCommand(Duplicates, Config.ResultsConfig);
             AddPath = new AddPathCommand(SearchPaths, () => SelectedFileTreeItem);
             OpenFileInExplorer = new OpenFileInExplorerCommand();

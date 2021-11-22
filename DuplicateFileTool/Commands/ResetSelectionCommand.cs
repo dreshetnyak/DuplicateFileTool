@@ -1,20 +1,17 @@
-﻿using System;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 
 namespace DuplicateFileTool.Commands
 {
     internal class ResetSelectionCommand : CommandBase
     {
-        public ObservableCollection<DuplicateGroup> DuplicateGroups { get; }
-        private Action<long> UpdateToDeleteSize { get; }
-        private Action<long> UpdateToDeleteCount { get; }
+        private ObservableCollection<DuplicateGroup> DuplicateGroups { get; }
 
-        public ResetSelectionCommand(ObservableCollection<DuplicateGroup> duplicateGroups, Action<long> updateToDeleteSize, Action<long> updateToDeleteCount)
+        public event UpdateToDeleteEventHandler UpdateToDeleteSize;
+
+        public ResetSelectionCommand(ObservableCollection<DuplicateGroup> duplicateGroups)
         {
             Enabled = false;
             DuplicateGroups = duplicateGroups;
-            UpdateToDeleteSize = updateToDeleteSize;
-            UpdateToDeleteCount = updateToDeleteCount;
         }
 
         public override void Execute(object parameter)
@@ -31,10 +28,14 @@ namespace DuplicateFileTool.Commands
                     if (!duplicatedFile.IsMarkedForDeletion) 
                         continue;
                     duplicatedFile.IsMarkedForDeletion = false;
-                    UpdateToDeleteSize(-duplicatedFile.FileData.Size);
-                    UpdateToDeleteCount(-1);
+                    OnUpdateToDeleteSize(-1, -duplicatedFile.FileData.Size);
                 }
             }
+        }
+
+        protected virtual void OnUpdateToDeleteSize(long count, long size)
+        {
+            UpdateToDeleteSize?.Invoke(this, new UpdateToDeleteEventArgs(count, size));
         }
     }
 }

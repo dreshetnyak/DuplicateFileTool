@@ -88,7 +88,7 @@ namespace DuplicateFileTool
         {
             try
             {
-                return (Icon)Icon.FromHandle(iconHandle).Clone(); //TODO: Why we are cloning?
+                return (Icon)Icon.FromHandle(iconHandle).Clone();
             }
             catch
             {
