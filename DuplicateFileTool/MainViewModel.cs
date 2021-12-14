@@ -75,7 +75,7 @@ namespace DuplicateFileTool
 
         #endregion
 
-        public ApplicationConfig Config { get; }
+        public Configuration.Configuration Config { get; }
 
         public IInclusionPredicate<FileData> FileSearchInclusionPredicate { get; }
         public IReadOnlyCollection<IFileComparer> FileComparers { get; }
@@ -164,7 +164,7 @@ namespace DuplicateFileTool
             ResultsTreeView = resultsTreeView;
             PropertyChanged += OnPropertyChanged;
 
-            Config = new ApplicationConfig();
+            Config = new Configuration.Configuration();
 
             SearchConfig = Config.SearchConfig;
 

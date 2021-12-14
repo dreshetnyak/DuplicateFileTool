@@ -188,7 +188,8 @@ namespace DuplicateFileTool
         internal static extern bool SetFileAttributes(string name, uint attributes);
 
         [DllImport("gdi32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        internal static extern bool DeleteObject(IntPtr hObject);
+        [return: MarshalAs(UnmanagedType.Bool)]
+        internal static extern bool DeleteObject([In] IntPtr hObject);
 
         [DllImport("Kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         [ResourceExposure(ResourceScope.Machine)]

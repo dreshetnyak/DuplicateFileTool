@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Windows.Media;
 using DuplicateFileTool.Properties;
 
 namespace DuplicateFileTool.Configuration
@@ -33,10 +34,26 @@ namespace DuplicateFileTool.Configuration
         }
     }
 
-    internal class ApplicationConfig : NotifyPropertyChanged, IChangeable, IDisposable
+    internal class LanguageData
+    {
+        public string CultureName { get; }
+        public string LanguageName { get; }
+        public ImageSource LanguageCountryFlag { get; }
+
+        public LanguageData(string cultureName, string languageName, ImageSource languageCountryFlag)
+        {
+            CultureName = cultureName;
+            LanguageName = languageName;
+            LanguageCountryFlag = languageCountryFlag;
+        }
+    }
+
+    internal class Configuration : NotifyPropertyChanged, IDisposable
     {
         private bool _hasChanged;
         private bool _hasUnsavedChanges;
+        private LanguageData _selectedLanguageData;
+
         private static readonly InclusionTypeData[] PathComparisonTypesData = 
         {
             new(InclusionType.Include, Resources.Ui_Search_Path_Include),
@@ -49,8 +66,14 @@ namespace DuplicateFileTool.Configuration
             new(SortOrder.Path, Resources.Ui_Results_Sorting_By_Path),
             new(SortOrder.Name, Resources.Ui_Results_Sorting_By_Name)
         };
+        private static readonly LanguageData[] SupportedLanguagesData =
+        {
+            new("en", Resources.Ui_Language_Name_English, Resources.FlagUsa.ToImageSource()),
+            new("es", Resources.Ui_Language_Name_Spanish, Resources.FlagSpain.ToImageSource()),
+            new("ru", Resources.Ui_Language_Name_Russian, Resources.FlagRussia.ToImageSource())
+        };
 
-        public string ApplicationName { get; } = ConfigurationManager.GetAppName();
+        public string ApplicationName { get; } = ConfigManager.GetAppName();
         public Logger Log { get; }
         public bool HasChanged
         {
@@ -73,7 +96,23 @@ namespace DuplicateFileTool.Configuration
                 OnPropertyChanged();
             }
         }
+        
+        private string StartupSelectedCulture { get; }
+        public bool SelectedCultureChanged => ProgramConfig.SelectedCulture.Value != StartupSelectedCulture;
+        public LanguageData SelectedLanguageData
+        {
+            get => _selectedLanguageData;
+            set
+            {
+                _selectedLanguageData = value; 
+                OnPropertyChanged();
+                if (ProgramConfig.SelectedCulture.Value != value.CultureName)
+                    ProgramConfig.SelectedCulture.Value = value.CultureName;
+            }
+        }
 
+        public ProgramConfiguration ProgramConfig { get; }
+        public ObservableCollection<object> ProgramConfigParams { get; }
         public SearchConfiguration SearchConfig { get; }
         public ObservableCollection<object> SearchConfigParams { get; }
         public ExtensionsConfiguration ExtensionsConfig { get; }
@@ -85,10 +124,16 @@ namespace DuplicateFileTool.Configuration
 
         public InclusionTypeData[] PathComparisonTypes => PathComparisonTypesData;
         public SortOrderData[] SortOrderTypes => SortOrderTypesData;
+        public LanguageData[] SupportedLanguages => SupportedLanguagesData;
 
-        public ApplicationConfig()
+        public Configuration()
         {
             Log = new Logger(Logger.Target.Debug);
+
+            ProgramConfig = new ProgramConfiguration();
+            ProgramConfigParams = new ObservableCollection<object>(ProgramConfig
+                .GetGenericPropertiesObjects(typeof(IConfigurationProperty<>))
+                .Where(IsParameterIncluded));
 
             SearchConfig = new SearchConfiguration();
             SearchConfigParams = new ObservableCollection<object>(SearchConfig
@@ -105,10 +150,14 @@ namespace DuplicateFileTool.Configuration
                 .GetGenericPropertiesObjects(typeof(IConfigurationProperty<>))
                 .Where(IsParameterIncluded));
 
-            try { this.LoadFromAppConfig(); }
+            try { ProgramConfig.LoadFromAppConfig(); }
             catch (Exception ex) { Log.Write("Error: Loading application configuration from app config failed with the exception: " + ex); throw; }
-            HasChanged = false;
-            PropertyChanged += OnConfigurationChanged;
+            ProgramConfig.HasChanged = false;
+            ProgramConfig.PropertyChanged += OnConfigurationChanged;
+            ProgramConfig.SelectedCulture.PropertyChanged += OnSelectedCultureChanged;
+            var selectedCulture = ProgramConfig.SelectedCulture.Value;
+            StartupSelectedCulture = selectedCulture;
+            SelectedLanguageData = SupportedLanguages.FirstOrDefault(lang => lang.CultureName == selectedCulture) ?? SupportedLanguages.First();
 
             try { SearchConfig.LoadFromAppConfig(); }
             catch (Exception ex) { Log.Write("Error: Loading search configuration from app config failed with the exception: " + ex); throw; }
@@ -150,6 +199,8 @@ namespace DuplicateFileTool.Configuration
         {
             if (HasChanged)
                 this.SaveToAppConfig();
+            if (ProgramConfig.HasChanged)
+                ProgramConfig.SaveToAppConfig();
             if (SearchConfig.HasChanged)
                 SearchConfig.SaveToAppConfig();
             if (ResultsConfig.HasChanged)
@@ -158,10 +209,16 @@ namespace DuplicateFileTool.Configuration
                 ExtensionsConfig.SaveToAppConfig();
         }
 
-        private void OnConfigurationChanged(object sender, PropertyChangedEventArgs _)
+        private void OnConfigurationChanged(object sender, PropertyChangedEventArgs eventArgs)
         {
             if (!HasUnsavedChanges && sender is IChangeable { HasChanged: true })
                 HasUnsavedChanges = true;
+        }
+
+        private void OnSelectedCultureChanged(object sender, PropertyChangedEventArgs eventArgs)
+        {
+            if (eventArgs.PropertyName == nameof(ConfigurationProperty<string>.Value))
+                OnPropertyChanged(nameof(SelectedCultureChanged));
         }
 
         private static IEnumerable<IFileComparer> GetFileComparers()

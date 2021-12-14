@@ -29,6 +29,7 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <UICulture>en</UICulture>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -104,9 +105,10 @@
     <Compile Include="Commands\ResetSelectionCommand.cs" />
     <Compile Include="Commands\ToggleDeletionMarkCommand.cs" />
     <Compile Include="ConfigurationProperty.cs" />
-    <Compile Include="Configuration\AppConfig.cs" />
-    <Compile Include="Configuration\ConfigurationManager.cs" />
-    <Compile Include="Configuration\ApplicationConfig.cs" />
+    <Compile Include="Configuration\ProgramConfiguration.cs" />
+    <Compile Include="Configuration\FileAppConfig.cs" />
+    <Compile Include="Configuration\ConfigManager.cs" />
+    <Compile Include="Configuration\Configuration.cs" />
     <Compile Include="Configuration\ExtensionsConfiguration.cs" />
     <Compile Include="Configuration\ResultsConfiguration.cs" />
     <Compile Include="Configuration\SearchConfiguration.cs" />
@@ -128,6 +130,21 @@
     <Compile Include="DuplicatesRemover.cs" />
     <Compile Include="DuplicatesSearch.cs" />
     <Compile Include="FileSearchInclusionPredicate.cs" />
+    <Compile Include="Properties\Resources.ru.Designer.cs">
+      <DependentUpon>Resources.ru.resx</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Properties\Resources.en.Designer.cs">
+      <DependentUpon>Resources.en.resx</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Properties\Resources.es.Designer.cs">
+      <DependentUpon>Resources.es.resx</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
     <Compile Include="ResultsGroupInclusionPredicate.cs" />
     <Compile Include="TemplateSelector.cs" />
     <Compile Include="UiSwitch.cs" />
@@ -189,6 +206,21 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <EmbeddedResource Include="Properties\Resources.ru.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.ru.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.en.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.en.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.es.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.es.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -337,6 +369,14 @@
   <ItemGroup>
     <Resource Include="Images\Exclude.png" />
     <Resource Include="Images\Include.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Images\FlagRussia.png" />
+    <None Include="Images\FlagSpain.png" />
+    <None Include="Images\FlagUsa.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Language.png" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

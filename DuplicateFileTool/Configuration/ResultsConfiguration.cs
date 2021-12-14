@@ -3,7 +3,6 @@ using DuplicateFileTool.Properties;
 
 namespace DuplicateFileTool.Configuration
 {
-
     [Localizable(true)]
     internal class ResultsConfiguration : NotifyPropertyChanged, IChangeable
     {

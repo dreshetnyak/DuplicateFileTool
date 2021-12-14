@@ -8,7 +8,7 @@ namespace DuplicateFileTool.Configuration
         bool HasChanged { get; }
     }
 
-    internal static class ConfigurationManager
+    internal static class ConfigManager
     {
         public static void LoadFromAppConfig(this object configObject)
         {
@@ -21,7 +21,7 @@ namespace DuplicateFileTool.Configuration
             {
                 var propertyName = property.Name;
                 var path = $"{configType.Name}.{propertyName}";
-                if (AppConfig.TryGetString(path, out var stringValue))
+                if (FileAppConfig.TryGetString(path, out var stringValue))
                     reflectedObject.TrySetValue(propertyName, stringValue);
             }
         }
@@ -39,10 +39,10 @@ namespace DuplicateFileTool.Configuration
                 var path = $"{configType.Name}.{property.Name}";
                 if (!reflectedObject.TryGetValue(property.Name, out var valueObject))
                     throw new ApplicationException($"Unable to get '{path}' configuration parameter value");
-                AppConfig.Set(path, valueObject);
+                FileAppConfig.Set(path, valueObject);
             }
 
-            AppConfig.Save();
+            FileAppConfig.Save();
         }
 
         public static string GetAppName()

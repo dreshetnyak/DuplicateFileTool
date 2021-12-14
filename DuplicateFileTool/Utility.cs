@@ -1,7 +1,13 @@
 ﻿using System;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Windows;
+using System.Windows.Interop;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace DuplicateFileTool
 {
@@ -125,6 +131,19 @@ namespace DuplicateFileTool
         public static bool IsValidHandle(this IntPtr handle)
         {
             return handle != IntPtr.Zero && handle != Win32.INVALID_HANDLE_VALUE;
+        }
+
+        public static ImageSource ToImageSource(this Bitmap bitmap)
+        {
+            var handle = bitmap.GetHbitmap();
+            try
+            {
+                return Imaging.CreateBitmapSourceFromHBitmap(handle, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+            }
+            finally
+            {
+                Win32.DeleteObject(handle);
+            }
         }
     }
 

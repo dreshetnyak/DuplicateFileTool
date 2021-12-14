@@ -8,6 +8,7 @@
         xmlns:controls="clr-namespace:DuplicateFileTool.Controls"
         xmlns:converters="clr-namespace:DuplicateFileTool.Converters"
         xmlns:commands="clr-namespace:DuplicateFileTool.Commands"
+        xmlns:configuration="clr-namespace:DuplicateFileTool.Configuration"
         mc:Ignorable="d"
         Icon="DuplicateFileTool.ico"
         Title="{Binding Config.ApplicationName, Mode=OneTime}" Height="650" Width="1000" MinHeight="378" MinWidth="500"
@@ -350,8 +351,8 @@
                                         <ColumnDefinition Width="Auto" />
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
-                                    <RadioButton Grid.Column="0" Content="Include" GroupName="IncludeType" Margin="0,5,5,2" ToolTip="{x:Static resx:Resources.Ui_ToolTip_Only_the_files_with_the_listed_extensions_included}" IsChecked="{Binding Path=SearchConfig.ExtensionInclusionType.Value, Mode=TwoWay, Converter={StaticResource EnumBoolConverter}, ConverterParameter=Include}" />
-                                    <RadioButton Grid.Column="1" Content="Exclude" GroupName="IncludeType" Margin="5,5,0,2" ToolTip="{x:Static resx:Resources.Ui_ToolTip_Files_with_the_listed_extensions_will_be_excluded}" IsChecked="{Binding Path=SearchConfig.ExtensionInclusionType.Value, Mode=TwoWay, Converter={StaticResource EnumBoolConverter}, ConverterParameter=Exclude}" />
+                                    <RadioButton Grid.Column="0" Content="{x:Static resx:Resources.Ui_Search_Extensions_Include}" GroupName="IncludeType" Margin="0,5,5,2" ToolTip="{x:Static resx:Resources.Ui_ToolTip_Only_the_files_with_the_listed_extensions_included}" IsChecked="{Binding Path=SearchConfig.ExtensionInclusionType.Value, Mode=TwoWay, Converter={StaticResource EnumBoolConverter}, ConverterParameter=Include}" />
+                                    <RadioButton Grid.Column="1" Content="{x:Static resx:Resources.Ui_Search_Extensions_Exclude}" GroupName="IncludeType" Margin="5,5,0,2" ToolTip="{x:Static resx:Resources.Ui_ToolTip_Files_with_the_listed_extensions_will_be_excluded}" IsChecked="{Binding Path=SearchConfig.ExtensionInclusionType.Value, Mode=TwoWay, Converter={StaticResource EnumBoolConverter}, ConverterParameter=Exclude}" />
 
                                     <Button Grid.Column="3" Height="20" Background="Transparent" BorderThickness="0" Margin="0,2,0,0" 
                                             Command="{Binding AddOrRemoveExtensions}" 
@@ -500,7 +501,7 @@
                                         <ColumnDefinition />
                                     </Grid.ColumnDefinitions>
 
-                                    <TextBlock Grid.Column="0" Text="Sort by:" VerticalAlignment="Center" Margin="3,0,3,0" />
+                                    <TextBlock Grid.Column="0" Text="{x:Static resx:Resources.Ui_Results_Sort_By}" VerticalAlignment="Center" Margin="3,0,3,0" />
 
                                     <ComboBox Grid.Column="1" Margin="0,0,0,0"
                                               Height="20"
@@ -852,21 +853,49 @@
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            <GroupBox Grid.Column="0" Header="Selected File Comparer" Margin="0,0,2,0">
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="Auto" />
-                                    </Grid.RowDefinitions>
-                                    <ComboBox Grid.Row="0" Margin="0,3,0,0"
-                                              ItemsSource="{Binding FileComparers}" DisplayMemberPath="Name.Value" 
-                                              SelectedItem="{Binding SelectedFileComparer}" />
-                                    <TextBlock Grid.Row="1" Text="Description:" Margin="3,3,3,0" />
-                                    <TextBlock Grid.Row="2" TextWrapping="Wrap" Margin="3,0,3,0"
-                                               Text="{Binding SelectedFileComparer.Description.Value, TargetNullValue='N/A'}" />
-                                </Grid>
-                            </GroupBox>
+                            <Grid Grid.Column="0" Margin="0,0,2,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <GroupBox Grid.Column="0" Header="{x:Static resx:Resources.Config_Selected_Language}" Width="140">
+                                    <StackPanel Margin="0,3,0,0">
+                                        <ComboBox ItemsSource="{Binding Config.SupportedLanguages}"
+                                                  SelectedItem="{Binding Config.SelectedLanguageData}">
+                                            <ComboBox.Resources>
+                                                <DataTemplate DataType="{x:Type configuration:LanguageData}">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <Image Grid.Column="0" Source="{Binding LanguageCountryFlag}" RenderOptions.BitmapScalingMode="Fant" Height="12" Margin="3,0,1,0" />
+                                                        <TextBlock Grid.Column="1" VerticalAlignment="Center" Margin="5,0,4,0" Text="{Binding LanguageName}" />
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ComboBox.Resources>
+                                        </ComboBox>
+                                        <TextBlock Text="{x:Static resx:Resources.Config_Language_Restart_To_Change}" 
+                                                   FontWeight="Bold" TextWrapping="Wrap" TextAlignment="Justify" Foreground="DarkRed" Margin="2" 
+                                                   Visibility="{Binding Config.SelectedCultureChanged, Mode=OneWay, Converter={StaticResource BoolVisibilityConverter}, ConverterParameter=Collapse}" />
+                                    </StackPanel>
+                                </GroupBox>
+                                <GroupBox Grid.Column="1" Header="{x:Static resx:Resources.Config_Selected_File_Comparer_Header}">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
+                                        <ComboBox Grid.Row="0" Margin="0,3,0,0"
+                                                  ItemsSource="{Binding FileComparers}" DisplayMemberPath="Name.Value" 
+                                                  SelectedItem="{Binding SelectedFileComparer}" />
+                                        <TextBlock Grid.Row="1" Text="{x:Static resx:Resources.Config_Comparer_Description}" Margin="3,3,3,0" />
+                                        <TextBlock Grid.Row="2" TextWrapping="Wrap" Margin="3,0,3,0"
+                                                   Text="{Binding SelectedFileComparer.Description.Value, TargetNullValue='N/A'}" />
+                                    </Grid>
+                                </GroupBox>
+                            </Grid>
                             <GroupBox Grid.Column="1" Header="{x:Static resx:Resources.Ui_About_the_Program_Header}" Width="300">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
@@ -882,9 +911,9 @@
                                             <RowDefinition Height="Auto" />
                                         </Grid.RowDefinitions>
 
-                                        <TextBlock Grid.Row="0" Text="{x:Static resx:Resources.Ui_About_the_Program_Text}" TextWrapping="Wrap" Margin="5,0,0,0" />
+                                        <TextBlock Grid.Row="0" Text="{x:Static resx:Resources.Ui_About_the_Program_Text}" TextWrapping="Wrap" TextAlignment="Justify" Margin="5,0,3,0" />
 
-                                        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="5,0,0,0">
+                                        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="5,3,0,3">
                                             <TextBlock Text="{x:Static resx:Resources.Ui_About_Visit}" />
                                             <TextBlock TextWrapping="Wrap" Margin="3,0,0,0">
                                                 <Hyperlink Command="{Binding Navigate}" 
@@ -913,7 +942,7 @@
                                 CornerRadius="10,10,10,10"
                                 Margin="0,3,0,0"
                                 Background="Transparent">
-                            <Expander Header="Search Configuration">
+                            <Expander Header="{x:Static resx:Resources.Config_Search_Header}">
                                 <controls:ConfigGrid DataContext="{Binding Config.SearchConfigParams}" Margin="2,4,2,8" />
                             </Expander>
                         </Border>
@@ -925,7 +954,7 @@
                                 CornerRadius="10,10,10,10"
                                 Margin="0,3,0,0"
                                 Background="Transparent">
-                            <Expander Header="Extensions Configuration">
+                            <Expander Header="{x:Static resx:Resources.Config_Extensions_Header}">
                                 <controls:ConfigGrid DataContext="{Binding Config.ExtensionsConfigParams}" Margin="2,4,2,8" />
                             </Expander>
                         </Border>
@@ -937,7 +966,7 @@
                                 CornerRadius="10,10,10,10"
                                 Margin="0,3,0,0"
                                 Background="Transparent">
-                            <Expander Header="Results Configuration">
+                            <Expander Header="{x:Static resx:Resources.Config_Results_Header}">
                                 <controls:ConfigGrid DataContext="{Binding Config.ResultsConfigParams}" Margin="2,4,2,8" />
                             </Expander>
                         </Border>

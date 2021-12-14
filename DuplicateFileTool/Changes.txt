@@ -1,6 +1,7 @@
 ﻿Backlog:
 
-New. Make program multilingual.
+Bug. Include/Exclude icon does not change in the search paths list when the value changes.
+New. Add reset configuration to defaults button.
 New. Search paths list add switches that allow to turn off or no the path for the current search.
 Improvement. The files in the groups is not sorted, need to sort it by path for it to be consistent over all groups.
 New. Add monitoring to refresh the file tree view whenever the file structure is updated.
@@ -10,6 +11,7 @@ New. Add filter to the results list.
 New. Show folders of duplicated groups with folders comparing, should appear below the list of results.
 New. Add selected file preview. Characteristics of images.
 New. Implement deletion to recycle bin.
+Bug. Select by path in a case if there is a lot of groups is quite slow, program freezes during it.
 Bug. Deleting files is extremely slow in some cases because every time a file is deleted the results page is been reloaded (Need to disable Results while deleting and load the page only at the end).
 New. If a duplicate file is found in a folder add all files from that folder to the search. That should be an optional behavior.
 Create the installer.
@@ -19,6 +21,11 @@ Under the files tree add a panel where we can see free space on the disks.
 
 =========================================================================
 Done:
+
+DuplicateFileTool 1.0.753: 2021-12-14
+Bug. Corrected 5 typos in the texts.
+Fix. Changed layout in about the program section.
+New. Added localizations for Spanish and Russian languages, added option to select the language in the configuration.
 
 DuplicateFileTool 1.0.700: 2021-11-22
 Fix. Some code refactoring.

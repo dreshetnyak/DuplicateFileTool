@@ -97,7 +97,7 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Comparison match points with value greater or equal to his value will cause for the files to be considered matching.
+        ///   Looks up a localized string similar to Comparison match points with value greater or equal to this value will cause for the files to be considered matching.
         /// </summary>
         public static string Config_Comparer_CompleteMatch_Description {
             get {
@@ -115,7 +115,7 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Comparison match points with value less or equal to his value will cause for the files to be considered mismatching.
+        ///   Looks up a localized string similar to Comparison match points with value less or equal to this value will cause for the files to be considered mismatching.
         /// </summary>
         public static string Config_Comparer_CompleteMismatch_Description {
             get {
@@ -129,6 +129,15 @@ namespace DuplicateFileTool.Properties {
         public static string Config_Comparer_CompleteMismatch_Name {
             get {
                 return ResourceManager.GetString("Config_Comparer_CompleteMismatch_Name", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Description:.
+        /// </summary>
+        public static string Config_Comparer_Description {
+            get {
+                return ResourceManager.GetString("Config_Comparer_Description", resourceCulture);
             }
         }
         
@@ -295,11 +304,29 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Extensions Configuration.
+        /// </summary>
+        public static string Config_Extensions_Header {
+            get {
+                return ResourceManager.GetString("Config_Extensions_Header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Configured extensions.
         /// </summary>
         public static string Config_Extensions_Name {
             get {
                 return ResourceManager.GetString("Config_Extensions_Name", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to * Restart the program to apply the language change..
+        /// </summary>
+        public static string Config_Language_Restart_To_Change {
+            get {
+                return ResourceManager.GetString("Config_Language_Restart_To_Change", resourceCulture);
             }
         }
         
@@ -322,7 +349,7 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Specifies the maximum count of files that the program will keep open after reaching which the program will start closing the files opened previously. The low value will negatively impact performance, the high value will cause the program to consume to many resources..
+        ///   Looks up a localized string similar to Specifies the maximum count of files that the program will keep open after reaching which the program will start closing the files opened previously. The low value will negatively impact performance, the high value will cause the program to consume too many resources..
         /// </summary>
         public static string Config_MaximumFilesOpenedAtOnce_Description {
             get {
@@ -376,6 +403,15 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Results Configuration.
+        /// </summary>
+        public static string Config_Results_Header {
+            get {
+                return ResourceManager.GetString("Config_Results_Header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to How many duplicate groups to display on a single results page.
         /// </summary>
         public static string Config_Results_Items_Per_Page_Description {
@@ -394,7 +430,7 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Specifies if after delition the file directory is empty if we should remove the empty directory or not.
+        ///   Looks up a localized string similar to Specifies if after deletion the file directory is empty if we should remove the empty directory or not.
         /// </summary>
         public static string Config_Results_Remove_Empty_Directories_Description {
             get {
@@ -444,6 +480,51 @@ namespace DuplicateFileTool.Properties {
         public static string Config_Results_Sort_Order_Name {
             get {
                 return ResourceManager.GetString("Config_Results_Sort_Order_Name", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Search Configuration.
+        /// </summary>
+        public static string Config_Search_Header {
+            get {
+                return ResourceManager.GetString("Config_Search_Header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Selected File Comparer.
+        /// </summary>
+        public static string Config_Selected_File_Comparer_Header {
+            get {
+                return ResourceManager.GetString("Config_Selected_File_Comparer_Header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Application Language.
+        /// </summary>
+        public static string Config_Selected_Language {
+            get {
+                return ResourceManager.GetString("Config_Selected_Language", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Selected application language.
+        /// </summary>
+        public static string Config_SelectedCulture_Description {
+            get {
+                return ResourceManager.GetString("Config_SelectedCulture_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Language.
+        /// </summary>
+        public static string Config_SelectedCulture_Name {
+            get {
+                return ResourceManager.GetString("Config_SelectedCulture_Name", resourceCulture);
             }
         }
         
@@ -652,6 +733,36 @@ namespace DuplicateFileTool.Properties {
         public static string FileHashComparer_Name {
             get {
                 return ResourceManager.GetString("FileHashComparer_Name", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap FlagRussia {
+            get {
+                object obj = ResourceManager.GetObject("FlagRussia", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap FlagSpain {
+            get {
+                object obj = ResourceManager.GetObject("FlagSpain", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap FlagUsa {
+            get {
+                object obj = ResourceManager.GetObject("FlagUsa", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
         
@@ -1061,6 +1172,33 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to English.
+        /// </summary>
+        public static string Ui_Language_Name_English {
+            get {
+                return ResourceManager.GetString("Ui_Language_Name_English", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Русский.
+        /// </summary>
+        public static string Ui_Language_Name_Russian {
+            get {
+                return ResourceManager.GetString("Ui_Language_Name_Russian", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Español.
+        /// </summary>
+        public static string Ui_Language_Name_Spanish {
+            get {
+                return ResourceManager.GetString("Ui_Language_Name_Spanish", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Analyzing: .
         /// </summary>
         public static string Ui_Progress_Analyzing {
@@ -1196,6 +1334,15 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Sort by:.
+        /// </summary>
+        public static string Ui_Results_Sort_By {
+            get {
+                return ResourceManager.GetString("Ui_Results_Sort_By", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Name.
         /// </summary>
         public static string Ui_Results_Sorting_By_Name {
@@ -1246,6 +1393,24 @@ namespace DuplicateFileTool.Properties {
         public static string Ui_Search_Button_Text {
             get {
                 return ResourceManager.GetString("Ui_Search_Button_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Exclude.
+        /// </summary>
+        public static string Ui_Search_Extensions_Exclude {
+            get {
+                return ResourceManager.GetString("Ui_Search_Extensions_Exclude", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Include.
+        /// </summary>
+        public static string Ui_Search_Extensions_Include {
+            get {
+                return ResourceManager.GetString("Ui_Search_Extensions_Include", resourceCulture);
             }
         }
         
@@ -1511,7 +1676,7 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Invalid selection, encountered a group with all files selected, at leas one file should be left unselected. The group will be ignored..
+        ///   Looks up a localized string similar to Invalid selection, encountered a group with all files selected, at least one file should be left unselected. The group will be ignored..
         /// </summary>
         public static string Warning_Encountered_a_group_with_all_files_selected {
             get {

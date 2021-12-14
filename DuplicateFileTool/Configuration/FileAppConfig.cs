@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Configuration;
 using System.Linq;
-using System.Windows.Forms;
 
 namespace DuplicateFileTool.Configuration
 {
-    internal static class AppConfig
+    internal static class FileAppConfig
     {
         private static System.Configuration.Configuration Config { get; } = System.Configuration.ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
 
