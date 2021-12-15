@@ -410,16 +410,16 @@
     <value>Cancel</value>
   </data>
   <data name="Ui_Count_size_in_Bytes" xml:space="preserve">
-    <value>Count the entered size in Bytes</value>
+    <value>Bytes</value>
   </data>
   <data name="Ui_Count_size_in_Gigabytes" xml:space="preserve">
-    <value>Count the entered size in Gigabytes</value>
+    <value>GB</value>
   </data>
   <data name="Ui_Count_size_in_Kilobytes" xml:space="preserve">
-    <value>Count the entered size in Kilobytes</value>
+    <value>KB</value>
   </data>
   <data name="Ui_Count_size_in_Megabytes" xml:space="preserve">
-    <value>Count the entered size in Megabytes</value>
+    <value>MB</value>
   </data>
   <data name="Ui_Duplicated_size" xml:space="preserve">
     <value>, Duplicated size: </value>
@@ -436,8 +436,32 @@
   <data name="Ui_Errors_Clear" xml:space="preserve">
     <value>Clear errors list</value>
   </data>
+  <data name="Ui_Errors_Header_Message" xml:space="preserve">
+    <value>Message</value>
+  </data>
+  <data name="Ui_Errors_Header_Path" xml:space="preserve">
+    <value>Path</value>
+  </data>
+  <data name="Ui_Errors_Header_Timestamp" xml:space="preserve">
+    <value>Timestamp</value>
+  </data>
+  <data name="Ui_Errors_Header_Type" xml:space="preserve">
+    <value>Type</value>
+  </data>
   <data name="Ui_Errors_Tab_Header" xml:space="preserve">
     <value>Errors</value>
+  </data>
+  <data name="Ui_Errors_Type_Error" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="Ui_Errors_Type_Information" xml:space="preserve">
+    <value>Information</value>
+  </data>
+  <data name="Ui_Errors_Type_Unknown" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
+  <data name="Ui_Errors_Type_Warning" xml:space="preserve">
+    <value>Warning</value>
   </data>
   <data name="Ui_Extensions_Add" xml:space="preserve">
     <value>Add</value>
@@ -615,6 +639,18 @@
   </data>
   <data name="Ui_ToolTip_Config_Search" xml:space="preserve">
     <value>Search page default parameters configuration</value>
+  </data>
+  <data name="Ui_Tooltip_Count_size_in_Bytes" xml:space="preserve">
+    <value>Count the entered size in Bytes</value>
+  </data>
+  <data name="Ui_Tooltip_Count_size_in_Gigabytes" xml:space="preserve">
+    <value>Count the entered size in Gigabytes</value>
+  </data>
+  <data name="Ui_Tooltip_Count_size_in_Kilobytes" xml:space="preserve">
+    <value>Count the entered size in Kilobytes</value>
+  </data>
+  <data name="Ui_Tooltip_Count_size_in_Megabytes" xml:space="preserve">
+    <value>Count the entered size in Megabytes</value>
   </data>
   <data name="Ui_ToolTip_Errors_Tab" xml:space="preserve">
     <value>Duplicate file search errors</value>

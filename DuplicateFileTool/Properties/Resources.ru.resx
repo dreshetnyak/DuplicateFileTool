@@ -307,7 +307,7 @@
     <value>Ошибка закрытия дескриптора поиска файлов</value>
   </data>
   <data name="Error_Failed_to_find_the_next_file" xml:space="preserve">
-    <value>Попытка найти следующий файл привела к ошибке </value>
+    <value>Попытка найти следующий файл привела к ошибке. </value>
   </data>
   <data name="Error_File_not_found" xml:space="preserve">
     <value>Файл не найден</value>
@@ -410,16 +410,16 @@
     <value>Отменить</value>
   </data>
   <data name="Ui_Count_size_in_Bytes" xml:space="preserve">
-    <value>Введённый размер исчисляется в Байтах</value>
+    <value>Байты</value>
   </data>
   <data name="Ui_Count_size_in_Gigabytes" xml:space="preserve">
-    <value>Введённый размер исчисляется в Гигабайтах</value>
+    <value>ГБ</value>
   </data>
   <data name="Ui_Count_size_in_Kilobytes" xml:space="preserve">
-    <value>Введённый размер исчисляется в Килобайтах</value>
+    <value>КБ</value>
   </data>
   <data name="Ui_Count_size_in_Megabytes" xml:space="preserve">
-    <value>Введённый размер исчисляется в Мегабайтах</value>
+    <value>МБ</value>
   </data>
   <data name="Ui_Duplicated_size" xml:space="preserve">
     <value>, Дублированный размер: </value>
@@ -436,8 +436,32 @@
   <data name="Ui_Errors_Clear" xml:space="preserve">
     <value>Очистить список ошибок</value>
   </data>
+  <data name="Ui_Errors_Header_Message" xml:space="preserve">
+    <value>Сообщение</value>
+  </data>
+  <data name="Ui_Errors_Header_Path" xml:space="preserve">
+    <value>Путь</value>
+  </data>
+  <data name="Ui_Errors_Header_Timestamp" xml:space="preserve">
+    <value>Время</value>
+  </data>
+  <data name="Ui_Errors_Header_Type" xml:space="preserve">
+    <value>Тип</value>
+  </data>
   <data name="Ui_Errors_Tab_Header" xml:space="preserve">
     <value>Ошибки</value>
+  </data>
+  <data name="Ui_Errors_Type_Error" xml:space="preserve">
+    <value>Ошибка</value>
+  </data>
+  <data name="Ui_Errors_Type_Information" xml:space="preserve">
+    <value>Информация</value>
+  </data>
+  <data name="Ui_Errors_Type_Unknown" xml:space="preserve">
+    <value>Неизвестный</value>
+  </data>
+  <data name="Ui_Errors_Type_Warning" xml:space="preserve">
+    <value>Предупреждение</value>
   </data>
   <data name="Ui_Extensions_Add" xml:space="preserve">
     <value>Добавить</value>
@@ -521,7 +545,7 @@
     <value>Удалить Выбранные</value>
   </data>
   <data name="Ui_Results_Duplicated_Size" xml:space="preserve">
-    <value>Дублированные Байты:</value>
+    <value>Дубл. Байты:</value>
   </data>
   <data name="Ui_Results_Duplicates_Information_GroupBox_Header" xml:space="preserve">
     <value>Информация о Дубликатах</value>
@@ -615,6 +639,18 @@
   </data>
   <data name="Ui_ToolTip_Config_Search" xml:space="preserve">
     <value>Параметры по умолчанию используемые на странице поиска дубликатов</value>
+  </data>
+  <data name="Ui_Tooltip_Count_size_in_Bytes" xml:space="preserve">
+    <value>Введённый размер исчисляется в Байтах</value>
+  </data>
+  <data name="Ui_Tooltip_Count_size_in_Gigabytes" xml:space="preserve">
+    <value>Введённый размер исчисляется в Гигабайтах</value>
+  </data>
+  <data name="Ui_Tooltip_Count_size_in_Kilobytes" xml:space="preserve">
+    <value>Введённый размер исчисляется в Килобайтах</value>
+  </data>
+  <data name="Ui_Tooltip_Count_size_in_Megabytes" xml:space="preserve">
+    <value>Введённый размер исчисляется в Мегабайтах</value>
   </data>
   <data name="Ui_ToolTip_Errors_Tab" xml:space="preserve">
     <value>Ошибки поиска дубликатов файлов</value>

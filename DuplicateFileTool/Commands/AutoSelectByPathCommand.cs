@@ -3,11 +3,30 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using DuplicateFileTool.Properties;
 
 namespace DuplicateFileTool.Commands
 {
+    internal class AutoSelectProgressEventArgs : EventArgs
+    {
+        public int SelectedCount { get; }
+        public int CurrentFileIndex { get; }
+        public int TotalFilesCount { get; }
+        public bool IsFinished { get; }
+
+        public AutoSelectProgressEventArgs(int selectedCount, int currentFileIndex, int totalFilesCount, bool isFinished = false)
+        {
+            SelectedCount = selectedCount;
+            CurrentFileIndex = currentFileIndex;
+            TotalFilesCount = totalFilesCount;
+            IsFinished = isFinished;
+        }
+    }
+    
+    internal delegate void AutoSelectProgressEventHandler(object sender, AutoSelectProgressEventArgs eventArgs);
+    
     internal class AutoSelectByPathCommand : CommandBase
     {
         private string _path;
@@ -27,18 +46,28 @@ namespace DuplicateFileTool.Commands
         }
 
         public event UpdateToDeleteEventHandler FilesAutoMarkedForDeletion;
-        
+        public event AutoSelectProgressEventHandler AutoSelectProgress;
+
         public AutoSelectByPathCommand(ObservableCollection<DuplicateGroup> duplicateFileGroups)
         {
             Enabled = false;
             DuplicateFileGroups = duplicateFileGroups;
         }
 
-        public override void Execute(object parameter)
+        public override async void Execute(object parameter)
         {
             var selectedPath = GetThePathForSelection();
-            if (selectedPath != null)
-                MarkDuplicatedFiles(selectedPath);
+            if (selectedPath == null)
+                return;
+            try
+            {
+                Enabled = false;
+                await Task.Run(() => MarkDuplicatedFiles(selectedPath));
+            }
+            finally
+            {
+                Enabled = true;
+            }
         }
 
         private string GetThePathForSelection()
@@ -60,11 +89,17 @@ namespace DuplicateFileTool.Commands
 
         private void MarkDuplicatedFiles(string selectedPath)
         {
+            var selectedCount = 0;
+            var currentFileIndex = 0;
+            var totalFiles = DuplicateFileGroups.Sum(group => group.FilesCount);
+
             foreach (var duplicateFileGroup in DuplicateFileGroups)
             {
                 if (IsAfterMarkingAtLeastOneLeft(duplicateFileGroup, selectedPath))
-                    MarkDuplicatesInGroup(duplicateFileGroup, selectedPath);
+                    MarkDuplicatesInGroup(duplicateFileGroup, selectedPath, totalFiles, ref currentFileIndex, ref selectedCount);
             }
+
+            OnAutoSelectProgress(selectedCount, currentFileIndex, totalFiles, true);
         }
 
         private static bool IsAfterMarkingAtLeastOneLeft(DuplicateGroup duplicateFileGroup, string selectedPath)
@@ -74,14 +109,23 @@ namespace DuplicateFileTool.Commands
                 .Any(file => !FullFileNameStartsWithPath(file.FileFullName, selectedPath));
         }
 
-        private void MarkDuplicatesInGroup(DuplicateGroup duplicateFileGroup, string selectedPath)
+        private void MarkDuplicatesInGroup(DuplicateGroup duplicateFileGroup, string selectedPath, int totalFiles, ref int currentFileIndex, ref int selectedCount)
         {
             foreach (var duplicateFile in duplicateFileGroup.DuplicateFiles)
             {
-                if (duplicateFile.IsMarkedForDeletion || !FullFileNameStartsWithPath(duplicateFile.FileFullName, selectedPath))
-                    continue;
-                duplicateFile.IsMarkedForDeletion = true;
-                OnFilesMarkedForDeletion(1, duplicateFile.FileData.Size);
+                try
+                {
+                    if (duplicateFile.IsMarkedForDeletion || !FullFileNameStartsWithPath(duplicateFile.FileFullName, selectedPath))
+                        continue;
+                    duplicateFile.IsMarkedForDeletion = true;
+                    OnFilesMarkedForDeletion(1, duplicateFile.FileData.Size);
+                    selectedCount++;
+                }
+                finally
+                {
+                    currentFileIndex++;
+                    OnAutoSelectProgress(selectedCount, currentFileIndex, totalFiles);
+                }
             }
         }
 
@@ -129,6 +173,11 @@ namespace DuplicateFileTool.Commands
         protected virtual void OnFilesMarkedForDeletion(long count, long size)
         {
             FilesAutoMarkedForDeletion?.Invoke(this, new UpdateToDeleteEventArgs(count, size));
+        }
+
+        protected virtual void OnAutoSelectProgress(int selectedCount, int currentFileIndex, int totalFilesCount, bool isFinished = false)
+        {
+            AutoSelectProgress?.Invoke(this, new AutoSelectProgressEventArgs(selectedCount, currentFileIndex, totalFilesCount, isFinished));
         }
     }
 }

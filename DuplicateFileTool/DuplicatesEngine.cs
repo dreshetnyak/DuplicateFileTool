@@ -140,7 +140,7 @@ namespace DuplicateFileTool
         public DuplicateGroup(IEnumerable<MatchResult> duplicateFiles)
         {
             DuplicateFiles = new ObservableCollection<DuplicateFile>();
-            foreach (var duplicateFile in duplicateFiles)
+            foreach (var duplicateFile in duplicateFiles.OrderBy(df => df.ComparableFile.FileData.FullName))
                 DuplicateFiles.Add(new DuplicateFile(this, duplicateFile));
             OnDuplicateFilesCollectionChanged(this);
             DuplicateFiles.CollectionChanged += OnDuplicateFilesCollectionChanged;

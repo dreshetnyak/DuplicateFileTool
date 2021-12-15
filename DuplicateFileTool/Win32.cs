@@ -18,6 +18,18 @@ namespace DuplicateFileTool
         internal static readonly int FILE_ATTRIBUTE_DIRECTORY = 0x00000010;
         internal const int MAX_PATH = 260;
         internal const int IOCTL_VOLUME_GET_VOLUME_DISK_EXTENTS = 0x00560000;
+        internal const uint LANG_NEUTRAL = 0x00;
+        internal const uint LANG_ENGLISH = 0x09;
+        internal const uint LANG_SPANISH = 0x0a;
+        internal const uint LANG_RUSSIAN = 0x19;
+        internal const uint SUBLANG_NEUTRAL = 0x00;
+        internal const uint SUBLANG_ENGLISH_US = 0x01;
+        internal const uint SUBLANG_SPANISH = 0x01;
+        internal const uint SUBLANG_RUSSIAN_RUSSIA = 0x01;
+        internal const uint FORMAT_MESSAGE_FROM_SYSTEM = 0x00001000;
+        internal const uint FORMAT_MESSAGE_ALLOCATE_BUFFER = 0x00000100;
+        internal const uint FORMAT_MESSAGE_IGNORE_INSERTS = 0x00000200;
+        
         // ReSharper enable InconsistentNaming
 
         [StructLayout(LayoutKind.Sequential)]
@@ -191,10 +203,16 @@ namespace DuplicateFileTool
         [return: MarshalAs(UnmanagedType.Bool)]
         internal static extern bool DeleteObject([In] IntPtr hObject);
 
-        [DllImport("Kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         [ResourceExposure(ResourceScope.Machine)]
         [return: MarshalAs(UnmanagedType.Bool)]
         internal static extern bool DeviceIoControl(SafeFileHandle fileHandle, int ioControlCode, IntPtr inBuffer, int cbInBuffer, IntPtr outBuffer, int cbOutBuffer, out int cbBytesReturned, IntPtr overlapped);
+
+        [DllImport("Kernel32.dll", EntryPoint = "FormatMessageW", CharSet = CharSet.Unicode, SetLastError = true)]
+        internal static extern uint FormatMessage(uint dwFlags, IntPtr lpSource, uint dwMessageId, uint dwLanguageId, ref IntPtr lpBuffer, uint nSize, IntPtr pArguments);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        internal static extern IntPtr LocalFree(IntPtr handle);
 
         #region File Tree Related
 

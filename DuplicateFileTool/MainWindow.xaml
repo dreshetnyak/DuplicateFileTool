@@ -264,7 +264,7 @@
                                     <Setter Property="Source" Value="Images/Include.png" />
                                     <Style.Triggers>
                                         <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
-                                        <DataTrigger Binding="{Binding PathInclusionTypeName}" Value="Exclude">
+                                        <DataTrigger Binding="{Binding PathInclusionType}" Value="Exclude">
                                             <Setter Property="Source" Value="Images/Exclude.png" />
                                         </DataTrigger>
                                     </Style.Triggers>
@@ -412,10 +412,10 @@
                                 <Label Grid.Column="0" Grid.Row="1" Margin="0,5,0,2" Content="{x:Static resx:Resources.Ui_Search_Size_Maximum_Label}" />
                                 <TextBox Grid.Column="1" Grid.Row="1" Margin="0,5,0,2" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" Text="{Binding SearchConfig.MaxFileSize.Value, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource LongConverter}}" FontFamily="Consolas" FontSize="14" />
                                 <StackPanel Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" >
-                                    <RadioButton Content="Bytes" Margin="0,5,5,2" ToolTip="{x:Static resx:Resources.Ui_Count_size_in_Bytes}" IsChecked="{Binding Path=SearchConfig.ByteSizeUnit.Value, Mode=TwoWay, Converter={StaticResource EnumBoolConverter}, ConverterParameter=Bytes}" />
-                                    <RadioButton Content="KB" Margin="5,5,5,2" ToolTip="{x:Static resx:Resources.Ui_Count_size_in_Kilobytes}" IsChecked="{Binding Path=SearchConfig.ByteSizeUnit.Value, Mode=TwoWay, Converter={StaticResource EnumBoolConverter}, ConverterParameter=Kilobytes}" />
-                                    <RadioButton Content="MB" Margin="5,5,5,2" ToolTip="{x:Static resx:Resources.Ui_Count_size_in_Megabytes}" IsChecked="{Binding Path=SearchConfig.ByteSizeUnit.Value, Mode=TwoWay, Converter={StaticResource EnumBoolConverter}, ConverterParameter=Megabytes}" />
-                                    <RadioButton Content="GB" Margin="5,5,0,2" ToolTip="{x:Static resx:Resources.Ui_Count_size_in_Gigabytes}" IsChecked="{Binding Path=SearchConfig.ByteSizeUnit.Value, Mode=TwoWay, Converter={StaticResource EnumBoolConverter}, ConverterParameter=Gigabytes}" />
+                                    <RadioButton Content="{x:Static resx:Resources.Ui_Count_size_in_Bytes}" Margin="0,5,5,2" ToolTip="{x:Static resx:Resources.Ui_Tooltip_Count_size_in_Bytes}" IsChecked="{Binding Path=SearchConfig.ByteSizeUnit.Value, Mode=TwoWay, Converter={StaticResource EnumBoolConverter}, ConverterParameter=Bytes}" />
+                                    <RadioButton Content="{x:Static resx:Resources.Ui_Count_size_in_Kilobytes}" Margin="5,5,5,2" ToolTip="{x:Static resx:Resources.Ui_Tooltip_Count_size_in_Kilobytes}" IsChecked="{Binding Path=SearchConfig.ByteSizeUnit.Value, Mode=TwoWay, Converter={StaticResource EnumBoolConverter}, ConverterParameter=Kilobytes}" />
+                                    <RadioButton Content="{x:Static resx:Resources.Ui_Count_size_in_Megabytes}" Margin="5,5,5,2" ToolTip="{x:Static resx:Resources.Ui_Tooltip_Count_size_in_Megabytes}" IsChecked="{Binding Path=SearchConfig.ByteSizeUnit.Value, Mode=TwoWay, Converter={StaticResource EnumBoolConverter}, ConverterParameter=Megabytes}" />
+                                    <RadioButton Content="{x:Static resx:Resources.Ui_Count_size_in_Gigabytes}" Margin="5,5,0,2" ToolTip="{x:Static resx:Resources.Ui_Tooltip_Count_size_in_Gigabytes}" IsChecked="{Binding Path=SearchConfig.ByteSizeUnit.Value, Mode=TwoWay, Converter={StaticResource EnumBoolConverter}, ConverterParameter=Gigabytes}" />
                                 </StackPanel>
                             </Grid>
                         </GroupBox>
@@ -810,7 +810,6 @@
                 <DataGrid IsReadOnly="True" 
                           CanUserAddRows="False"
                           AlternationCount="2" 
-                          SelectionMode="Single" 
                           SelectionUnit="FullRow" 
                           AutoGenerateColumns="False" 
                           MinRowHeight="24"
@@ -822,10 +821,10 @@
                         </Style>
                     </DataGrid.Resources>
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="Timestamp" Width="Auto" Binding="{Binding Timestamp, StringFormat='{}{0:yyyy-MM-dd HH:mm:ss.fff}', Mode=OneTime}" ElementStyle="{StaticResource VerticallyCenteredTextColumn}" />
-                        <DataGridTextColumn Header="Type" Width="Auto" Binding="{Binding Type, Mode=OneTime}" ElementStyle="{StaticResource VerticallyCenteredTextColumn}" />
-                        <DataGridTextColumn Header="Path" Width="500" Binding="{Binding Path, Mode=OneTime}"  ElementStyle="{StaticResource VerticallyCenteredTextColumn}" />
-                        <DataGridTextColumn Header="Message" Width="300" Binding="{Binding Text, Mode=OneTime}"  ElementStyle="{StaticResource VerticallyCenteredTextColumn}" />
+                        <DataGridTextColumn Header="{x:Static resx:Resources.Ui_Errors_Header_Timestamp}" Width="Auto" Binding="{Binding Timestamp, StringFormat='{}{0:yyyy-MM-dd HH:mm:ss.fff}', Mode=OneTime}" ElementStyle="{StaticResource VerticallyCenteredTextColumn}" />
+                        <DataGridTextColumn Header="{x:Static resx:Resources.Ui_Errors_Header_Type}" Width="Auto" Binding="{Binding TypeName, Mode=OneTime}" ElementStyle="{StaticResource VerticallyCenteredTextColumn}" />
+                        <DataGridTextColumn Header="{x:Static resx:Resources.Ui_Errors_Header_Path}" Width="500" Binding="{Binding Path, Mode=OneTime}"  ElementStyle="{StaticResource VerticallyCenteredTextColumn}" />
+                        <DataGridTextColumn Header="{x:Static resx:Resources.Ui_Errors_Header_Message}" Width="300" Binding="{Binding Text, Mode=OneTime}"  ElementStyle="{StaticResource VerticallyCenteredTextColumn}" />
                     </DataGrid.Columns>
                 </DataGrid>
             </TabItem>
@@ -978,8 +977,8 @@
 
         <ProgressBar Grid.Row="1" />
         <Grid Grid.Row="1" MinHeight="26" Margin="3,5,3,5">
-            <ProgressBar Maximum="10000" Value="{Binding Duplicates.ProgressPercentage, Mode=OneWay}" />
-            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,0,0,0" Text="{Binding Duplicates.ProgressText}" />
+            <ProgressBar Maximum="10000" Value="{Binding ProgressPercentage, Mode=OneWay}" />
+            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,0,0,0" Text="{Binding ProgressText}" />
         </Grid>
 
     </Grid>

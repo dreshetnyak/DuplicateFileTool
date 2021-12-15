@@ -70,6 +70,8 @@ namespace DuplicateFileTool
         private IFileComparer _selectedFileComparer;
         private FileTreeItem _selectedFileTreeItem;
         private int _selectedTabIndex;
+        private string _progressText;
+        private double _progressPercentage;
         private double _taskbarProgress;
         private string _duplicatesSortingOrderToolTip;
 
@@ -125,7 +127,24 @@ namespace DuplicateFileTool
             }
         }
         public DuplicateGroupComparer DuplicateGroupComparer { get; }
-
+        public string ProgressText
+        {
+            get => _progressText;
+            set
+            {
+                _progressText = value;
+                OnPropertyChanged();
+            }
+        }
+        public double ProgressPercentage
+        {
+            get => _progressPercentage;
+            set
+            {
+                _progressPercentage = value;
+                OnPropertyChanged();
+            }
+        }
         public double TaskbarProgress
         {
             get => _taskbarProgress;
@@ -197,6 +216,7 @@ namespace DuplicateFileTool
             
             AutoSelectByPath = new AutoSelectByPathCommand(Duplicates.DuplicateGroups);
             AutoSelectByPath.FilesAutoMarkedForDeletion += OnUpdateToDelete;
+            AutoSelectByPath.AutoSelectProgress += OnAutoSelectProgress;
             DuplicateFile.ItemSelected += OnDuplicateFileSelected;
 
             ResetSelection = new ResetSelectionCommand(Duplicates.DuplicateGroups);
@@ -264,6 +284,10 @@ namespace DuplicateFileTool
             {
                 case nameof(Duplicates.ProgressPercentage):
                     TaskbarProgress = Duplicates.ProgressPercentage;
+                    ProgressPercentage = Duplicates.ProgressPercentage;
+                    break;
+                case nameof(Duplicates.ProgressText):
+                    ProgressText = Duplicates.ProgressText;
                     break;
                 case nameof(Duplicates.ToBeDeletedCount):
                     var hasFilesToBeDeleted = Duplicates.ToBeDeletedCount != 0;
@@ -338,6 +362,20 @@ namespace DuplicateFileTool
         {
             Duplicates.ToBeDeletedCount += eventArgs.Count;
             Duplicates.ToBeDeletedSize += eventArgs.Size;
+        }
+
+        private void OnAutoSelectProgress(object sender, AutoSelectProgressEventArgs eventArgs)
+        {
+            if (!eventArgs.IsFinished)
+            {
+                TaskbarProgress = ProgressPercentage = (double)eventArgs.CurrentFileIndex * 10000 / eventArgs.TotalFilesCount;
+                ProgressText = $"Selecting files. Selected {eventArgs.SelectedCount:N0} files.";
+            }
+            else
+            {
+                TaskbarProgress = ProgressPercentage = 0;
+                ProgressText = $"Done. Selected {eventArgs.SelectedCount:N0} files.";
+            }
         }
 
         private void OnResultsPageChanged(object sender, EventArgs _)

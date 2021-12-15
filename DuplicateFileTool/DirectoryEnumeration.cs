@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
+using System.Threading;
 using DuplicateFileTool.Properties;
 
 namespace DuplicateFileTool
@@ -49,7 +50,7 @@ namespace DuplicateFileTool
         private void CloseFindHandle()
         {
             if (FindHandle != IntPtr.Zero && FindHandle != Win32.INVALID_HANDLE_VALUE && !Win32.FindClose(FindHandle))
-                throw new FileSystemException(SearchPath, Resources.Error_Failed_to_close_the_file_search_handle + new Win32Exception(Marshal.GetLastWin32Error()).Message);
+                throw new FileSystemException(SearchPath, Resources.Error_Failed_to_close_the_file_search_handle + Marshal.GetLastWin32Error().GetExceptionMessageForCulture(Thread.CurrentThread.CurrentCulture));
         }
 
         public bool MoveNext()
@@ -83,11 +84,11 @@ namespace DuplicateFileTool
             if (FindHandle.IsValidHandle())
                 return true;
 
-            var errCode = Marshal.GetLastWin32Error();
-            if (errCode == Win32.ERROR_NO_MORE_FILES)
+            var errorCode = Marshal.GetLastWin32Error();
+            if (errorCode == Win32.ERROR_NO_MORE_FILES)
                 return false;
 
-            throw new FileSystemException(SearchPath, new Win32Exception(errCode).Message);
+            throw new FileSystemException(SearchPath, errorCode.GetExceptionMessageForCulture(Thread.CurrentThread.CurrentCulture));
         }
 
         private bool MoveToNextFile(out Win32.WIN32_FIND_DATA findData)
@@ -99,7 +100,7 @@ namespace DuplicateFileTool
             if (errorCode == Win32.ERROR_NO_MORE_FILES)
                 return false;
 
-            throw new FileSystemException(SearchPath, Resources.Error_Failed_to_find_the_next_file + new Win32Exception(errorCode).Message);
+            throw new FileSystemException(SearchPath, Resources.Error_Failed_to_find_the_next_file + errorCode.GetExceptionMessageForCulture(Thread.CurrentThread.CurrentCulture));
         }
 
         private static string GetPathAdaptedForSearch(string path)

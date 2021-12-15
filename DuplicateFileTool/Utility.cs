@@ -1,13 +1,16 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Drawing;
-using System.Drawing.Imaging;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using DuplicateFileTool.Properties;
 
 namespace DuplicateFileTool
 {
@@ -16,6 +19,7 @@ namespace DuplicateFileTool
     internal sealed class ErrorMessage
     {
         public MessageType Type { get; }
+        public string TypeName { get; }
         public string Text { get; }
         public string Path { get; }
         public DateTime Timestamp { get; }
@@ -26,6 +30,7 @@ namespace DuplicateFileTool
             Path = path ?? "";
             Text = message;
             Type = messageType;
+            TypeName = GetTypeName(messageType);
         }
 
         public ErrorMessage(string message, MessageType messageType = MessageType.Information)
@@ -34,6 +39,18 @@ namespace DuplicateFileTool
             Path = "";
             Text = message;
             Type = messageType;
+            TypeName = GetTypeName(messageType);
+        }
+
+        private static string GetTypeName(MessageType type)
+        {
+            return type switch
+            {
+                MessageType.Information => Resources.Ui_Errors_Type_Information,
+                MessageType.Warning => Resources.Ui_Errors_Type_Warning,
+                MessageType.Error => Resources.Ui_Errors_Type_Error,
+                _ => Resources.Ui_Errors_Type_Unknown
+            };
         }
     }
 
@@ -144,6 +161,52 @@ namespace DuplicateFileTool
             {
                 Win32.DeleteObject(handle);
             }
+        }
+
+        public static string GetExceptionMessageForCulture(this int lastError, CultureInfo culture)
+        {
+            var messageBuffer = IntPtr.Zero;
+
+            try
+            {
+                var dwChars = Win32.FormatMessage(
+                    Win32.FORMAT_MESSAGE_ALLOCATE_BUFFER | Win32.FORMAT_MESSAGE_FROM_SYSTEM| Win32.FORMAT_MESSAGE_IGNORE_INSERTS,
+                    IntPtr.Zero, (uint)lastError, GetLangId(culture), ref messageBuffer, 0, IntPtr.Zero);
+
+                if (dwChars == 0)
+                    return new Win32Exception(lastError).Message;
+
+                var errorMessage = Marshal.PtrToStringUni(messageBuffer);
+                return !string.IsNullOrEmpty(errorMessage) 
+                    ? errorMessage.TrimEnd(' ', '.', '\r', '\n')
+                    : new Win32Exception(lastError).Message;
+            }
+            finally
+            {
+                if (messageBuffer != IntPtr.Zero)
+                    Win32.LocalFree(messageBuffer);
+            }
+        }
+
+        private static uint GetLangId(CultureInfo culture)
+        {
+            var cultureName = culture.Name;
+            if (string.IsNullOrEmpty(cultureName))
+                return MakeLangId(Win32.LANG_NEUTRAL, Win32.SUBLANG_NEUTRAL);
+            cultureName = cultureName.Substring(0, 2);
+            return cultureName switch
+            {
+                "en" => MakeLangId(Win32.LANG_ENGLISH, Win32.SUBLANG_ENGLISH_US),
+                "es" => MakeLangId(Win32.LANG_SPANISH, Win32.SUBLANG_SPANISH),
+                "ru" => MakeLangId(Win32.LANG_RUSSIAN, Win32.SUBLANG_RUSSIAN_RUSSIA),
+                _ => MakeLangId(Win32.LANG_NEUTRAL, Win32.SUBLANG_NEUTRAL)
+            };
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static uint MakeLangId(uint langId, uint subLangId)
+        {
+            return (subLangId << 10) | langId;
         }
     }
 

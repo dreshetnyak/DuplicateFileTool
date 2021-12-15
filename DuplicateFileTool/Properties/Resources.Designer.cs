@@ -938,7 +938,7 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Count the entered size in Bytes.
+        ///   Looks up a localized string similar to Bytes.
         /// </summary>
         public static string Ui_Count_size_in_Bytes {
             get {
@@ -947,7 +947,7 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Count the entered size in Gigabytes.
+        ///   Looks up a localized string similar to GB.
         /// </summary>
         public static string Ui_Count_size_in_Gigabytes {
             get {
@@ -956,7 +956,7 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Count the entered size in Kilobytes.
+        ///   Looks up a localized string similar to KB.
         /// </summary>
         public static string Ui_Count_size_in_Kilobytes {
             get {
@@ -965,7 +965,7 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Count the entered size in Megabytes.
+        ///   Looks up a localized string similar to MB.
         /// </summary>
         public static string Ui_Count_size_in_Megabytes {
             get {
@@ -1019,11 +1019,83 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Message.
+        /// </summary>
+        public static string Ui_Errors_Header_Message {
+            get {
+                return ResourceManager.GetString("Ui_Errors_Header_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Path.
+        /// </summary>
+        public static string Ui_Errors_Header_Path {
+            get {
+                return ResourceManager.GetString("Ui_Errors_Header_Path", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Timestamp.
+        /// </summary>
+        public static string Ui_Errors_Header_Timestamp {
+            get {
+                return ResourceManager.GetString("Ui_Errors_Header_Timestamp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Type.
+        /// </summary>
+        public static string Ui_Errors_Header_Type {
+            get {
+                return ResourceManager.GetString("Ui_Errors_Header_Type", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Errors.
         /// </summary>
         public static string Ui_Errors_Tab_Header {
             get {
                 return ResourceManager.GetString("Ui_Errors_Tab_Header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error.
+        /// </summary>
+        public static string Ui_Errors_Type_Error {
+            get {
+                return ResourceManager.GetString("Ui_Errors_Type_Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Information.
+        /// </summary>
+        public static string Ui_Errors_Type_Information {
+            get {
+                return ResourceManager.GetString("Ui_Errors_Type_Information", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unknown.
+        /// </summary>
+        public static string Ui_Errors_Type_Unknown {
+            get {
+                return ResourceManager.GetString("Ui_Errors_Type_Unknown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Warning.
+        /// </summary>
+        public static string Ui_Errors_Type_Warning {
+            get {
+                return ResourceManager.GetString("Ui_Errors_Type_Warning", resourceCulture);
             }
         }
         
@@ -1555,6 +1627,42 @@ namespace DuplicateFileTool.Properties {
         public static string Ui_ToolTip_Config_Search {
             get {
                 return ResourceManager.GetString("Ui_ToolTip_Config_Search", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Count the entered size in Bytes.
+        /// </summary>
+        public static string Ui_Tooltip_Count_size_in_Bytes {
+            get {
+                return ResourceManager.GetString("Ui_Tooltip_Count_size_in_Bytes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Count the entered size in Gigabytes.
+        /// </summary>
+        public static string Ui_Tooltip_Count_size_in_Gigabytes {
+            get {
+                return ResourceManager.GetString("Ui_Tooltip_Count_size_in_Gigabytes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Count the entered size in Kilobytes.
+        /// </summary>
+        public static string Ui_Tooltip_Count_size_in_Kilobytes {
+            get {
+                return ResourceManager.GetString("Ui_Tooltip_Count_size_in_Kilobytes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Count the entered size in Megabytes.
+        /// </summary>
+        public static string Ui_Tooltip_Count_size_in_Megabytes {
+            get {
+                return ResourceManager.GetString("Ui_Tooltip_Count_size_in_Megabytes", resourceCulture);
             }
         }
         
