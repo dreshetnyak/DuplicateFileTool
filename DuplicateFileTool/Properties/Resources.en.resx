@@ -694,4 +694,10 @@
   <data name="Warning_Encountered_a_group_with_all_files_selected" xml:space="preserve">
     <value>Invalid selection, encountered a group with all files selected, at least one file should be left unselected. The group will be ignored.</value>
   </data>
+  <data name="Ui_AutoSelectByPath_Finished" xml:space="preserve">
+	  <value>Done. Selected {0:N0} files.</value>
+  </data>
+  <data name="Ui_AutoSelectByPath_Progress" xml:space="preserve">
+	  <value>Selecting files. Selected {0:N0} files.</value>
+  </data>
 </root>

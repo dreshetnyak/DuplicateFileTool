@@ -32,8 +32,8 @@ namespace DuplicateFileTool.Commands
         {
             try
             {
-                Enabled = false;
                 CanCancel = true;
+                Enabled = false;
                 OnFindDuplicatesStarting();
 
                 var selectedComparer = GetSelectedComparer();

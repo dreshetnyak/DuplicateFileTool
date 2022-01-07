@@ -18,14 +18,20 @@ Under the files tree add a panel where we can see free space on the disks.
 =========================================================================
 Work in Progress:
 
-Fix. While an automatic selection is in progress the interface is enabled, need to disable it.
-Bug. Settings is enabled while the search is in progress, should be disabled.
+New. The icons on the buttons on the results tab should be grayed out during search.
 New. Create the installer.
 Bug. Deleting files is extremely slow in some cases because every time a file is deleted the results page is been reloaded (Need to disable Results while deleting and load the page only at the end).
-Fix. Sorting by ascending/descending arrow need to be grayed out when the feature is disabled during search.
 
 =========================================================================
 Done:
+
+DuplicateFileTool 1.0.816: 2022-01-07
+Fix. Changed the way how the controls is enabled/disabled.
+Bug. Settings is enabled while the search is in progress, should be disabled.
+Bug. While an automatic selection is in progress the interface entry was enabled.
+Bug. Auto select by path progress and final text was not localized.
+Fix. Sorting by ascending/descending arrow need to be grayed out when the feature is disabled during search.
+Bug. Results sorting order button tooltip was not set untill it's value changed.
 
 DuplicateFileTool 1.0.787: 2021-12-15
 Fix. Removed NuGet packages that was actully not used to reduce dependencies and the total size.

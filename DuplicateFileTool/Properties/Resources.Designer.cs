@@ -929,6 +929,24 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Done. Selected {0:N0} files..
+        /// </summary>
+        public static string Ui_AutoSelectByPath_Finished {
+            get {
+                return ResourceManager.GetString("Ui_AutoSelectByPath_Finished", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Selecting files. Selected {0:N0} files..
+        /// </summary>
+        public static string Ui_AutoSelectByPath_Progress {
+            get {
+                return ResourceManager.GetString("Ui_AutoSelectByPath_Progress", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cancel.
         /// </summary>
         public static string Ui_Cancel_Search_Button_Text {

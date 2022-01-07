@@ -404,7 +404,7 @@
     <value>Добавить или Удалить Расширения</value>
   </data>
   <data name="Ui_AutoSelectByPath_Description" xml:space="preserve">
-    <value>Выбрать путь, по которому все дублированные файлы будут автоматически выбраны для удаления.</value>
+	  <value>Выбрать путь, по которому все дублированные файлы будут автоматически помечены для удаления.</value>
   </data>
   <data name="Ui_Cancel_Search_Button_Text" xml:space="preserve">
     <value>Отменить</value>
@@ -693,5 +693,11 @@
   </data>
   <data name="Warning_Encountered_a_group_with_all_files_selected" xml:space="preserve">
     <value>Обнаружена некорректная выборка, в группе файлов выбраны все файлы, по крайней мере один файл должен быть не выбран. Группа будет пропущена.</value>
+  </data>
+  <data name="Ui_AutoSelectByPath_Finished" xml:space="preserve">
+	  <value>Готово. Выбрано {0:N0} файлов.</value>
+  </data>
+  <data name="Ui_AutoSelectByPath_Progress" xml:space="preserve">
+	  <value>Выбор файлов. Выбрано {0:N0} файлов.</value>
   </data>
 </root>

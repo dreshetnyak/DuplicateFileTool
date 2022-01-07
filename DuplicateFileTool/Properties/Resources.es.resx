@@ -694,4 +694,10 @@
   <data name="Warning_Encountered_a_group_with_all_files_selected" xml:space="preserve">
     <value>Selección invalida, fue encontrado un grupo con todos los archivos seleccionados, por lo menos un archivo debe permanecer no seleccionado. El grupo será ignorado.</value>
   </data>
+  <data name="Ui_AutoSelectByPath_Finished" xml:space="preserve">
+	  <value>Listo. Había seleccionado {0:N0} archivos.</value>
+  </data>
+  <data name="Ui_AutoSelectByPath_Progress" xml:space="preserve">
+	  <value>Seleccionando archivos. Ha seleccionado {0:N0} archivos.</value>
+  </data>
 </root>

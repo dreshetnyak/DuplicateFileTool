@@ -191,7 +191,7 @@ namespace DuplicateFileTool
             FileComparers = Config.FileComparers;
             Duplicates = new DuplicatesEngine();
             Duplicates.PropertyChanged += OnDuplicatesPropertyChanged;
-            Duplicates.Errors.CollectionChanged += (_, _) => Ui.IsErrorTabImageEnabled = Duplicates.Errors.Count != 0;
+            Duplicates.Errors.CollectionChanged += (_, _) => Ui.ErrorTabImage.Enabled = Duplicates.Errors.Count != 0;
             Duplicates.DuplicateGroups.CollectionChanged += OnDuplicateGroupsCollectionChanged;
 
             var resultsGroupInclusionPredicate = new ResultsGroupInclusionPredicate(); //TODO need to implement
@@ -208,6 +208,7 @@ namespace DuplicateFileTool
             FindDuplicates.FindDuplicatesStarting += OnFindDuplicatesStarting;
             FindDuplicates.FindDuplicatesFinished += OnFindDuplicatesFinished;
             FindDuplicates.CanExecuteChanged += OnFindDuplicatesCanExecuteChanged;
+            FindDuplicates.CanCancelChanged += OnFindDuplicatesCanCancelChanged;
 
             CancelDuplicatesSearch = new RelayCommand(_ => FindDuplicates.Cancel());
 
@@ -216,7 +217,9 @@ namespace DuplicateFileTool
             
             AutoSelectByPath = new AutoSelectByPathCommand(Duplicates.DuplicateGroups);
             AutoSelectByPath.FilesAutoMarkedForDeletion += OnUpdateToDelete;
-            AutoSelectByPath.AutoSelectProgress += OnAutoSelectProgress;
+            AutoSelectByPath.Starting += OnAutoSelectByPathStarting;
+            AutoSelectByPath.Finished += OnAutoSelectByPathFinished;
+            AutoSelectByPath.Progress += OnAutoSelectByPathProgress;
             DuplicateFile.ItemSelected += OnDuplicateFileSelected;
 
             ResetSelection = new ResetSelectionCommand(Duplicates.DuplicateGroups);
@@ -235,6 +238,7 @@ namespace DuplicateFileTool
             AddOrRemoveExtensions = new AddOrRemoveExtensionsCommand(SearchConfig.Extensions, Config.ExtensionsConfig);
             Navigate = new RelayCommand(parameter => Process.Start(new ProcessStartInfo((string)parameter)));
 
+            SetSortingOrderToolTip();
             UpdateFileTree();
         }
 
@@ -260,16 +264,20 @@ namespace DuplicateFileTool
 
         private void OnFindDuplicatesCanExecuteChanged(object sender, EventArgs eventArgs)
         {
-            Ui.IsCancelSearchEnabled = FindDuplicates.CanCancel;
-            Ui.IsUiEntryEnabled = FindDuplicates.Enabled;
-            Ui.IsSearchPathsListReadOnly = !FindDuplicates.Enabled;
-            Ui.IsSearchEnabled = SearchPaths.Count != 0 && FindDuplicates.Enabled;
+            Ui.Entry.Enabled = FindDuplicates.Enabled;
+            Ui.EntryReadOnly.Enabled = !FindDuplicates.Enabled; //IsSearchPathsListReadOnly
+            Ui.Search.Enabled = SearchPaths.Count != 0 && FindDuplicates.Enabled;
             OnUpdateAddPathEnabled();
+        }
+
+        private void OnFindDuplicatesCanCancelChanged(object sender, EventArgs eventArgs)
+        {
+            Ui.CancelSearch.Enabled = FindDuplicates.CanCancel;
         }
 
         private void OnSearchPathsCollectionChanged(object sender, NotifyCollectionChangedEventArgs eventArgs)
         {
-            Ui.IsSearchEnabled = SearchPaths.Count != 0 && FindDuplicates.Enabled;
+            Ui.Search.Enabled = SearchPaths.Count != 0 && FindDuplicates.Enabled;
             OnUpdateAddPathEnabled();
         }
 
@@ -318,12 +326,17 @@ namespace DuplicateFileTool
                     DuplicateGroupsProxyView.Sort();
                     break;
                 case nameof(DuplicateGroupComparer.IsSortOrderDescending):
-                    DuplicatesSortingOrderToolTip = DuplicateGroupComparer.IsSortOrderDescending
-                        ? Resources.Ui_Duplicates_Sorting_Order_Descending
-                        : Resources.Ui_Duplicates_Sorting_Order_Ascending;
+                    SetSortingOrderToolTip();
                     DuplicateGroupsProxyView.Sort();
                     break;
             }
+        }
+
+        private void SetSortingOrderToolTip()
+        {
+            DuplicatesSortingOrderToolTip = DuplicateGroupComparer.IsSortOrderDescending
+                ? Resources.Ui_Duplicates_Sorting_Order_Descending
+                : Resources.Ui_Duplicates_Sorting_Order_Ascending;
         }
 
         private void OnUpdateAddPathEnabled()
@@ -364,18 +377,23 @@ namespace DuplicateFileTool
             Duplicates.ToBeDeletedSize += eventArgs.Size;
         }
 
-        private void OnAutoSelectProgress(object sender, AutoSelectProgressEventArgs eventArgs)
+        private void OnAutoSelectByPathStarting(object sender, EventArgs eventArgs)
         {
-            if (!eventArgs.IsFinished)
-            {
-                TaskbarProgress = ProgressPercentage = (double)eventArgs.CurrentFileIndex * 10000 / eventArgs.TotalFilesCount;
-                ProgressText = $"Selecting files. Selected {eventArgs.SelectedCount:N0} files.";
-            }
-            else
-            {
-                TaskbarProgress = ProgressPercentage = 0;
-                ProgressText = $"Done. Selected {eventArgs.SelectedCount:N0} files.";
-            }
+            Ui.Entry.Enabled = false;
+        }
+
+        private void OnAutoSelectByPathFinished(object sender, AutoSelectStartingArgs eventArgs)
+        {
+            TaskbarProgress = ProgressPercentage = 0;
+            ProgressText = string.Format(Resources.Ui_AutoSelectByPath_Finished, eventArgs.SelectedCount);
+            Ui.Entry.Enabled = true;
+        }
+
+        private void OnAutoSelectByPathProgress(object sender, AutoSelectProgressEventArgs eventArgs)
+        {
+            var totalFilesCount = eventArgs.TotalFilesCount;
+            TaskbarProgress = ProgressPercentage = totalFilesCount != 0 ? (double)eventArgs.CurrentFileIndex * 10000 / eventArgs.TotalFilesCount : 0;
+            ProgressText = string.Format(Resources.Ui_AutoSelectByPath_Progress, eventArgs.SelectedCount);
         }
 
         private void OnResultsPageChanged(object sender, EventArgs _)

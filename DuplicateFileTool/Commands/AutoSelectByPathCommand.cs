@@ -9,25 +9,35 @@ using DuplicateFileTool.Properties;
 
 namespace DuplicateFileTool.Commands
 {
-    internal class AutoSelectProgressEventArgs : EventArgs
+    internal sealed class AutoSelectProgressEventArgs : EventArgs
     {
         public int SelectedCount { get; }
         public int CurrentFileIndex { get; }
         public int TotalFilesCount { get; }
-        public bool IsFinished { get; }
 
-        public AutoSelectProgressEventArgs(int selectedCount, int currentFileIndex, int totalFilesCount, bool isFinished = false)
+        public AutoSelectProgressEventArgs(int selectedCount, int currentFileIndex, int totalFilesCount)
         {
             SelectedCount = selectedCount;
             CurrentFileIndex = currentFileIndex;
             TotalFilesCount = totalFilesCount;
-            IsFinished = isFinished;
         }
     }
     
     internal delegate void AutoSelectProgressEventHandler(object sender, AutoSelectProgressEventArgs eventArgs);
-    
-    internal class AutoSelectByPathCommand : CommandBase
+
+    internal sealed class AutoSelectStartingArgs : EventArgs
+    {
+        public int SelectedCount { get; }
+
+        public AutoSelectStartingArgs(int selectedCount)
+        {
+            SelectedCount = selectedCount;
+        }
+    }
+
+    internal delegate void AutoSelectStartingEventHandler(object sender, AutoSelectStartingArgs eventArgs);
+
+    internal sealed class AutoSelectByPathCommand : CommandBase
     {
         private string _path;
         private ObservableCollection<DuplicateGroup> DuplicateFileGroups { get; }
@@ -46,7 +56,9 @@ namespace DuplicateFileTool.Commands
         }
 
         public event UpdateToDeleteEventHandler FilesAutoMarkedForDeletion;
-        public event AutoSelectProgressEventHandler AutoSelectProgress;
+        public event AutoSelectProgressEventHandler Progress;
+        public event EventHandler Starting;
+        public event AutoSelectStartingEventHandler Finished;
 
         public AutoSelectByPathCommand(ObservableCollection<DuplicateGroup> duplicateFileGroups)
         {
@@ -89,17 +101,19 @@ namespace DuplicateFileTool.Commands
 
         private void MarkDuplicatedFiles(string selectedPath)
         {
+            OnAutoSelectStarting();
+
             var selectedCount = 0;
             var currentFileIndex = 0;
             var totalFiles = DuplicateFileGroups.Sum(group => group.FilesCount);
-
+            
             foreach (var duplicateFileGroup in DuplicateFileGroups)
             {
                 if (IsAfterMarkingAtLeastOneLeft(duplicateFileGroup, selectedPath))
                     MarkDuplicatesInGroup(duplicateFileGroup, selectedPath, totalFiles, ref currentFileIndex, ref selectedCount);
             }
 
-            OnAutoSelectProgress(selectedCount, currentFileIndex, totalFiles, true);
+            OnAutoSelectFinished(selectedCount);
         }
 
         private static bool IsAfterMarkingAtLeastOneLeft(DuplicateGroup duplicateFileGroup, string selectedPath)
@@ -170,14 +184,24 @@ namespace DuplicateFileTool.Commands
             return pathItems;
         }
 
-        protected virtual void OnFilesMarkedForDeletion(long count, long size)
+        private void OnFilesMarkedForDeletion(long count, long size)
         {
             FilesAutoMarkedForDeletion?.Invoke(this, new UpdateToDeleteEventArgs(count, size));
         }
 
-        protected virtual void OnAutoSelectProgress(int selectedCount, int currentFileIndex, int totalFilesCount, bool isFinished = false)
+        private void OnAutoSelectProgress(int selectedCount, int currentFileIndex, int totalFilesCount)
         {
-            AutoSelectProgress?.Invoke(this, new AutoSelectProgressEventArgs(selectedCount, currentFileIndex, totalFilesCount, isFinished));
+            Progress?.Invoke(this, new AutoSelectProgressEventArgs(selectedCount, currentFileIndex, totalFilesCount));
+        }
+
+        private void OnAutoSelectStarting()
+        {
+            Starting?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void OnAutoSelectFinished(int selectedCount)
+        {
+            Finished?.Invoke(this, new AutoSelectStartingArgs(selectedCount));
         }
     }
 }

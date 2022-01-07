@@ -7,6 +7,8 @@ namespace DuplicateFileTool.Commands
     {
         bool CanCancel { get; }
 
+        event EventHandler CanCancelChanged;
+
         void Cancel();
     }
 
@@ -27,13 +29,14 @@ namespace DuplicateFileTool.Commands
             }
         }
 
-        public bool CanExecute(object parameter) { return Enabled; }
         public event EventHandler CanExecuteChanged;
 
         protected virtual void OnCanExecuteChanged()
         {
             CanExecuteChanged?.Invoke(this, EventArgs.Empty);
         }
+
+        public bool CanExecute(object parameter) { return Enabled; }
 
         #endregion
 
@@ -48,9 +51,15 @@ namespace DuplicateFileTool.Commands
                 if (_canCancel == value)
                     return;
                 _canCancel = value;
-                OnPropertyChanged();
-                OnCanExecuteChanged();
+                OnCanCancelChanged();
             }
+        }
+
+        public event EventHandler CanCancelChanged;
+
+        protected virtual void OnCanCancelChanged()
+        {
+            CanCancelChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public virtual void Cancel() { }
