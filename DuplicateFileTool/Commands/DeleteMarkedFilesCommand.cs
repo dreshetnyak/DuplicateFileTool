@@ -7,14 +7,17 @@ using DuplicateFileTool.Configuration;
 namespace DuplicateFileTool.Commands
 {
     [Localizable(true)]
-    internal class DeleteMarkedFilesCommand : CommandBase
+    internal sealed class DeleteMarkedFilesCommand : CommandBase
     {
         private DuplicatesEngine Duplicates { get; }
         private ResultsConfiguration ResultsConfig { get; }
 
         private static readonly object CtsLock = new();
         private CancellationTokenSource Cts { get; set; }
-        
+
+        public event EventHandler Started;
+        public event EventHandler Finished;
+
         public DeleteMarkedFilesCommand(DuplicatesEngine duplicates, ResultsConfiguration resultsConfig)
         {
             Enabled = false;
@@ -26,6 +29,7 @@ namespace DuplicateFileTool.Commands
         {
             try
             {
+                OnStarted();
                 Enabled = false;
                 CancellationToken ctx;
                 lock (CtsLock)
@@ -49,6 +53,7 @@ namespace DuplicateFileTool.Commands
                     }
                 }
                 catch { /* ignore */ }
+                OnFinished();
             }
         }
 
@@ -56,6 +61,16 @@ namespace DuplicateFileTool.Commands
         {
             try { lock (CtsLock) Cts?.Cancel(); }
             catch { /* ignore */ }
+        }
+
+        private void OnStarted()
+        {
+            Started?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void OnFinished()
+        {
+            Finished?.Invoke(this, EventArgs.Empty);
         }
     }
 }

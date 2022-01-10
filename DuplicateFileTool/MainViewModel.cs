@@ -227,6 +227,9 @@ namespace DuplicateFileTool
             ResetSelection.UpdateToDeleteSize += OnUpdateToDelete;
 
             DeleteMarkedFiles = new DeleteMarkedFilesCommand(Duplicates, Config.ResultsConfig);
+            DeleteMarkedFiles.Started += (_, _) => Ui.Entry.Enabled = false;
+            DeleteMarkedFiles.Finished += (_, _) => Ui.Entry.Enabled = true;
+
             AddPath = new AddPathCommand(SearchPaths, () => SelectedFileTreeItem);
             OpenFileInExplorer = new OpenFileInExplorerCommand();
             ChangePage = new ChangePageCommand(DuplicateGroupsProxyView);

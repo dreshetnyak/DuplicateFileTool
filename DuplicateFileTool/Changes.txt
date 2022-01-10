@@ -18,11 +18,14 @@ Under the files tree add a panel where we can see free space on the disks.
 =========================================================================
 Work in Progress:
 
-New. Create the installer.
+New. Created the installer project.
 Bug. Deleting files is extremely slow in some cases because every time a file is deleted the results page is been reloaded (Need to disable Results while deleting and load the page only at the end).
 
 =========================================================================
 Done:
+
+DuplicateFileTool 1.0.844: 2022-01-10
+Bug. Results page right side bar buttons is enabbled during deletion.
 
 DuplicateFileTool 1.0.822: 2022-01-09
 New. The icons on the buttons on the results tab should be grayed out when disabled.
