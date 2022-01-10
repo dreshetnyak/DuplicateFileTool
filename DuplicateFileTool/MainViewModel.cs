@@ -199,6 +199,7 @@ namespace DuplicateFileTool
             DuplicateGroupComparer.PropertyChanged += OnSortTypeChanged;
             DuplicateGroupsProxyView = new ObservableCollectionProxy<DuplicateGroup>(Duplicates.DuplicateGroups, resultsGroupInclusionPredicate, DuplicateGroupComparer, Config.ResultsConfig.ItemsPerPage.Value);
             DuplicateGroupsProxyView.PageChanged += OnResultsPageChanged;
+            DuplicateGroupsProxyView.CollectionChanged += OnResultsCollectionProxyChanged;
 
             InitializeSelectedFileComparer();
 
@@ -264,9 +265,10 @@ namespace DuplicateFileTool
 
         private void OnFindDuplicatesCanExecuteChanged(object sender, EventArgs eventArgs)
         {
-            Ui.Entry.Enabled = FindDuplicates.Enabled;
-            Ui.EntryReadOnly.Enabled = !FindDuplicates.Enabled; //IsSearchPathsListReadOnly
-            Ui.Search.Enabled = SearchPaths.Count != 0 && FindDuplicates.Enabled;
+            var findDuplicatesEnabled = FindDuplicates.Enabled;
+            Ui.Entry.Enabled = findDuplicatesEnabled;
+            Ui.EntryReadOnly.Enabled = !findDuplicatesEnabled;
+            Ui.Search.Enabled = SearchPaths.Count != 0 && findDuplicatesEnabled;
             OnUpdateAddPathEnabled();
         }
 
@@ -400,7 +402,15 @@ namespace DuplicateFileTool
         {
             ResultsTreeView.ResetView();
         }
-        
+
+        private void OnResultsCollectionProxyChanged(object o, NotifyCollectionChangedEventArgs eventArgs)
+        {
+            if (DuplicateGroupsProxyView.Count != 0)
+                Ui.ClearResults.Enabled = true;
+            else if (Ui.ClearResults.Enabled)
+                Ui.ClearResults.Enabled = false;
+        }
+
         private void InitializeSelectedFileComparer()
         {            
             // ReSharper disable LocalizableElement

@@ -1,8 +1,5 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
+﻿using System.ComponentModel;
 using System.Threading;
-using DuplicateFileTool.Annotations;
 
 namespace DuplicateFileTool
 {
@@ -10,21 +7,23 @@ namespace DuplicateFileTool
     {
         private bool _enabled;
         private readonly ReaderWriterLock _accessLock = new();
+        private string Name { get; }
         private int DisableCount { get; set; }
         private bool Invert { get; }
         private EnabledElement Parent { get; }
 
         public bool Enabled { get => Get(); set => Set(value); }
 
-        public EnabledElement(bool enabled) : this(null, enabled)
+        public EnabledElement(string elementName, bool enabled) : this(elementName, null, enabled)
         { }
 
-        public EnabledElement(EnabledElement parent = null, bool enabled = true, bool invert = false)
+        public EnabledElement(string elementName, EnabledElement parent = null, bool enabled = true, bool invert = false)
         {
-            _enabled = enabled;
+            Name = elementName;
             Parent = parent;
             Invert = invert;
-            if (!enabled)
+            _enabled = invert ? !enabled : enabled;
+            if (!_enabled)
                 DisableCount = 1;
             if (parent != null)
                 parent.PropertyChanged += OnParentChanged;
@@ -55,7 +54,7 @@ namespace DuplicateFileTool
             try
             {
                 _accessLock.AcquireWriterLock(Timeout.Infinite);
-                if (value)
+                if (Invert ? !value : value)
                     SetEnabled();
                 else
                     SetDisabled();
@@ -93,14 +92,16 @@ namespace DuplicateFileTool
         public EnabledElement Search { get; }
         public EnabledElement CancelSearch { get; }
         public EnabledElement ErrorTabImage { get; }
+        public EnabledElement ClearResults { get; }
 
         public UiSwitch()
         {
-            Entry = new EnabledElement();
-            EntryReadOnly = new EnabledElement(Entry, true, true);
-            Search = new EnabledElement(Entry, false);
-            CancelSearch = new EnabledElement(false);
-            ErrorTabImage = new EnabledElement(false);
+            Entry = new EnabledElement(nameof(Entry));
+            EntryReadOnly = new EnabledElement(nameof(EntryReadOnly), Entry, false, true);
+            Search = new EnabledElement(nameof(Search), Entry, false);
+            CancelSearch = new EnabledElement(nameof(CancelSearch), false);
+            ErrorTabImage = new EnabledElement(nameof(ErrorTabImage), false);
+            ClearResults = new EnabledElement(nameof(ClearResults), Entry, false);
         }
     }
 }

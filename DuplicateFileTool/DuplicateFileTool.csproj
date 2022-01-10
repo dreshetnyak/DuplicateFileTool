@@ -371,6 +371,11 @@
     <Resource Include="Images\ArrowUpGray.png" />
     <Resource Include="Images\DownArrowGray.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\AddGray.png" />
+    <Resource Include="Images\DeleteGray.png" />
+    <Resource Include="Images\ResetGray.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>if exist "$(SolutionDir)BuildVersionIncrement.exe" "$(SolutionDir)BuildVersionIncrement.exe" "$(ProjectDir)Properties\AssemblyInfo.cs"</PreBuildEvent>

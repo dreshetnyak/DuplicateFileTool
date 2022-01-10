@@ -18,12 +18,16 @@ Under the files tree add a panel where we can see free space on the disks.
 =========================================================================
 Work in Progress:
 
-New. The icons on the buttons on the results tab should be grayed out during search.
 New. Create the installer.
 Bug. Deleting files is extremely slow in some cases because every time a file is deleted the results page is been reloaded (Need to disable Results while deleting and load the page only at the end).
 
 =========================================================================
 Done:
+
+DuplicateFileTool 1.0.822: 2022-01-09
+New. The icons on the buttons on the results tab should be grayed out when disabled.
+Bug. Clear results button is enabled at start when the results list is empty.
+Bug. After finishing a search the search path list stays read-only.
 
 DuplicateFileTool 1.0.816: 2022-01-07
 Fix. Changed the way how the controls is enabled/disabled.
