@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+	<Product Id="*" 
+	         Name="Duplicate File Tool" 
+	         Language="1033" 
+	         Version="1.0.849" 
+	         Manufacturer="Dennis Reshetnyak" 
+	         UpgradeCode="F5EAE4DE-2E5B-4E48-A282-1208C1345D14">
+		<Package InstallerVersion="405" 
+		         Compressed="yes" 
+		         InstallScope="perMachine" 
+		         Manufacturer="Dennis Reshetnyak"
+		         Description="Duplicate File Tool"
+		         Comments="(c) 2021-2022 by Dennis Reshetnyak"/>
+		<MediaTemplate EmbedCab="yes" />
+		<Icon Id="icon.ico" SourceFile="DuplicateFileTool.ico"/>
+		<Property Id="ARPPRODUCTICON" Value="icon.ico" />
+		<UIRef Id="WixUI_Minimal" />
+		<WixVariable Id="WixUILicenseRtf"
+		             Value="gpl-3.0.rtf" />
+		<WixVariable Id="WixUIDialogBmp"
+		             Value="Installer.bmp" />
+		<Directory Id="TARGETDIR" Name="SourceDir">
+			<Directory Id="ProgramFilesFolder">
+				<Directory Id="INSTALLFOLDER" Name="DuplicateFileTool">
+					<Directory Id="EnResources" Name="en">
+						<Component Guid="B621C83A-4EA7-44E9-9320-CE0563E8193E" Id="CMP_en_DuplicateFileTool_resources_dll">
+							<File Id="FILE_en_DuplicateFileTool_resources_dll"
+							      Source="$(var.DuplicateFileTool.TargetDir)en\DuplicateFileTool.resources.dll"
+							      KeyPath="yes" />
+						</Component>
+					</Directory>
+					<Directory Id="EsResources" Name="es">
+						<Component Guid="5BD97006-D191-45F4-9A78-511D5E57A3BF" Id="CMP_es_DuplicateFileTool_resources_dll">
+							<File Id="FILE_es_DuplicateFileTool_resources_dll"
+							      Source="$(var.DuplicateFileTool.TargetDir)es\DuplicateFileTool.resources.dll"
+							      KeyPath="yes" />
+						</Component>
+					</Directory>
+					<Directory Id="RuResources" Name="ru">
+						<Component Guid="6CB47D40-5418-4137-9C2F-B5BA6EDF5478" Id="CMP_ru_DuplicateFileTool_resources_dll">
+							<File Id="FILE_ru_DuplicateFileTool_resources_dll"
+							      Source="$(var.DuplicateFileTool.TargetDir)ru\DuplicateFileTool.resources.dll"
+							      KeyPath="yes" />
+						</Component>
+					</Directory>
+					<Component Guid="487D0093-1337-439E-AD96-B531F08F1125" Id="CMP_DuplicateFileTool_exe">
+						<File Id="FILE_DuplicateFileTool_exe"
+						      Source="$(var.DuplicateFileTool.TargetDir)DuplicateFileTool.exe" 
+						      KeyPath="yes" />
+					</Component>
+					<Component Guid="362831A4-2AE2-4CD5-AA1B-83486E8E2271" Id="CMP_DuplicateFileTool_exe_config">
+						<File Id="FILE_DuplicateFileTool_exe_config"
+							  Source="$(var.DuplicateFileTool.TargetDir)DuplicateFileTool.exe.config" 
+						      KeyPath="yes" />
+					</Component>
+				</Directory>
+			</Directory>
+			<Directory Id="ProgramMenuFolder">
+				<Component Id="CMP_MainAppShortcutMenu"
+				           Guid="A9769067-55A3-438D-9C4A-80AA94369CEA">
+					<Shortcut Id="DuplicateFileToolShortcutMenu"
+					          Name="Duplicate File Tool"
+					          Description="Duplicate File Tool Application"
+					          Target="[#FILE_DuplicateFileTool_exe]" />
+					<RemoveFolder Id="ProgramMenuFolder" On="uninstall"/>
+					<RegistryValue Root="HKCU"
+					               Key="Software\DuplicateFileTool"
+					               Name="installed"
+					               Type="integer"
+					               Value="1"
+					               KeyPath="yes" />
+				</Component>
+			</Directory>
+			<Directory Id="DesktopFolder">
+				<Component Id="CMP_MainAppShortcutDesktop"
+				           Guid="3A7DE1E6-76B8-42AA-865D-81C2E3066012">
+					<Shortcut Id="DuplicateFileToolShortcutDesktop"
+					          Name="Duplicate File Tool"
+					          Description="Duplicate File Tool Application"
+					          Target="[#FILE_DuplicateFileTool_exe]" />
+					<RemoveFolder Id="DesktopFolder" On="uninstall"/>
+					<RegistryValue Root="HKCU"
+					               Key="Software\DuplicateFileTool"
+					               Name="installed"
+					               Type="integer"
+					               Value="1"
+					               KeyPath="yes" />
+				</Component>
+			</Directory>
+		</Directory>
+		<Feature Id="MainApp"
+				 Title="Duplicate File Tool Application"
+				 Level="1">
+			<ComponentRef Id ="CMP_en_DuplicateFileTool_resources_dll" />
+			<ComponentRef Id ="CMP_es_DuplicateFileTool_resources_dll" />
+			<ComponentRef Id ="CMP_ru_DuplicateFileTool_resources_dll" />
+			<ComponentRef Id ="CMP_DuplicateFileTool_exe" />
+			<ComponentRef Id ="CMP_DuplicateFileTool_exe_config" />
+			<ComponentRef Id ="CMP_MainAppShortcutMenu" />
+			<ComponentRef Id ="CMP_MainAppShortcutDesktop" />
+		</Feature>
+	</Product>
+</Wix>

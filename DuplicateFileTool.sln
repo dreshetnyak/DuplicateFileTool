@@ -1,20 +1,36 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29926.136
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32014.148
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DuplicateFileTool", "DuplicateFileTool\DuplicateFileTool.csproj", "{B09930EB-A480-4084-A758-3620924C36AC}"
+EndProject
+Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "DuplicateFileToolInstaller", "DuplicateFileToolInstaller\DuplicateFileToolInstaller.wixproj", "{2CCE8D63-8CAF-45A7-BD1A-1725712AAD0A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Debug|x86 = Debug|x86
 		Release|Any CPU = Release|Any CPU
+		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{B09930EB-A480-4084-A758-3620924C36AC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B09930EB-A480-4084-A758-3620924C36AC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B09930EB-A480-4084-A758-3620924C36AC}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B09930EB-A480-4084-A758-3620924C36AC}.Debug|x86.Build.0 = Debug|Any CPU
 		{B09930EB-A480-4084-A758-3620924C36AC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B09930EB-A480-4084-A758-3620924C36AC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B09930EB-A480-4084-A758-3620924C36AC}.Release|x86.ActiveCfg = Release|Any CPU
+		{B09930EB-A480-4084-A758-3620924C36AC}.Release|x86.Build.0 = Release|Any CPU
+		{2CCE8D63-8CAF-45A7-BD1A-1725712AAD0A}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{2CCE8D63-8CAF-45A7-BD1A-1725712AAD0A}.Debug|Any CPU.Build.0 = Debug|x86
+		{2CCE8D63-8CAF-45A7-BD1A-1725712AAD0A}.Debug|x86.ActiveCfg = Debug|x86
+		{2CCE8D63-8CAF-45A7-BD1A-1725712AAD0A}.Debug|x86.Build.0 = Debug|x86
+		{2CCE8D63-8CAF-45A7-BD1A-1725712AAD0A}.Release|Any CPU.ActiveCfg = Release|x86
+		{2CCE8D63-8CAF-45A7-BD1A-1725712AAD0A}.Release|Any CPU.Build.0 = Release|x86
+		{2CCE8D63-8CAF-45A7-BD1A-1725712AAD0A}.Release|x86.ActiveCfg = Release|x86
+		{2CCE8D63-8CAF-45A7-BD1A-1725712AAD0A}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
