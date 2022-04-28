@@ -6,7 +6,7 @@ using DuplicateFileTool.Properties;
 namespace DuplicateFileTool.Configuration
 {
     [Localizable(true)]
-    internal class SearchConfiguration : NotifyPropertyChanged, IChangeable
+    internal class SearchConfiguration : NotifyPropertyChanged, IChangeable, IDisposable
     {
         private bool _hasExtensions;
 
@@ -100,6 +100,11 @@ namespace DuplicateFileTool.Configuration
         private void OnMaximumFilesOpenedAtOnceChanged(object sender, PropertyChangedEventArgs eventArgs)
         {
             FileReader.MaxFileHandlesCount = MaximumFilesOpenedAtOnce.Value;
+        }
+
+        public void Dispose()
+        {
+            ChangeTracker?.Dispose();
         }
     }
 }

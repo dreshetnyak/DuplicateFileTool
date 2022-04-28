@@ -1,10 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Globalization;
-using System.Runtime.CompilerServices;
 using System.Threading;
-using System.Windows.Controls;
-using DuplicateFileTool.Annotations;
 using DuplicateFileTool.Properties;
 
 namespace DuplicateFileTool

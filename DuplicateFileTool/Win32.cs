@@ -216,6 +216,7 @@ namespace DuplicateFileTool
 
         #region File Tree Related
 
+        [Flags]
         public enum FileAttribute : uint
         {
             Directory = 16,

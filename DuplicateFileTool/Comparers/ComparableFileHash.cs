@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Threading;
 using DuplicateFileTool.Properties;
 
@@ -18,14 +19,22 @@ namespace DuplicateFileTool.Comparers
             65535, new LongValidationRule(512, int.MaxValue));
     }
 
-    internal class FileHashComparer : FileComparer
+    internal class FileHashComparer : FileComparer, IDisposable
     {
+        public static HashAlgorithm Hash { get; private set; } = MD5.Create();
+
         // ReSharper disable once LocalizableElement
         public FileHashComparer() : base(Guid.Parse("56E94DDC-1021-49D5-8DB1-FF1C92710978"), Resources.FileHashComparer_Name, Resources.FileHashComparer_Description)
         {
             Config = new ComparableFileHashConfig();
             ComparableFileFactory = new ComparableFileHash.Factory(Config);
             CandidatePredicate = new ComparableFileHash.CandidatePredicate();
+        }
+
+        public void Dispose()
+        {
+            Hash?.Dispose();
+            Hash = null;
         }
     }
 
@@ -57,15 +66,15 @@ namespace DuplicateFileTool.Comparers
         }
 
         #endregion
-
-        public FileData FileData { get; }
+        
+        public FileData FileData { get; private set; }
 
         private static int HashChunkSize { get; set; }
         private static int CompleteMatch { get; set; }
         private static int CompleteMismatch { get; set; }
 
-        private List<byte[]> Cache { get; }
-        private FileReader FileReader { get; }
+        private List<byte[]> Cache { get; set; }
+        private FileReader FileReader { get; set; }
         private int TotalFragments { get; }
 
         private ComparableFileHash(FileData file, ComparableFileHashConfig config)
@@ -88,7 +97,11 @@ namespace DuplicateFileTool.Comparers
 
         public void Dispose()
         {
+            FileData = null;
+            Cache?.Clear();
+            Cache = null;
             FileReader?.Dispose();
+            FileReader = null;
         }
 
         private int CalculateTotalFragments(long fileLength, int fragmentSize)
@@ -101,20 +114,24 @@ namespace DuplicateFileTool.Comparers
 
         public int CompareTo(IComparableFile otherFile, CancellationToken cancellationToken)
         {
-            if (!(otherFile is ComparableFileHash otherFileHashComparer))
-                throw new ArgumentException(Resources.Error_ComparableFileHash_CompareTo_File_Comparer_type_mismatch, nameof(otherFile));
-            if (FileData.Size != otherFileHashComparer.FileData.Size)
-                throw new ArgumentException(Resources.Error_ComparableFileHash_CompareTo_Fragment_Size_Mismatch, nameof(otherFile));
-
+            Debug.Assert(otherFile is ComparableFileHash, Resources.Error_ComparableFileHash_CompareTo_File_Comparer_type_mismatch);
+            Debug.Assert(FileData.Size == ((ComparableFileHash)otherFile).FileData.Size, Resources.Error_ComparableFileHash_CompareTo_Fragment_Size_Mismatch);
+            var otherFileHashComparer = (ComparableFileHash)otherFile;
             if (TotalFragments != otherFileHashComparer.TotalFragments)
                 return CompleteMismatch;
 
-            for (var fragmentIndex = 0; fragmentIndex < TotalFragments; fragmentIndex++)
+            for (var fragmentIndex = 0; fragmentIndex < TotalFragments; ++fragmentIndex)
             {
-                var hash = GetFragmentHash(fragmentIndex);
+                var thisHash = GetFragmentHash(fragmentIndex);
                 var otherHash = otherFileHashComparer.GetFragmentHash(fragmentIndex);
-                if (!hash.ByteArrayEquals(otherHash))
-                    return CompleteMismatch;
+
+                // ReSharper disable once LoopCanBeConvertedToQuery
+                for (var index = 0; index < thisHash.Length; ++index)
+                {
+                    if (thisHash[index] != otherHash[index])
+                        return CompleteMismatch;
+                }
+
                 cancellationToken.ThrowIfCancellationRequested();
             }
 
@@ -137,10 +154,9 @@ namespace DuplicateFileTool.Comparers
             if (bytesRead == -1)
                 throw new ApplicationException(string.Format(Resources.Error_ComparableFileHash_Cant_read_the_file, FileData.FullName) + new Win32Exception(Marshal.GetLastWin32Error()).Message);
 
-            var hash = Hash.Compute(fragmentForHash.SubArray(0, bytesRead));
-            Cache.Add(hash);
-
-            return hash;
+            var hashBytes = FileHashComparer.Hash.ComputeHash(fragmentForHash, 0, bytesRead);
+            Cache.Add(hashBytes);
+            return hashBytes;
         }
     }
 }

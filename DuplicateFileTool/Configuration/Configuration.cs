@@ -192,6 +192,12 @@ namespace DuplicateFileTool.Configuration
             if (HasUnsavedChanges)
                 SaveChanges();
 
+            ProgramConfig.Dispose();
+            SearchConfig.Dispose();
+            ExtensionsConfig.Dispose();
+            ResultsConfig.Dispose();
+            foreach (var comparer in FileComparers) 
+                (comparer as IDisposable)?.Dispose();
             Log?.Dispose();
         }
 

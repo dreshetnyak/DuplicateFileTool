@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -123,30 +124,26 @@ namespace DuplicateFileTool
                 if (!inclusionPredicate.IsIncluded(fileData))
                     continue;
 
+                var fileDataFullName = fileData.FullName;
                 if (!fileData.Attributes.IsDirectory)
                 {
-                    OnFilesSearchProgress(fileData.FullName, false, foundFilesCount++);
+                    FilesSearchProgress?.Invoke(this, new FilesSearchProgressEventArgs(fileDataFullName, false, foundFilesCount++));
                     yield return fileData;
                     continue;
                 }
 
-                if (excludePaths.Any(excludePath => fileData.FullName.StartsWith(excludePath, StringComparison.OrdinalIgnoreCase)))
+                if (excludePaths.Any(excludePath => fileDataFullName.StartsWith(excludePath, StringComparison.OrdinalIgnoreCase)))
                     continue;
 
-                OnFilesSearchProgress(fileData.FullName, true, foundFilesCount);
-
-                foreach (var subDirFileData in FindPathFiles(fileData.FullName, excludePaths, foundFilesCount, inclusionPredicate, cancellationToken))
+                FilesSearchProgress?.Invoke(this, new FilesSearchProgressEventArgs(fileDataFullName, true, foundFilesCount));
+                
+                foreach (var subDirFileData in FindPathFiles(fileDataFullName, excludePaths, foundFilesCount, inclusionPredicate, cancellationToken))
                 {
-                    OnFilesSearchProgress(fileData.FullName, false, foundFilesCount++);
+                    FilesSearchProgress?.Invoke(this, new FilesSearchProgressEventArgs(fileDataFullName, false, foundFilesCount++));
                     yield return subDirFileData;
                 }
 
             } while (moreItems);
-        }
-
-        protected virtual void OnFilesSearchProgress(string dirPath, bool isDirectory, int foundFilesCount)
-        {
-            FilesSearchProgress?.Invoke(this, new FilesSearchProgressEventArgs(dirPath, isDirectory, foundFilesCount));
         }
 
         protected virtual void OnFileSystemError(string path, string message, Exception exception = null)

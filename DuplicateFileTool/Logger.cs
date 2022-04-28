@@ -73,6 +73,8 @@ namespace DuplicateFileTool
                 case Target.Callback:
                     CallLogCallback(GetMessage(messageData));
                     break;
+                case Target.Void:
+                    break;
             }
         }
 

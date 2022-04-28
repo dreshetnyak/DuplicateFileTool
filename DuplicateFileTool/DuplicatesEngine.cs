@@ -350,9 +350,22 @@ namespace DuplicateFileTool
             List<IComparableFile[]> duplicateCandidates = null;
             try
             {
+                var startFindFiles = DateTime.UtcNow;
                 var files = await Files.Find(searchPaths, inclusionPredicate, cancellationToken);
+                var endFindFiles = DateTime.UtcNow;
+
+                var startCandidates = DateTime.UtcNow;
                 duplicateCandidates = await Candidates.Find(files, duplicateCandidatePredicate, comparableFileFactory, cancellationToken);
+                var endCandidates = DateTime.UtcNow;
+
+                var startSearch = DateTime.UtcNow;
                 await Duplicates.Find(duplicateCandidates, comparableFileFactory.Config, cancellationToken);
+                var endSearch = DateTime.UtcNow;
+
+                MessageBox.Show($"Search time:{Environment.NewLine}" +
+                                $"Files: {(endFindFiles - startFindFiles).TotalMilliseconds:N0} ms.{Environment.NewLine}" +
+                                $"Candidates: {(endCandidates - startCandidates).TotalMilliseconds:N0} ms.{Environment.NewLine}" +
+                                $"Comparison: {(endSearch - startSearch).TotalMilliseconds:N0} ms.");
             }
             catch (OperationCanceledException)
             {

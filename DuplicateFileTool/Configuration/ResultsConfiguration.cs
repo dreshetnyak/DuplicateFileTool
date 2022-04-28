@@ -1,10 +1,11 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using DuplicateFileTool.Properties;
 
 namespace DuplicateFileTool.Configuration
 {
     [Localizable(true)]
-    internal class ResultsConfiguration : NotifyPropertyChanged, IChangeable
+    internal class ResultsConfiguration : NotifyPropertyChanged, IChangeable, IDisposable
     {
         public ConfigurationProperty<bool> SortDescending { get; } = new(
             Resources.Config_Results_Sort_Descending_Name,
@@ -44,6 +45,11 @@ namespace DuplicateFileTool.Configuration
         {
             ChangeTracker = new PropertiesChangeTracker<ResultsConfiguration>(this);
             ChangeTracker.PropertyChanged += (_, _) => OnPropertyChanged(nameof(HasChanged));
+        }
+
+        public void Dispose()
+        {
+            ChangeTracker?.Dispose();
         }
     }
 }

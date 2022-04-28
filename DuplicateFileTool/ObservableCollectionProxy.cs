@@ -296,7 +296,7 @@ namespace DuplicateFileTool
                 return filteredItemsCount;
 
             int index;
-            if (Comparer != null && SortingEnabled)
+            if (SortingEnabled)
             {
                 for (index = 0; index < filteredItemsCount; index++)
                 {

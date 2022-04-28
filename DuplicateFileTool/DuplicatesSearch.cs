@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -90,26 +91,42 @@ namespace DuplicateFileTool
                 if (groupDuplicates.Count == 0)
                     continue;
 
+                var (duplicatesCount, duplicatesSize) = GetGroupDuplicatedCountAndSize(groupDuplicates);
                 context.DuplicateGroupsCount += groupDuplicates.Count;
-                context.DuplicateFilesCount += groupDuplicates.Sum(group => group.Count);
-                context.DuplicatedTotalSize += GetGroupDuplicatedSize(groupDuplicates);
-                OnDuplicatesSearchProgress(context);
+                context.DuplicateFilesCount += duplicatesCount;
+                context.DuplicatedTotalSize += duplicatesSize;
+                DuplicatesSearchProgress?.Invoke(this, new DuplicatesSearchProgressEventArgs(null, context));
 
                 foreach (var group in groupDuplicates)
-                    OnDuplicatesGroupFound(group);
+                    DuplicatesGroupFound?.Invoke(this, new DuplicatesGroupFoundEventArgs(group));
             }
         }
 
-        private static long GetGroupDuplicatedSize(IEnumerable<List<MatchResult>> duplicateGroups)
+        private static (int duplicatesCount, long duplicatesSize) GetGroupDuplicatedCountAndSize(IEnumerable<List<MatchResult>> groupDuplicates)
         {
+            var count = 0;
             var size = 0L;
-            foreach (var duplicateGroup in duplicateGroups)
+            // ReSharper disable once LoopCanBeConvertedToQuery
+            foreach (var duplicateGroup in groupDuplicates)
             {
-                var smallestFileSize = duplicateGroup.Min(item => item.ComparableFile.FileData.Size);
-                size += duplicateGroup.Sum(item => item.ComparableFile.FileData.Size) - smallestFileSize;
+                var sizeSum = 0L;
+                var smallestFileSize = long.MaxValue;
+                // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
+                foreach (var item in duplicateGroup)
+                {
+                    var itemFileSize = item.ComparableFile.FileData.Size;
+                    sizeSum += itemFileSize;
+                    if (itemFileSize < smallestFileSize)
+                        smallestFileSize = itemFileSize;
+                }
+
+                Debug.Assert(smallestFileSize != long.MaxValue, "Invalid data, the duplicate group contains no items");
+
+                count += duplicateGroup.Count;
+                size += sizeSum - smallestFileSize;
             }
 
-            return size;
+            return (count, size);
         }
 
         private List<List<MatchResult>> GetDuplicatesFromGroup(IReadOnlyCollection<IComparableFile> fileGroup, SearchContext context, CancellationToken cancellationToken)
@@ -122,8 +139,8 @@ namespace DuplicateFileTool
                     if (ContainsFile(duplicates, fileFromGroup))
                         continue;
 
-                    OnDuplicatesSearchProgress(fileFromGroup.FileData.FullName);
-                
+                    DuplicatesSearchProgress?.Invoke(this, new DuplicatesSearchProgressEventArgs(fileFromGroup.FileData.FullName, null));
+
                     var fileFromGroupDuplicates = GetFileDuplicates(fileFromGroup, fileGroup, context, cancellationToken);
 
                     if (fileFromGroupDuplicates.Count != 0)
@@ -178,22 +195,17 @@ namespace DuplicateFileTool
 
         private static bool ContainsFile(IEnumerable<List<MatchResult>> filesWhereToLook, IComparableFile fileToFind)
         {
-            return filesWhereToLook.Any(fileGroupFromFiles => fileGroupFromFiles.Any(fileFromGroup => ReferenceEquals(fileToFind, fileFromGroup.ComparableFile)));
-        }
-
-        private void OnDuplicatesGroupFound(List<MatchResult> duplicatesGroup)
-        {
-            DuplicatesGroupFound?.Invoke(this, new DuplicatesGroupFoundEventArgs(duplicatesGroup));
-        }
-        
-        private void OnDuplicatesSearchProgress(SearchContext context, string filePath = null)
-        {
-            DuplicatesSearchProgress?.Invoke(this, new DuplicatesSearchProgressEventArgs(filePath, context));
-        }
-
-        private void OnDuplicatesSearchProgress(string filePath)
-        {
-            DuplicatesSearchProgress?.Invoke(this, new DuplicatesSearchProgressEventArgs(filePath, null));
+            // ReSharper disable once LoopCanBeConvertedToQuery
+            foreach (var groupFiles in filesWhereToLook)
+            {
+                // ReSharper disable once ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
+                foreach (var file in groupFiles)
+                {
+                    if (ReferenceEquals(fileToFind, file.ComparableFile))
+                        return true;
+                }
+            }
+            return false;
         }
 
         protected virtual void OnFileSystemError(string path, string message, Exception exception = null)

@@ -49,7 +49,7 @@ namespace DuplicateFileTool.Configuration
             return false;
         }
 
-        public static void Set<T>(string parameterName, T value)
+        public static void Set<T>(string parameterName, T value) where T : class
         {
             var appSettings = Config.AppSettings.Settings;
             if (ReferenceEquals(value, null))

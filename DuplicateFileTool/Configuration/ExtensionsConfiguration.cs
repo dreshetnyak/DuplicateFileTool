@@ -122,7 +122,7 @@ namespace DuplicateFileTool.Configuration
         #endregion
     }
 
-    internal class ExtensionsConfiguration : NotifyPropertyChanged, IChangeable, IExtensionsTypeConverter
+    internal class ExtensionsConfiguration : NotifyPropertyChanged, IChangeable, IExtensionsTypeConverter, IDisposable
     {
         private const string DEFAULT_EXTENSIONS = "Documents=pdf,epub,djvu,djv,azw,azw3,lit,cbr,cbz,chm,doc,docx,fb2,mobi,txt,rtf,xps;" +
                                                   "Images=jpg,jpeg,png,gif,bmp,tiff,tif,ico,psd,ai;" +
@@ -246,6 +246,11 @@ namespace DuplicateFileTool.Configuration
                     Debug.Fail($"The support of the extension type '{extensionType}' has not been implemented.");
                     return extensionType.ToString();
             }
+        }
+
+        public void Dispose()
+        {
+            ChangeTracker?.Dispose();
         }
     }
 }

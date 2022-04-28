@@ -70,11 +70,7 @@ namespace DuplicateFileTool
         {
             if (IsPathToDrive(fileSystemItemPath))
                 return Win32.FileAttribute.Directory;
-
             var itemData = FileSystem.GetFileSystemItemData(fileSystemItemPath);
-            if (itemData == null)
-                throw new ApplicationException($"Unable to retrieve the file system item '{fileSystemItemPath}' attributes");
-
             return itemData.Attributes.IsDirectory ? Win32.FileAttribute.Directory : Win32.FileAttribute.File;
         }
 
