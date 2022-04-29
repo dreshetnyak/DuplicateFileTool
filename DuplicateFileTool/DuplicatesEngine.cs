@@ -350,22 +350,27 @@ namespace DuplicateFileTool
             List<IComparableFile[]> duplicateCandidates = null;
             try
             {
+#if _DEBUG
                 var startFindFiles = DateTime.UtcNow;
+#endif
                 var files = await Files.Find(searchPaths, inclusionPredicate, cancellationToken);
+#if _DEBUG
                 var endFindFiles = DateTime.UtcNow;
-
                 var startCandidates = DateTime.UtcNow;
+#endif
                 duplicateCandidates = await Candidates.Find(files, duplicateCandidatePredicate, comparableFileFactory, cancellationToken);
+#if _DEBUG
                 var endCandidates = DateTime.UtcNow;
-
                 var startSearch = DateTime.UtcNow;
+#endif
                 await Duplicates.Find(duplicateCandidates, comparableFileFactory.Config, cancellationToken);
+#if _DEBUG
                 var endSearch = DateTime.UtcNow;
-
                 MessageBox.Show($"Search time:{Environment.NewLine}" +
                                 $"Files: {(endFindFiles - startFindFiles).TotalMilliseconds:N0} ms.{Environment.NewLine}" +
                                 $"Candidates: {(endCandidates - startCandidates).TotalMilliseconds:N0} ms.{Environment.NewLine}" +
                                 $"Comparison: {(endSearch - startSearch).TotalMilliseconds:N0} ms.");
+#endif
             }
             catch (OperationCanceledException)
             {
@@ -465,9 +470,9 @@ namespace DuplicateFileTool
             DuplicateGroupsCount = DuplicateGroups.Count;
         }
 
-        #endregion
+#endregion
 
-        #region Removing Duplicates
+#region Removing Duplicates
 
         public async Task RemoveDuplicates(ObservableCollection<DuplicateGroup> duplicates, bool removeEmptyDirs, bool deleteToRecycleBin, CancellationToken cancellationToken)
         {
@@ -496,6 +501,6 @@ namespace DuplicateFileTool
             ToBeDeletedCount += deletionState.DeletedCountDelta;
         }
 
-        #endregion
+#endregion
     }
 }

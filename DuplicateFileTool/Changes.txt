@@ -23,6 +23,9 @@ Bug. Deleting files is extremely slow in some cases because every time a file is
 =========================================================================
 Done:
 
+DuplicateFileTool 1.0.915: 2022-04-28
+Bug. Commented out some debug code that was forgotten in the release build.
+
 DuplicateFileTool 1.0.911: 2022-04-28
 Fix. Improvements and optimizations.
 
