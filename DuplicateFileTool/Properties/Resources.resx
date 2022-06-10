@@ -364,11 +364,8 @@
   <data name="Log_Deletion_Completed" xml:space="preserve">
     <value>Done. </value>
   </data>
-  <data name="Log_Error_Deleting_failed_Exception" xml:space="preserve">
-    <value>Error: {0}</value>
-  </data>
-  <data name="Log_Error_Deleting_failed_Name" xml:space="preserve">
-    <value>Deleting failed: {0}</value>
+  <data name="Log_Error_Deletion_Failed" xml:space="preserve">
+    <value>Failed to delete: '{0}'; {1}</value>
   </data>
   <data name="Log_Files_Deletion_Summary" xml:space="preserve">
     <value>Deleted: {0:N0} files; Freed: {1:N0} bytes.</value>
@@ -695,9 +692,9 @@
     <value>Invalid selection, encountered a group with all files selected, at least one file should be left unselected. The group will be ignored.</value>
   </data>
   <data name="Ui_AutoSelectByPath_Finished" xml:space="preserve">
-	  <value>Done. Selected {0:N0} files.</value>
+    <value>Done. Selected {0:N0} files.</value>
   </data>
   <data name="Ui_AutoSelectByPath_Progress" xml:space="preserve">
-	  <value>Selecting files. Selected {0:N0} files.</value>
+    <value>Selecting files. Selected {0:N0} files.</value>
   </data>
 </root>

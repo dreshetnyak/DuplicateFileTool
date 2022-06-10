@@ -170,7 +170,7 @@ namespace DuplicateFileTool
                 }
                 catch (FileSystemException ex)
                 {
-                    Application.Current.Dispatcher.Invoke(() => OnDeletionMessage(string.Format(Resources.Log_Error_Deleting_failed_Name, ex.FileFullName) + ' ' + string.Format(Resources.Log_Error_Deleting_failed_Exception, ex.Message), MessageType.Error));
+                    Application.Current.Dispatcher.Invoke(() => OnDeletionMessage(ex.FileFullName, string.Format(Resources.Log_Error_Deletion_Failed, ex.FileFullName, ex.Message), MessageType.Error));
                     continue;
                 }
                 finally
@@ -186,7 +186,7 @@ namespace DuplicateFileTool
                     continue;
 
                 FileSystem.DeleteDirectoryTreeWithParents(dirPath,
-                    message => Application.Current.Dispatcher.Invoke(() => OnDeletionMessage(string.Format(Resources.Log_Deleting_Name, message) + Environment.NewLine)),
+                    message => Application.Current.Dispatcher.Invoke(() => OnDeletionMessage(string.Format(Resources.Log_Deleting_Name, message))),
                     (path, errorMessage) => Application.Current.Dispatcher.Invoke(() => OnDeletionMessage(path, errorMessage, MessageType.Error)),
                     deleteToRecycleBin);
             }

@@ -364,11 +364,8 @@
   <data name="Log_Deletion_Completed" xml:space="preserve">
     <value>Готово. </value>
   </data>
-  <data name="Log_Error_Deleting_failed_Exception" xml:space="preserve">
-    <value>Ошибка: {0}</value>
-  </data>
-  <data name="Log_Error_Deleting_failed_Name" xml:space="preserve">
-    <value>Не получилось удалить: {0}</value>
+  <data name="Log_Error_Deletion_Failed" xml:space="preserve">
+    <value>Ошибка удаления: '{0}'; {1}</value>
   </data>
   <data name="Log_Files_Deletion_Summary" xml:space="preserve">
     <value>Удалено: {0:N0} файлов; Освобождено: {1:N0} байт.</value>
@@ -404,7 +401,7 @@
     <value>Добавить или Удалить Расширения</value>
   </data>
   <data name="Ui_AutoSelectByPath_Description" xml:space="preserve">
-	  <value>Выбрать путь, по которому все дублированные файлы будут автоматически помечены для удаления.</value>
+    <value>Выбрать путь, по которому все дублированные файлы будут автоматически помечены для удаления.</value>
   </data>
   <data name="Ui_Cancel_Search_Button_Text" xml:space="preserve">
     <value>Отменить</value>
@@ -695,9 +692,9 @@
     <value>Обнаружена некорректная выборка, в группе файлов выбраны все файлы, по крайней мере один файл должен быть не выбран. Группа будет пропущена.</value>
   </data>
   <data name="Ui_AutoSelectByPath_Finished" xml:space="preserve">
-	  <value>Готово. Выбрано {0:N0} файлов.</value>
+    <value>Готово. Выбрано {0:N0} файлов.</value>
   </data>
   <data name="Ui_AutoSelectByPath_Progress" xml:space="preserve">
-	  <value>Выбор файлов. Выбрано {0:N0} файлов.</value>
+    <value>Выбор файлов. Выбрано {0:N0} файлов.</value>
   </data>
 </root>

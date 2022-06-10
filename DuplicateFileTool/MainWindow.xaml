@@ -827,7 +827,7 @@
             <TabItem MinHeight="22" MinWidth="90">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal" ToolTip="{x:Static resx:Resources.Ui_ToolTip_Errors_Tab}">
-                        <Image IsEnabled="{Binding Ui.ErrorTabImage.Enabled}" Height="16" RenderOptions.BitmapScalingMode="Fant" Margin="0,3,0,0">
+                        <Image IsEnabled="{Binding Ui.ErrorTabImageEnabled}" Height="16" RenderOptions.BitmapScalingMode="Fant" Margin="0,3,0,0">
                             <Image.Style>
                                 <Style TargetType="{x:Type Image}">
                                     <Setter Property="Source" Value="Images/Error.png" />
@@ -845,10 +845,10 @@
                 <TabItem.ContextMenu>
                     <ContextMenu StaysOpen="False">
                         <MenuItem Header="{x:Static resx:Resources.Ui_Errors_Clear}" 
-                                  IsEnabled="{Binding Ui.ErrorTabImage.Enabled}"
+                                  IsEnabled="{Binding Ui.ErrorTabImageEnabled.Enabled}"
                                   Command="{Binding ClearErrors}">
                             <MenuItem.Icon>
-                                <Image IsEnabled="{Binding Ui.ErrorTabImage.Enabled}" RenderOptions.BitmapScalingMode="Fant">
+                                <Image IsEnabled="{Binding Ui.ErrorTabImageEnabled.Enabled}" RenderOptions.BitmapScalingMode="Fant">
                                     <Image.Style>
                                         <Style TargetType="{x:Type Image}">
                                             <Setter Property="Source" Value="Images/Clear.png" />
@@ -1041,7 +1041,9 @@
         <ProgressBar Grid.Row="1" />
         <Grid Grid.Row="1" MinHeight="26" Margin="3,5,3,5">
             <ProgressBar Maximum="10000" Value="{Binding ProgressPercentage, Mode=OneWay}" />
-            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,0,0,0" Text="{Binding ProgressText}" />
+            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,0,0,0" 
+                       TextWrapping="NoWrap"
+                       Text="{Binding ProgressText}" />
         </Grid>
 
     </Grid>

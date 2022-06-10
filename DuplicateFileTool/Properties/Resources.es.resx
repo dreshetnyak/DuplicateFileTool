@@ -364,11 +364,8 @@
   <data name="Log_Deletion_Completed" xml:space="preserve">
     <value>Listo. </value>
   </data>
-  <data name="Log_Error_Deleting_failed_Exception" xml:space="preserve">
-    <value>Error: {0}</value>
-  </data>
-  <data name="Log_Error_Deleting_failed_Name" xml:space="preserve">
-    <value>Fallo de borrar: {0}</value>
+  <data name="Log_Error_Deletion_Failed" xml:space="preserve">
+    <value>Fallo de borrar: {0}; {1}</value>
   </data>
   <data name="Log_Files_Deletion_Summary" xml:space="preserve">
     <value>Borrado: {0:N0} archivos; Liberado: {1:N0} bytes.</value>
@@ -695,9 +692,9 @@
     <value>Selección invalida, fue encontrado un grupo con todos los archivos seleccionados, por lo menos un archivo debe permanecer no seleccionado. El grupo será ignorado.</value>
   </data>
   <data name="Ui_AutoSelectByPath_Finished" xml:space="preserve">
-	  <value>Listo. Había seleccionado {0:N0} archivos.</value>
+    <value>Listo. Había seleccionado {0:N0} archivos.</value>
   </data>
   <data name="Ui_AutoSelectByPath_Progress" xml:space="preserve">
-	  <value>Seleccionando archivos. Ha seleccionado {0:N0} archivos.</value>
+    <value>Seleccionando archivos. Ha seleccionado {0:N0} archivos.</value>
   </data>
 </root>

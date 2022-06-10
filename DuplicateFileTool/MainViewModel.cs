@@ -127,12 +127,13 @@ namespace DuplicateFileTool
             }
         }
         public DuplicateGroupComparer DuplicateGroupComparer { get; }
+        [Localizable(false)]
         public string ProgressText
         {
             get => _progressText;
             set
             {
-                _progressText = value;
+                _progressText = value?.Replace("\n", "").Replace("\r", "");
                 OnPropertyChanged();
             }
         }
@@ -191,7 +192,7 @@ namespace DuplicateFileTool
             FileComparers = Config.FileComparers;
             Duplicates = new DuplicatesEngine();
             Duplicates.PropertyChanged += OnDuplicatesPropertyChanged;
-            Duplicates.Errors.CollectionChanged += (_, _) => Ui.ErrorTabImage.Enabled = Duplicates.Errors.Count != 0;
+            Duplicates.Errors.CollectionChanged += (_, _) => Ui.ErrorTabImageEnabled = Duplicates.Errors.Count != 0;
             Duplicates.DuplicateGroups.CollectionChanged += OnDuplicateGroupsCollectionChanged;
 
             var resultsGroupInclusionPredicate = new ResultsGroupInclusionPredicate(); //TODO need to implement

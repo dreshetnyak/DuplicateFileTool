@@ -803,20 +803,11 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Error: {0}.
+        ///   Looks up a localized string similar to Failed to delete: &apos;{0}&apos;; {1}.
         /// </summary>
-        public static string Log_Error_Deleting_failed_Exception {
+        public static string Log_Error_Deletion_Failed {
             get {
-                return ResourceManager.GetString("Log_Error_Deleting_failed_Exception", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Deleting failed: {0}.
-        /// </summary>
-        public static string Log_Error_Deleting_failed_Name {
-            get {
-                return ResourceManager.GetString("Log_Error_Deleting_failed_Name", resourceCulture);
+                return ResourceManager.GetString("Log_Error_Deletion_Failed", resourceCulture);
             }
         }
         

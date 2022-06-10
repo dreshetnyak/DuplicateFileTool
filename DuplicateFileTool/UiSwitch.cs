@@ -87,12 +87,21 @@ namespace DuplicateFileTool
 
     internal class UiSwitch : NotifyPropertyChanged
     {
+        private bool _errorTabImageEnabled;
         public EnabledElement Entry { get; }
         public EnabledElement EntryReadOnly { get; }
         public EnabledElement Search { get; }
         public EnabledElement CancelSearch { get; }
-        public EnabledElement ErrorTabImage { get; }
         public EnabledElement ClearResults { get; }
+        public bool ErrorTabImageEnabled
+        {
+            get => _errorTabImageEnabled;
+            set
+            {
+                _errorTabImageEnabled = value; 
+                OnPropertyChanged();
+            }
+        }
 
         public UiSwitch()
         {
@@ -100,7 +109,6 @@ namespace DuplicateFileTool
             EntryReadOnly = new EnabledElement(nameof(EntryReadOnly), Entry, false, true);
             Search = new EnabledElement(nameof(Search), Entry, false);
             CancelSearch = new EnabledElement(nameof(CancelSearch), false);
-            ErrorTabImage = new EnabledElement(nameof(ErrorTabImage), false);
             ClearResults = new EnabledElement(nameof(ClearResults), Entry, false);
         }
     }

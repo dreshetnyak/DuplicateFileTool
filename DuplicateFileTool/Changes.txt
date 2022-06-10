@@ -18,10 +18,15 @@ Under the files tree add a panel where we can see free space on the disks.
 =========================================================================
 Work in Progress:
 
+
 Bug. Deleting files is extremely slow in some cases because every time a file is deleted the results page is been reloaded (Need to disable Results while deleting and load the page only at the end).
 
 =========================================================================
 Done:
+
+DuplicateFileTool 1.1.925: 2022-06-10
+Bug. When deleting duplicated the progress text line would wraps and change the hight in some cases.
+Bug. If deleting a duplicate file and the file is opened by another process the deletion would fail, the error will be added to the errors list, but the error icon would not lit up, also the path of the error would be empty (added to the error message).
 
 DuplicateFileTool 1.0.915: 2022-04-28
 Bug. Commented out some debug code that was forgotten in the release build.
