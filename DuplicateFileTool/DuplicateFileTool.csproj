@@ -109,6 +109,7 @@
     <Compile Include="Converters\BooleanToVisibilityConverter.cs" />
     <Compile Include="Converters\DataConversion.cs" />
     <Compile Include="Converters\EnumBooleanConverter.cs" />
+    <Compile Include="Converters\IsNullOrWhitespaceConverter.cs" />
     <Compile Include="Converters\LongConverter.cs" />
     <Compile Include="Converters\NegateBoolConverter.cs" />
     <Compile Include="DuplicateGroupComparer.cs" />
@@ -375,6 +376,9 @@
     <Resource Include="Images\AddGray.png" />
     <Resource Include="Images\DeleteGray.png" />
     <Resource Include="Images\ResetGray.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Filter.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

@@ -24,6 +24,11 @@ Bug. Deleting files is extremely slow in some cases because every time a file is
 =========================================================================
 Done:
 
+DuplicateFileTool 1.2.xxx: 2022-XX-XX
+New. Added a filter for the results, now you can enter keywords filter the results.
+
+
+
 DuplicateFileTool 1.1.925: 2022-06-10
 Bug. When deleting duplicated the progress text line would wraps and change the hight in some cases.
 Bug. If deleting a duplicate file and the file is opened by another process the deletion would fail, the error will be added to the errors list, but the error icon would not lit up, also the path of the error would be empty (added to the error message).

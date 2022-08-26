@@ -74,6 +74,7 @@ namespace DuplicateFileTool
         private double _progressPercentage;
         private double _taskbarProgress;
         private string _duplicatesSortingOrderToolTip;
+        private string _resultsFilter;
 
         #endregion
 
@@ -127,6 +128,17 @@ namespace DuplicateFileTool
             }
         }
         public DuplicateGroupComparer DuplicateGroupComparer { get; }
+        private string CurrentResultsFilter { get; set; }
+        public string ResultsFilter
+        {
+            get => _resultsFilter;
+            set
+            {
+                _resultsFilter = value; 
+                OnPropertyChanged();
+            }
+        }
+
         [Localizable(false)]
         public string ProgressText
         {
@@ -167,6 +179,7 @@ namespace DuplicateFileTool
         public OpenFileInExplorerCommand OpenFileInExplorer { get; }
         public ChangePageCommand ChangePage { get; }
         public RelayCommand ToggleDuplicateSortingOrder { get; }
+        public RelayCommand ClearResultsFilter { get; }
         public RelayCommand ClearResults { get; }
         public RelayCommand ClearErrors { get; }
         public RelayCommand ClearSearchPaths { get; }
@@ -235,6 +248,7 @@ namespace DuplicateFileTool
             OpenFileInExplorer = new OpenFileInExplorerCommand();
             ChangePage = new ChangePageCommand(DuplicateGroupsProxyView);
             ToggleDuplicateSortingOrder = new RelayCommand(_ => DuplicateGroupComparer.IsSortOrderDescending = !DuplicateGroupComparer.IsSortOrderDescending);
+            ClearResultsFilter = new RelayCommand(_ => ResultsFilter = "");
             ClearResults = new RelayCommand(_ => Duplicates.Clear());
             ClearErrors = new RelayCommand(_ => Duplicates.Errors.Clear());
             ClearSearchPaths = new RelayCommand(_ => SearchPaths.Clear());
@@ -321,6 +335,9 @@ namespace DuplicateFileTool
                 case nameof(SelectedFileTreeItem):
                     OnUpdateAddPathEnabled();
                     break;
+                case nameof(ResultsFilter):
+                    OnFilterResults();
+                    break;
             }
         }
 
@@ -400,6 +417,19 @@ namespace DuplicateFileTool
             var totalFilesCount = eventArgs.TotalFilesCount;
             TaskbarProgress = ProgressPercentage = totalFilesCount != 0 ? (double)eventArgs.CurrentFileIndex * 10000 / eventArgs.TotalFilesCount : 0;
             ProgressText = string.Format(Resources.Ui_AutoSelectByPath_Progress, eventArgs.SelectedCount);
+        }
+
+        private void OnFilterResults()
+        {
+            // TODO Continue here
+            // Filter entered during search - Do not filter during search
+            // Filter after the search has finished
+            // Have the filtered sequence saved filter after search finished
+            // Clearing results while filtering.
+            // Starting to search should cancel the filtering
+
+            // Add the clear button
+            //CurrentResultsFilter - current data
         }
 
         private void OnResultsPageChanged(object sender, EventArgs _)

@@ -1379,6 +1379,15 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Filter Results.
+        /// </summary>
+        public static string Ui_Results_Filter_Watermark {
+            get {
+                return ResourceManager.GetString("Ui_Results_Filter_Watermark", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Page.
         /// </summary>
         public static string Ui_Results_Page {
@@ -1708,6 +1717,24 @@ namespace DuplicateFileTool.Properties {
         public static string Ui_ToolTip_Open_File_In_Explorer {
             get {
                 return ResourceManager.GetString("Ui_ToolTip_Open_File_In_Explorer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Clear.
+        /// </summary>
+        public static string Ui_ToolTip_Results_Filter_Clear {
+            get {
+                return ResourceManager.GetString("Ui_ToolTip_Results_Filter_Clear", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Enter keywords separated by space to filter the results that is shown.
+        /// </summary>
+        public static string Ui_ToolTip_Results_Filter_Entry {
+            get {
+                return ResourceManager.GetString("Ui_ToolTip_Results_Filter_Entry", resourceCulture);
             }
         }
         

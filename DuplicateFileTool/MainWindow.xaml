@@ -20,6 +20,7 @@
         <converters:EnumBooleanConverter x:Key="EnumBoolConverter" />
         <converters:BooleanToVisibilityConverter x:Key="BoolVisibilityConverter" />
         <converters:LongConverter x:Key="LongConverter" />
+        <converters:IsNullOrWhitespaceConverter x:Key="IsNullOrWhitespaceConverter" />
         <commands:OpenFileInExplorerCommand x:Key="OpenFileInExplorer" />
 
         <HierarchicalDataTemplate DataType="{x:Type local:FileTreeItem}" ItemsSource="{Binding Children}">
@@ -485,6 +486,7 @@
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
 
                             <Border Grid.Column="0"
@@ -592,6 +594,75 @@
                             </Border>
 
                             <Border Grid.Column="3" 
+                                    Height="26"
+                                    BorderBrush="DimGray" 
+                                    BorderThickness="1" 
+                                    CornerRadius="5,5,5,5"
+                                    Margin="0,0,3,0"
+                                    Background="{StaticResource {x:Static SystemColors.WindowBrushKey}}">
+                                <Grid IsEnabled="{Binding Ui.Entry.Enabled}" Margin="3,3,3,3">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Image Grid.Column="0" Source="Images/Filter.png" Height="16" RenderOptions.BitmapScalingMode="Fant" Margin="0,0,2,0" />
+                                    <TextBlock Grid.Column="1"
+                                               Text="{x:Static resx:Resources.Ui_Results_Filter_Watermark}"
+                                               ToolTip="{x:Static resx:Resources.Ui_ToolTip_Results_Filter_Entry}" 
+                                               Foreground="DarkGray"
+                                               FontStyle="Italic"
+                                               Margin="3,1,3,0">
+                                        <TextBlock.Style>
+                                            <Style TargetType="{x:Type TextBlock}">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding ElementName=TextBoxResultsFilter, Path=IsFocused}" Value="True">
+                                                        <Setter Property="Visibility" Value="Hidden" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding ElementName=TextBoxResultsFilter, Path=Text, Converter={StaticResource IsNullOrWhitespaceConverter}}" Value="False">
+                                                        <Setter Property="Visibility" Value="Hidden" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                    <TextBox Grid.Column="1" x:Name="TextBoxResultsFilter"
+                                             ToolTip="{x:Static resx:Resources.Ui_ToolTip_Results_Filter_Entry}"
+                                             Text="{Binding ResultsFilter, UpdateSourceTrigger=PropertyChanged, Delay=1000}"
+                                             Background="Transparent"
+                                             BorderThickness="0"
+                                             Margin="0,1,0,0">
+                                    </TextBox>
+                                    <Button Grid.Column="2" 
+                                            ToolTip="{x:Static resx:Resources.Ui_ToolTip_Results_Filter_Clear}" 
+                                            IsEnabled="{Binding ElementName=TextBoxResultsFilter, Path=Text, Converter={StaticResource IsNullOrWhitespaceConverter}, ConverterParameter=Not}" 
+                                            Command="{Binding ClearResultsFilter}"
+                                            Background="Transparent"
+                                            BorderThickness="0"
+                                            Style="{StaticResource ImageButton}"
+                                            CommandParameter="First">
+                                        <Button.Content>
+                                            <Image RenderOptions.BitmapScalingMode="Fant" 
+                                                   Height="12" 
+                                                   Margin="5,3,3,3">
+                                                <Image.Style>
+                                                    <Style TargetType="{x:Type Image}">
+                                                        <Setter Property="Source" Value="Images/Delete.png" />
+                                                        <Style.Triggers>
+                                                            <Trigger Property="IsEnabled" Value="False">
+                                                                <Setter Property="Source" Value="Images/DeleteGray.png" />
+                                                            </Trigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Image.Style>
+                                            </Image>
+                                        </Button.Content>
+                                    </Button>
+                                </Grid>
+                            </Border>
+
+                            <Border Grid.Column="4" 
                                     Height="26"
                                     BorderBrush="DimGray" 
                                     BorderThickness="1" 

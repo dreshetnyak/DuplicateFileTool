@@ -697,4 +697,13 @@
   <data name="Ui_AutoSelectByPath_Progress" xml:space="preserve">
     <value>Selecting files. Selected {0:N0} files.</value>
   </data>
+  <data name="Ui_ToolTip_Results_Filter_Entry" xml:space="preserve">
+    <value>Enter keywords separated by space to filter the results that is shown</value>
+  </data>
+  <data name="Ui_Results_Filter_Watermark" xml:space="preserve">
+    <value>Filter Results</value>
+  </data>
+  <data name="Ui_ToolTip_Results_Filter_Clear" xml:space="preserve">
+    <value>Clear</value>
+  </data>
 </root>

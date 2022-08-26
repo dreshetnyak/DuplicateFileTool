@@ -697,4 +697,13 @@
   <data name="Ui_AutoSelectByPath_Progress" xml:space="preserve">
     <value>Выбор файлов. Выбрано {0:N0} файлов.</value>
   </data>
+  <data name="Ui_ToolTip_Results_Filter_Entry" xml:space="preserve">
+    <value>Введите ключевые слова, разделённые пробелами для фильтрации отображённых результатов</value>
+  </data>
+  <data name="Ui_Results_Filter_Watermark" xml:space="preserve">
+    <value>Фильтр результатов</value>
+  </data>
+  <data name="Ui_ToolTip_Results_Filter_Clear" xml:space="preserve">
+    <value>Очистить</value>
+  </data>
 </root>
