@@ -706,4 +706,49 @@
   <data name="Ui_ToolTip_Results_Filter_Clear" xml:space="preserve">
     <value>Borrar</value>
   </data>
+  <data name="Ui_Results_Filter" xml:space="preserve">
+    <value>Filtro</value>
+  </data>
+  <data name="Ui_Results_Filter_Case_Sensitive" xml:space="preserve">
+    <value>Distingue mayúsculas y minúsculas</value>
+  </data>
+  <data name="Ui_Results_Filter_File_Extension" xml:space="preserve">
+    <value>Extensiones de archivos</value>
+  </data>
+  <data name="Ui_Results_Filter_File_Name" xml:space="preserve">
+    <value>Nombres de archivos</value>
+  </data>
+  <data name="Ui_Results_Filter_File_Path" xml:space="preserve">
+    <value>Rutas de archivos</value>
+  </data>
+  <data name="Ui_Results_Filter_Keywords" xml:space="preserve">
+    <value>Palabras clave</value>
+  </data>
+  <data name="Ui_Results_Filter_Keywords_Exclude" xml:space="preserve">
+    <value>Excluir</value>
+  </data>
+  <data name="Ui_Results_Filter_Keywords_Include" xml:space="preserve">
+    <value>Incluir</value>
+  </data>
+  <data name="Ui_ToolTip_Results_Filter" xml:space="preserve">
+    <value>Ajustes del filtro</value>
+  </data>
+  <data name="Ui_ToolTip_Results_Filter_Case_Sensitive" xml:space="preserve">
+    <value>Buscar las palabras clave distinguiendo mayúsculas y minúsculas</value>
+  </data>
+  <data name="Ui_ToolTip_Results_Filter_File_Extension" xml:space="preserve">
+    <value>Buscar las palabras clave en las extensiones de archivos</value>
+  </data>
+  <data name="Ui_ToolTip_Results_Filter_File_Name" xml:space="preserve">
+    <value>Buscar las palabras clave en los nombres de archivos</value>
+  </data>
+  <data name="Ui_ToolTip_Results_Filter_File_Path" xml:space="preserve">
+    <value>Buscar las palabras clave en las rutas de archivos</value>
+  </data>
+  <data name="Ui_ToolTip_Results_Filter_Keywords_Exclude" xml:space="preserve">
+    <value>Esconder los resultados que contienen las palabras clave</value>
+  </data>
+  <data name="Ui_ToolTip_Results_Filter_Keywords_Include" xml:space="preserve">
+    <value>Mostrar los resultados que incluyen las palabras clave</value>
+  </data>
 </root>

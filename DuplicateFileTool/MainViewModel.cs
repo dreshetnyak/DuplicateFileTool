@@ -62,7 +62,7 @@ namespace DuplicateFileTool
     }
 
     [Localizable(true)]
-    internal class MainViewModel : NotifyPropertyChanged, IDisposable
+    internal class MainViewModel : NotifyPropertyChanged, IResultsFilter, IDisposable
     {
         public TreeView ResultsTreeView { get; }
 
@@ -74,7 +74,13 @@ namespace DuplicateFileTool
         private double _progressPercentage;
         private double _taskbarProgress;
         private string _duplicatesSortingOrderToolTip;
-        private string _resultsFilter;
+        private string _resultsFilterKeywords;
+        private bool _isFilterFilePath = true;
+        private bool _isFilterFileName = true;
+        private bool _isFilterFileExtension = true;
+        private bool _isFilterCaseSensitive;
+        private bool _isIncludeFilter = true;
+        private bool _isExcludeFilter;
 
         #endregion
 
@@ -128,16 +134,72 @@ namespace DuplicateFileTool
             }
         }
         public DuplicateGroupComparer DuplicateGroupComparer { get; }
-        private string CurrentResultsFilter { get; set; }
-        public string ResultsFilter
+
+        #region IResultsFilter Implementation
+        public bool IsFilterFilePath
         {
-            get => _resultsFilter;
+            get => _isFilterFilePath;
             set
             {
-                _resultsFilter = value; 
+                _isFilterFilePath = value; 
                 OnPropertyChanged();
             }
         }
+        public bool IsFilterFileName
+        {
+            get => _isFilterFileName;
+            set
+            {
+                _isFilterFileName = value;
+                OnPropertyChanged();
+            }
+        }
+        public bool IsFilterFileExtension
+        {
+            get => _isFilterFileExtension;
+            set
+            {
+                _isFilterFileExtension = value;
+                OnPropertyChanged();
+            }
+        }
+        public bool IsFilterCaseSensitive
+        {
+            get => _isFilterCaseSensitive;
+            set
+            {
+                _isFilterCaseSensitive = value; 
+                OnPropertyChanged();
+            }
+        }
+        public bool IsIncludeFilter
+        {
+            get => _isIncludeFilter;
+            set
+            {
+                _isIncludeFilter = value;
+                OnPropertyChanged();
+            }
+        }
+        public bool IsExcludeFilter
+        {
+            get => _isExcludeFilter;
+            set
+            {
+                _isExcludeFilter = value;
+                OnPropertyChanged();
+            }
+        }
+        public string ResultsFilterKeywords
+        {
+            get => _resultsFilterKeywords;
+            set
+            {
+                _resultsFilterKeywords = value; 
+                OnPropertyChanged();
+            }
+        }
+        #endregion
 
         [Localizable(false)]
         public string ProgressText
@@ -195,7 +257,6 @@ namespace DuplicateFileTool
         public MainViewModel(TreeView resultsTreeView) //TODO get rid of resultsTreeView
         {
             ResultsTreeView = resultsTreeView;
-            PropertyChanged += OnPropertyChanged;
 
             Config = new Configuration.Configuration();
 
@@ -208,7 +269,7 @@ namespace DuplicateFileTool
             Duplicates.Errors.CollectionChanged += (_, _) => Ui.ErrorTabImageEnabled = Duplicates.Errors.Count != 0;
             Duplicates.DuplicateGroups.CollectionChanged += OnDuplicateGroupsCollectionChanged;
 
-            var resultsGroupInclusionPredicate = new ResultsGroupInclusionPredicate(); //TODO need to implement
+            var resultsGroupInclusionPredicate = new ResultsGroupInclusionPredicate(this);
             DuplicateGroupComparer = new DuplicateGroupComparer(Config.ResultsConfig);
             DuplicateGroupComparer.PropertyChanged += OnSortTypeChanged;
             DuplicateGroupsProxyView = new ObservableCollectionProxy<DuplicateGroup>(Duplicates.DuplicateGroups, resultsGroupInclusionPredicate, DuplicateGroupComparer, Config.ResultsConfig.ItemsPerPage.Value);
@@ -241,14 +302,14 @@ namespace DuplicateFileTool
             ResetSelection.UpdateToDeleteSize += OnUpdateToDelete;
 
             DeleteMarkedFiles = new DeleteMarkedFilesCommand(Duplicates, Config.ResultsConfig);
-            DeleteMarkedFiles.Started += (_, _) => Ui.Entry.Enabled = false;
+            DeleteMarkedFiles.Started += (_, _) => { Ui.Entry.Enabled = false; DuplicateGroupsProxyView.LoadFirstPage(); };
             DeleteMarkedFiles.Finished += (_, _) => Ui.Entry.Enabled = true;
 
             AddPath = new AddPathCommand(SearchPaths, () => SelectedFileTreeItem);
             OpenFileInExplorer = new OpenFileInExplorerCommand();
             ChangePage = new ChangePageCommand(DuplicateGroupsProxyView);
             ToggleDuplicateSortingOrder = new RelayCommand(_ => DuplicateGroupComparer.IsSortOrderDescending = !DuplicateGroupComparer.IsSortOrderDescending);
-            ClearResultsFilter = new RelayCommand(_ => ResultsFilter = "");
+            ClearResultsFilter = new RelayCommand(_ => ResultsFilterKeywords = "");
             ClearResults = new RelayCommand(_ => Duplicates.Clear());
             ClearErrors = new RelayCommand(_ => Duplicates.Errors.Clear());
             ClearSearchPaths = new RelayCommand(_ => SearchPaths.Clear());
@@ -256,6 +317,8 @@ namespace DuplicateFileTool
             ClearExtensions = new RelayCommand(_ => SearchConfig.Extensions.Clear());
             AddOrRemoveExtensions = new AddOrRemoveExtensionsCommand(SearchConfig.Extensions, Config.ExtensionsConfig);
             Navigate = new RelayCommand(parameter => Process.Start(new ProcessStartInfo((string)parameter)));
+
+            PropertyChanged += OnPropertyChanged;
 
             SetSortingOrderToolTip();
             UpdateFileTree();
@@ -335,8 +398,14 @@ namespace DuplicateFileTool
                 case nameof(SelectedFileTreeItem):
                     OnUpdateAddPathEnabled();
                     break;
-                case nameof(ResultsFilter):
-                    OnFilterResults();
+                case nameof(IsFilterFilePath):
+                case nameof(IsFilterFileName):
+                case nameof(IsFilterFileExtension):
+                case nameof(IsFilterCaseSensitive):
+                case nameof(IsIncludeFilter):
+                case nameof(IsExcludeFilter):
+                case nameof(ResultsFilterKeywords):
+                    OnResultsFilterChanged();
                     break;
             }
         }
@@ -419,19 +488,12 @@ namespace DuplicateFileTool
             ProgressText = string.Format(Resources.Ui_AutoSelectByPath_Progress, eventArgs.SelectedCount);
         }
 
-        private void OnFilterResults()
+        private void OnResultsFilterChanged()
         {
-            // TODO Continue here
-            // Filter entered during search - Do not filter during search
-            // Filter after the search has finished
-            // Have the filtered sequence saved filter after search finished
-            // Clearing results while filtering.
-            // Starting to search should cancel the filtering
-
-            // Add the clear button
-            //CurrentResultsFilter - current data
+            if (DuplicateGroupsProxyView.SortingEnabled)
+                DuplicateGroupsProxyView.Filter();
         }
-
+        
         private void OnResultsPageChanged(object sender, EventArgs _)
         {
             ResultsTreeView.ResetView();
@@ -439,7 +501,7 @@ namespace DuplicateFileTool
 
         private void OnResultsCollectionProxyChanged(object o, NotifyCollectionChangedEventArgs eventArgs)
         {
-            if (DuplicateGroupsProxyView.Count != 0)
+            if (Duplicates.DuplicateGroups.Count != 0)
                 Ui.ClearResults.Enabled = true;
             else if (Ui.ClearResults.Enabled)
                 Ui.ClearResults.Enabled = false;

@@ -706,4 +706,49 @@
   <data name="Ui_ToolTip_Results_Filter_Clear" xml:space="preserve">
     <value>Очистить</value>
   </data>
+  <data name="Ui_Results_Filter" xml:space="preserve">
+    <value>Фильтровать</value>
+  </data>
+  <data name="Ui_Results_Filter_Case_Sensitive" xml:space="preserve">
+    <value>Учитывать регистр</value>
+  </data>
+  <data name="Ui_Results_Filter_File_Extension" xml:space="preserve">
+    <value>Расширения файлов</value>
+  </data>
+  <data name="Ui_Results_Filter_File_Name" xml:space="preserve">
+    <value>Имена файлов</value>
+  </data>
+  <data name="Ui_Results_Filter_File_Path" xml:space="preserve">
+    <value>Пути файлов</value>
+  </data>
+  <data name="Ui_Results_Filter_Keywords" xml:space="preserve">
+    <value>Ключевые слова</value>
+  </data>
+  <data name="Ui_Results_Filter_Keywords_Exclude" xml:space="preserve">
+    <value>Исключать</value>
+  </data>
+  <data name="Ui_Results_Filter_Keywords_Include" xml:space="preserve">
+    <value>Включать</value>
+  </data>
+  <data name="Ui_ToolTip_Results_Filter" xml:space="preserve">
+    <value>Настройки фильтра</value>
+  </data>
+  <data name="Ui_ToolTip_Results_Filter_Case_Sensitive" xml:space="preserve">
+    <value>Учитывать регистр при поиске ключевых слов</value>
+  </data>
+  <data name="Ui_ToolTip_Results_Filter_File_Extension" xml:space="preserve">
+    <value>Искать ключевые слова в расширениях файлов</value>
+  </data>
+  <data name="Ui_ToolTip_Results_Filter_File_Name" xml:space="preserve">
+    <value>Искать ключевые слова в именах файлов</value>
+  </data>
+  <data name="Ui_ToolTip_Results_Filter_File_Path" xml:space="preserve">
+    <value>Искать ключевые слова в путях файлов</value>
+  </data>
+  <data name="Ui_ToolTip_Results_Filter_Keywords_Exclude" xml:space="preserve">
+    <value>Скрыть результаты содержащие ключевые слова</value>
+  </data>
+  <data name="Ui_ToolTip_Results_Filter_Keywords_Include" xml:space="preserve">
+    <value>Отображать результаты содержащие ключевые слова</value>
+  </data>
 </root>

@@ -1379,6 +1379,78 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Filter.
+        /// </summary>
+        public static string Ui_Results_Filter {
+            get {
+                return ResourceManager.GetString("Ui_Results_Filter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Case sensitive.
+        /// </summary>
+        public static string Ui_Results_Filter_Case_Sensitive {
+            get {
+                return ResourceManager.GetString("Ui_Results_Filter_Case_Sensitive", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to File extension.
+        /// </summary>
+        public static string Ui_Results_Filter_File_Extension {
+            get {
+                return ResourceManager.GetString("Ui_Results_Filter_File_Extension", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to File name.
+        /// </summary>
+        public static string Ui_Results_Filter_File_Name {
+            get {
+                return ResourceManager.GetString("Ui_Results_Filter_File_Name", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to File path.
+        /// </summary>
+        public static string Ui_Results_Filter_File_Path {
+            get {
+                return ResourceManager.GetString("Ui_Results_Filter_File_Path", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Keywords.
+        /// </summary>
+        public static string Ui_Results_Filter_Keywords {
+            get {
+                return ResourceManager.GetString("Ui_Results_Filter_Keywords", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Exclude.
+        /// </summary>
+        public static string Ui_Results_Filter_Keywords_Exclude {
+            get {
+                return ResourceManager.GetString("Ui_Results_Filter_Keywords_Exclude", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Include.
+        /// </summary>
+        public static string Ui_Results_Filter_Keywords_Include {
+            get {
+                return ResourceManager.GetString("Ui_Results_Filter_Keywords_Include", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Filter Results.
         /// </summary>
         public static string Ui_Results_Filter_Watermark {
@@ -1721,6 +1793,24 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Filter settings.
+        /// </summary>
+        public static string Ui_ToolTip_Results_Filter {
+            get {
+                return ResourceManager.GetString("Ui_ToolTip_Results_Filter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Keywords search case sensitivity.
+        /// </summary>
+        public static string Ui_ToolTip_Results_Filter_Case_Sensitive {
+            get {
+                return ResourceManager.GetString("Ui_ToolTip_Results_Filter_Case_Sensitive", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Clear.
         /// </summary>
         public static string Ui_ToolTip_Results_Filter_Clear {
@@ -1735,6 +1825,51 @@ namespace DuplicateFileTool.Properties {
         public static string Ui_ToolTip_Results_Filter_Entry {
             get {
                 return ResourceManager.GetString("Ui_ToolTip_Results_Filter_Entry", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Search the keywords in the file extensions.
+        /// </summary>
+        public static string Ui_ToolTip_Results_Filter_File_Extension {
+            get {
+                return ResourceManager.GetString("Ui_ToolTip_Results_Filter_File_Extension", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Search the keywords in the file names.
+        /// </summary>
+        public static string Ui_ToolTip_Results_Filter_File_Name {
+            get {
+                return ResourceManager.GetString("Ui_ToolTip_Results_Filter_File_Name", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Search the keywords in the file paths.
+        /// </summary>
+        public static string Ui_ToolTip_Results_Filter_File_Path {
+            get {
+                return ResourceManager.GetString("Ui_ToolTip_Results_Filter_File_Path", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hide results with the entered keywords.
+        /// </summary>
+        public static string Ui_ToolTip_Results_Filter_Keywords_Exclude {
+            get {
+                return ResourceManager.GetString("Ui_ToolTip_Results_Filter_Keywords_Exclude", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Display results with the entered keywords.
+        /// </summary>
+        public static string Ui_ToolTip_Results_Filter_Keywords_Include {
+            get {
+                return ResourceManager.GetString("Ui_ToolTip_Results_Filter_Keywords_Include", resourceCulture);
             }
         }
         

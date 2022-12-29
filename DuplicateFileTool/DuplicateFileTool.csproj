@@ -380,6 +380,7 @@
   <ItemGroup>
     <Resource Include="Images\Filter.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>if exist "$(SolutionDir)BuildVersionIncrement.exe" "$(SolutionDir)BuildVersionIncrement.exe" "$(ProjectDir)Properties\AssemblyInfo.cs"</PreBuildEvent>

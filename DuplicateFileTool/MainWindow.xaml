@@ -126,6 +126,15 @@
             </Setter>
         </Style>
 
+        <Style x:Key="DisabledToggleButtonStyle" TargetType="{x:Type ToggleButton}" BasedOn="{StaticResource {x:Type ToggleButton}}">
+            <Setter Property="Opacity" Value="1" />
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Opacity" Value="0.75" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -606,7 +615,72 @@
                                         <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
-                                    <Image Grid.Column="0" Source="Images/Filter.png" Height="16" RenderOptions.BitmapScalingMode="Fant" Margin="0,0,2,0" />
+                                    <Grid Grid.Column="0" 
+                                          IsEnabled="{Binding Ui.Entry.Enabled, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" 
+                                          Margin="0,0,0,2" >
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
+                                        <ToggleButton Grid.Row="0" x:Name="Button" Margin="1,2,1,0" 
+                                                      ToolTip="{x:Static resx:Resources.Ui_ToolTip_Results_Filter}"
+                                                      Style="{StaticResource DisabledToggleButtonStyle}">
+                                            <ToggleButton.Template>
+                                                <ControlTemplate TargetType="ToggleButton">
+                                                    <Image Source="Images/Filter.png" Height="16" RenderOptions.BitmapScalingMode="Fant" />
+                                                </ControlTemplate>
+                                            </ToggleButton.Template>
+                                        </ToggleButton>
+                                        <Popup Grid.Row="1" IsOpen="{Binding IsChecked, ElementName=Button}" StaysOpen="False" AllowsTransparency="True">
+                                            <Border BorderBrush="DimGray" 
+                                                    BorderThickness="1" 
+                                                    CornerRadius="5,5,5,5"
+                                                    Margin="0,0,6,6"
+                                                    Background="{StaticResource {x:Static SystemColors.WindowBrushKey}}">
+                                                <Border.Effect>
+                                                    <DropShadowEffect BlurRadius="6" ShadowDepth="0" Opacity="0.3" />
+                                                </Border.Effect>
+                                                <Grid Margin="8,5,8,8">
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition />
+                                                        <RowDefinition />
+                                                    </Grid.RowDefinitions>
+                                                    <GroupBox Grid.Row="0" Header="{x:Static resx:Resources.Ui_Results_Filter}" Margin="0,0,1,0">
+                                                        <StackPanel>
+                                                            <CheckBox Content="{x:Static resx:Resources.Ui_Results_Filter_File_Path}" 
+                                                                      ToolTip="{x:Static resx:Resources.Ui_ToolTip_Results_Filter_File_Path}"
+                                                                      Margin="0,0,0,0" 
+                                                                      IsChecked="{Binding IsFilterFilePath}" />
+                                                            <CheckBox Content="{x:Static resx:Resources.Ui_Results_Filter_File_Name}" 
+                                                                      ToolTip="{x:Static resx:Resources.Ui_ToolTip_Results_Filter_File_Name}"
+                                                                      Margin="0,3,0,0" 
+                                                                      IsChecked="{Binding IsFilterFileName}" />
+                                                            <CheckBox Content="{x:Static resx:Resources.Ui_Results_Filter_File_Extension}" 
+                                                                      ToolTip="{x:Static resx:Resources.Ui_ToolTip_Results_Filter_File_Extension}"
+                                                                      Margin="0,3,0,0" 
+                                                                      IsChecked="{Binding IsFilterFileExtension}" />
+                                                            <CheckBox Content="{x:Static resx:Resources.Ui_Results_Filter_Case_Sensitive}" 
+                                                                      ToolTip="{x:Static resx:Resources.Ui_ToolTip_Results_Filter_Case_Sensitive}"
+                                                                      Margin="0,3,0,0" 
+                                                                      IsChecked="{Binding IsFilterCaseSensitive}" />
+                                                        </StackPanel>
+                                                    </GroupBox>
+                                                    <GroupBox Grid.Row="1" Header="{x:Static resx:Resources.Ui_Results_Filter_Keywords}" Margin="0,3,1,0">
+                                                        <StackPanel>
+                                                            <RadioButton Content="{x:Static resx:Resources.Ui_Results_Filter_Keywords_Include}" 
+                                                                         ToolTip="{x:Static resx:Resources.Ui_ToolTip_Results_Filter_Keywords_Include}"
+                                                                         Margin="0,3,0,0" 
+                                                                         IsChecked="{Binding IsIncludeFilter}" />
+                                                            <RadioButton Content="{x:Static resx:Resources.Ui_Results_Filter_Keywords_Exclude}" 
+                                                                         ToolTip="{x:Static resx:Resources.Ui_ToolTip_Results_Filter_Keywords_Exclude}"
+                                                                         Margin="0,3,0,0" 
+                                                                         IsChecked="{Binding IsExcludeFilter}"/>
+                                                        </StackPanel>
+                                                    </GroupBox>
+                                                </Grid>
+                                            </Border>
+                                        </Popup>
+                                    </Grid>
                                     <TextBlock Grid.Column="1"
                                                Text="{x:Static resx:Resources.Ui_Results_Filter_Watermark}"
                                                ToolTip="{x:Static resx:Resources.Ui_ToolTip_Results_Filter_Entry}" 
@@ -629,7 +703,7 @@
                                     </TextBlock>
                                     <TextBox Grid.Column="1" x:Name="TextBoxResultsFilter"
                                              ToolTip="{x:Static resx:Resources.Ui_ToolTip_Results_Filter_Entry}"
-                                             Text="{Binding ResultsFilter, UpdateSourceTrigger=PropertyChanged, Delay=1000}"
+                                             Text="{Binding ResultsFilterKeywords, UpdateSourceTrigger=PropertyChanged, Delay=1000}"
                                              Background="Transparent"
                                              BorderThickness="0"
                                              Margin="0,1,0,0">
@@ -916,10 +990,10 @@
                 <TabItem.ContextMenu>
                     <ContextMenu StaysOpen="False">
                         <MenuItem Header="{x:Static resx:Resources.Ui_Errors_Clear}" 
-                                  IsEnabled="{Binding Ui.ErrorTabImageEnabled.Enabled}"
+                                  IsEnabled="{Binding Ui.ErrorTabImageEnabled}"
                                   Command="{Binding ClearErrors}">
                             <MenuItem.Icon>
-                                <Image IsEnabled="{Binding Ui.ErrorTabImageEnabled.Enabled}" RenderOptions.BitmapScalingMode="Fant">
+                                <Image IsEnabled="{Binding Ui.ErrorTabImageEnabled}" RenderOptions.BitmapScalingMode="Fant">
                                     <Image.Style>
                                         <Style TargetType="{x:Type Image}">
                                             <Setter Property="Source" Value="Images/Clear.png" />

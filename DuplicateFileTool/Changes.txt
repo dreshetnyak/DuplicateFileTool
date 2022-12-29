@@ -5,7 +5,6 @@ New. Search paths list add switches that allow to turn off or no the path for th
 New. Add monitoring to refresh the file tree view whenever the file structure is updated.
 Improvement. Status bar is updated too fast, need an update delay.
 New. Add quick filter for the file tree.
-New. Add filter to the results list.
 New. Show folders of duplicated groups with folders comparing, should appear below the list of results.
 New. Add selected file preview. Characteristics of images.
 New. Implement deletion to recycle bin.
@@ -17,17 +16,14 @@ Under the files tree add a panel where we can see free space on the disks.
 
 =========================================================================
 Work in Progress:
-
-
-Bug. Deleting files is extremely slow in some cases because every time a file is deleted the results page is been reloaded (Need to disable Results while deleting and load the page only at the end).
+Bug. When results are collapsed and you change the page, the collapsing was not reset.
 
 =========================================================================
 Done:
 
-DuplicateFileTool 1.2.xxx: 2022-XX-XX
-New. Added a filter for the results, now you can enter keywords filter the results.
-
-
+DuplicateFileTool 1.2.974: 2022-12-29
+New. Added a filter for the results, now you can enter keywords to filter results and adjust the filter in different ways.
+Bug. Deleting files is extremely slow if the current page is not the first page. Now we switch to the first page before starting deletion.
 
 DuplicateFileTool 1.1.925: 2022-06-10
 Bug. When deleting duplicated the progress text line would wraps and change the hight in some cases.

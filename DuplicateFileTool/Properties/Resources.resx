@@ -706,4 +706,49 @@
   <data name="Ui_ToolTip_Results_Filter_Clear" xml:space="preserve">
     <value>Clear</value>
   </data>
+  <data name="Ui_Results_Filter" xml:space="preserve">
+    <value>Filter</value>
+  </data>
+  <data name="Ui_Results_Filter_Case_Sensitive" xml:space="preserve">
+    <value>Case sensitive</value>
+  </data>
+  <data name="Ui_Results_Filter_File_Extension" xml:space="preserve">
+    <value>File extension</value>
+  </data>
+  <data name="Ui_Results_Filter_File_Name" xml:space="preserve">
+    <value>File name</value>
+  </data>
+  <data name="Ui_Results_Filter_File_Path" xml:space="preserve">
+    <value>File path</value>
+  </data>
+  <data name="Ui_Results_Filter_Keywords" xml:space="preserve">
+    <value>Keywords</value>
+  </data>
+  <data name="Ui_Results_Filter_Keywords_Exclude" xml:space="preserve">
+    <value>Exclude</value>
+  </data>
+  <data name="Ui_Results_Filter_Keywords_Include" xml:space="preserve">
+    <value>Include</value>
+  </data>
+  <data name="Ui_ToolTip_Results_Filter" xml:space="preserve">
+    <value>Filter settings</value>
+  </data>
+  <data name="Ui_ToolTip_Results_Filter_Case_Sensitive" xml:space="preserve">
+    <value>Keywords search case sensitivity</value>
+  </data>
+  <data name="Ui_ToolTip_Results_Filter_File_Extension" xml:space="preserve">
+    <value>Search the keywords in the file extensions</value>
+  </data>
+  <data name="Ui_ToolTip_Results_Filter_File_Name" xml:space="preserve">
+    <value>Search the keywords in the file names</value>
+  </data>
+  <data name="Ui_ToolTip_Results_Filter_File_Path" xml:space="preserve">
+    <value>Search the keywords in the file paths</value>
+  </data>
+  <data name="Ui_ToolTip_Results_Filter_Keywords_Exclude" xml:space="preserve">
+    <value>Hide results with the entered keywords</value>
+  </data>
+  <data name="Ui_ToolTip_Results_Filter_Keywords_Include" xml:space="preserve">
+    <value>Display results with the entered keywords</value>
+  </data>
 </root>

@@ -22,7 +22,7 @@ namespace DuplicateFileTool
         private T _selectedItem;
 
         private ObservableCollection<T> SourceCollection { get; }
-        private List<T> FilteredItems { get; }
+        private List<T> FilteredItems { get; set; }
         private IComparer<T> Comparer { get; }
         private IInclusionPredicate<T> InclusionPredicate { get; }
 
@@ -89,6 +89,20 @@ namespace DuplicateFileTool
                 Items.Add(item);
 
             SourceCollection.CollectionChanged += OnSourceCollectionChanged;
+        }
+
+        public void Filter()
+        {
+            FilteredItems.Clear();
+            FilteredItems.AddRange(SourceCollection.AsParallel().Where(InclusionPredicate.IsIncluded));
+            TotalPages = GetTotalPages(FilteredItems.Count, ItemsPerPage);
+            if (TotalPages != 0)
+                Sort();
+            else
+            {
+                ResetTarget();
+                OnCollectionReset();
+            }
         }
 
         public void Sort()
