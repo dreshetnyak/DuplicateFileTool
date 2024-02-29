@@ -13,6 +13,7 @@ New. If a duplicate file is found in a folder add all files from that folder to 
 Move clear all results button to the right panel, or should we put it to the toolbar?
 Can we add columns to the files list, to indicate mod. date, size, etc?
 Under the files tree add a panel where we can see free space on the disks.
+Add option to skip zero size files, make it default.
 
 =========================================================================
 Work in Progress:
@@ -20,6 +21,9 @@ Bug. When results are collapsed and you change the page, the collapsing was not 
 
 =========================================================================
 Done:
+
+DuplicateFileTool 1.2.xxx: 2022-12-29
+Bug. If a results group has a files with different extensions then the exclusion filter will not 
 
 DuplicateFileTool 1.2.974: 2022-12-29
 New. Added a filter for the results, now you can enter keywords to filter results and adjust the filter in different ways.
