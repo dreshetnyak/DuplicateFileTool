@@ -163,13 +163,16 @@ internal sealed partial class Win32
 
     #endregion
 
-    [LibraryImport("kernel32.dll", SetLastError = true, StringMarshalling = StringMarshalling.Utf16)]
+    // EntryPoint must be the explicit "W" (Unicode) export: kernel32 has no plain "DeleteFile"/"RemoveDirectory"
+    // entry point, and the LibraryImport source generator uses ExactSpelling = true (unlike DllImport, it does
+    // not auto-probe the A/W suffix), so omitting it throws EntryPointNotFoundException at the call site.
+    [LibraryImport("kernel32.dll", EntryPoint = "DeleteFileW", SetLastError = true, StringMarshalling = StringMarshalling.Utf16)]
     [return: MarshalAs(UnmanagedType.Bool)]
     internal static partial bool DeleteFile(string lpFileName);
 
-    [LibraryImport("kernel32.dll", SetLastError = true, StringMarshalling = StringMarshalling.Utf16)]
+    [LibraryImport("kernel32.dll", EntryPoint = "RemoveDirectoryW", SetLastError = true, StringMarshalling = StringMarshalling.Utf16)]
     [return: MarshalAs(UnmanagedType.Bool)]
-    internal static partial bool RemoveDirectory(string lpFileName);
+    internal static partial bool RemoveDirectory(string lpPathName);
 
     [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto, BestFitMapping = false)]
     internal static extern SafeFileHandle CreateFile(string lpFileName, FileAccess dwDesiredAccess, FileShare dwShareMode, SECURITY_ATTRIBUTES? securityAttrs, CreationDisposition dwCreationDisposition, int dwFlagsAndAttributes, IntPtr hTemplateFile);

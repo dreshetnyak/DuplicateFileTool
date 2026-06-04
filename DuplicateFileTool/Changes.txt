@@ -22,6 +22,11 @@ Bug. When results are collapsed and you change the page, the collapsing was not 
 =========================================================================
 Done:
 
+DuplicateFileTool 2.0.1: 2026-06-04
+Bug. The application crashed with an EntryPointNotFoundException when deleting selected files.
+Bug. File deletion did not apply the long-path prefix, so deleting a file whose path exceeds MAX_PATH could fail.
+New. Added a global unhandled-exception handler.
+
 DuplicateFileTool 2.0.0: 2026-06-04
 The project has been upgraded to .NET 10.
 Converted the project to the modern SDK-style format.

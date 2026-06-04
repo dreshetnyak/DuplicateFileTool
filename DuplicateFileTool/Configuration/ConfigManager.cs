@@ -51,7 +51,7 @@ internal static class ConfigManager
         var appVersion = assembly.GetName().Version;
 
         return appVersion != null 
-            ? $"{appName} {appVersion.Major}.{appVersion.Minor}.{appVersion.Revision}"
+            ? $"{appName} {appVersion.Major}.{appVersion.Minor}.{appVersion.Build}"
             : appName;
     }
 }

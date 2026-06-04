@@ -218,7 +218,7 @@ internal static class FileSystem
         if (fileData.Attributes.IsReadonly)
             RemoveFileReadonlyAttribute(fileData);
 
-        if (!Win32.DeleteFile(fileData.FullName))
+        if (!Win32.DeleteFile(MakeLongPath(fileData.FullName)))
             throw new FileSystemException(fileData.FullName, new Win32Exception(Marshal.GetLastWin32Error()).Message);
     }
 
