@@ -1,19 +1,9 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{B09930EB-A480-4084-A758-3620924C36AC}</ProjectGuid>
+    <TargetFramework>net10.0-windows7.0</TargetFramework>
+    <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
+    <SupportedOSPlatform>windows</SupportedOSPlatform>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>DuplicateFileTool</RootNamespace>
-    <AssemblyName>DuplicateFileTool</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <WarningLevel>4</WarningLevel>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <Deterministic>true</Deterministic>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -25,229 +15,32 @@
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
     <ApplicationRevision>0</ApplicationRevision>
-    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <ApplicationVersion>2.0.0.%2a</ApplicationVersion>
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
     <UICulture>en</UICulture>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <UseWindowsForms>true</UseWindowsForms>
+    <UseWPF>true</UseWPF>
+    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <NoWarn>CA1416;S3267</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>
-    </DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
-    <DebugSymbols>true</DebugSymbols>
+    <DebugType>none</DebugType>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>DuplicateFileTool.ico</ApplicationIcon>
   </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Configuration" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xaml">
-      <RequiredTargetFramework>4.0</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="WindowsBase" />
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
-  </ItemGroup>
-  <ItemGroup>
-    <ApplicationDefinition Include="App.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </ApplicationDefinition>
-    <Compile Include="AddOrRemoveExtensionsViewModel.cs" />
-    <Compile Include="Commands\AddOrRemoveExtensionsCommand.cs" />
-    <Compile Include="Commands\AddPathCommand.cs" />
-    <Compile Include="Commands\AutoSelectByPathCommand.cs" />
-    <Compile Include="Commands\ChangePageCommand.cs" />
-    <Compile Include="Commands\CommandBase.cs" />
-    <Compile Include="Commands\DeleteMarkedFilesCommand.cs" />
-    <Compile Include="Commands\FindDuplicatesCommand.cs" />
-    <Compile Include="Commands\OpenFileInExplorerCommand.cs" />
-    <Compile Include="Commands\RelayCommand.cs" />
-    <Compile Include="Commands\ResetSelectionCommand.cs" />
-    <Compile Include="Commands\ToggleDeletionMarkCommand.cs" />
-    <Compile Include="ConfigurationProperty.cs" />
-    <Compile Include="Configuration\ProgramConfiguration.cs" />
-    <Compile Include="Configuration\FileAppConfig.cs" />
-    <Compile Include="Configuration\ConfigManager.cs" />
-    <Compile Include="Configuration\Configuration.cs" />
-    <Compile Include="Configuration\ExtensionsConfiguration.cs" />
-    <Compile Include="Configuration\ResultsConfiguration.cs" />
-    <Compile Include="Configuration\SearchConfiguration.cs" />
-    <Compile Include="Controls\ConfigGrid.xaml.cs">
-      <DependentUpon>ConfigGrid.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Converters\BooleanToVisibilityConverter.cs" />
-    <Compile Include="Converters\DataConversion.cs" />
-    <Compile Include="Converters\EnumBooleanConverter.cs" />
-    <Compile Include="Converters\IsNullOrWhitespaceConverter.cs" />
-    <Compile Include="Converters\LongConverter.cs" />
-    <Compile Include="Converters\NegateBoolConverter.cs" />
-    <Compile Include="DuplicateGroupComparer.cs" />
-    <Compile Include="IInclusionPredicate.cs" />
-    <Compile Include="ObservableCollectionProxy.cs" />
-    <Compile Include="DirectoryEnumeration.cs" />
-    <Compile Include="Drives.cs" />
-    <Compile Include="DuplicateCandidates.cs" />
-    <Compile Include="DuplicatesEngine.cs" />
-    <Compile Include="DuplicatesRemover.cs" />
-    <Compile Include="DuplicatesSearch.cs" />
-    <Compile Include="FileSearchInclusionPredicate.cs" />
-    <Compile Include="Properties\Resources.ru.Designer.cs">
-      <DependentUpon>Resources.ru.resx</DependentUpon>
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-    </Compile>
-    <Compile Include="Properties\Resources.en.Designer.cs">
-      <DependentUpon>Resources.en.resx</DependentUpon>
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-    </Compile>
-    <Compile Include="Properties\Resources.es.Designer.cs">
-      <DependentUpon>Resources.es.resx</DependentUpon>
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-    </Compile>
-    <Compile Include="ResultsGroupInclusionPredicate.cs" />
-    <Compile Include="TemplateSelector.cs" />
-    <Compile Include="UiSwitch.cs" />
-    <Compile Include="TreeViewExtension.cs" />
-    <Compile Include="UnmanagedMemory.cs" />
-    <Compile Include="Utility.cs" />
-    <Compile Include="FileComparer.cs" />
-    <Compile Include="FileData.cs" />
-    <Compile Include="Comparers\ComparableFileHash.cs" />
-    <Compile Include="FileReader.cs" />
-    <Compile Include="FilesSearch.cs" />
-    <Compile Include="FileSystem.cs" />
-    <Compile Include="FileTreeItem.cs" />
-    <Compile Include="FileSystemIcon.cs" />
-    <Compile Include="Logger.cs" />
-    <Compile Include="MainViewModel.cs" />
-    <Compile Include="NotifyPropertyChanged.cs" />
-    <Compile Include="Properties\Annotations.cs" />
-    <Compile Include="Reflected.cs" />
-    <Compile Include="ReflectionExtensions.cs" />
-    <Compile Include="ViewExtensions.cs" />
-    <Compile Include="Win32.cs" />
-    <Compile Include="Windows\AddOrRemoveExtensions.xaml.cs">
-      <DependentUpon>AddOrRemoveExtensions.xaml</DependentUpon>
-    </Compile>
-    <Page Include="Controls\ConfigGrid.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="MainWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Compile Include="App.xaml.cs">
-      <DependentUpon>App.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="MainWindow.xaml.cs">
-      <DependentUpon>MainWindow.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Page Include="Windows\AddOrRemoveExtensions.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Properties\AssemblyInfo.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-    </Compile>
-    <EmbeddedResource Include="Properties\Resources.ru.resx">
-      <Generator>PublicResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.ru.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Properties\Resources.en.resx">
-      <Generator>PublicResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.en.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Properties\Resources.es.resx">
-      <Generator>PublicResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.es.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>PublicResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <BootstrapperPackage Include=".NETFramework,Version=v4.8">
-      <Visible>False</Visible>
-      <ProductName>Microsoft .NET Framework 4.8 %28x86 and x64%29</ProductName>
-      <Install>true</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
-  </ItemGroup>
-  <ItemGroup>
-    <COMReference Include="Shell32">
-      <Guid>{50A7E9B0-70EF-11D1-B75A-00A0C90564FE}</Guid>
-      <VersionMajor>1</VersionMajor>
-      <VersionMinor>0</VersionMinor>
-      <Lcid>0</Lcid>
-      <WrapperTool>tlbimp</WrapperTool>
-      <Isolated>False</Isolated>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
-    </COMReference>
-  </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\AddPathGray.png" />
   </ItemGroup>
@@ -361,11 +154,6 @@
     <Resource Include="Images\Include.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Images\FlagRussia.png" />
-    <None Include="Images\FlagSpain.png" />
-    <None Include="Images\FlagUsa.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Language.png" />
   </ItemGroup>
   <ItemGroup>
@@ -380,9 +168,10 @@
   <ItemGroup>
     <Resource Include="Images\Filter.png" />
   </ItemGroup>
-  <ItemGroup />
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PreBuildEvent>if exist "$(SolutionDir)BuildVersionIncrement.exe" "$(SolutionDir)BuildVersionIncrement.exe" "$(ProjectDir)Properties\AssemblyInfo.cs"</PreBuildEvent>
-  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="AddOrRemoveExtensionsModelView.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.8" />
+  </ItemGroup>
 </Project>

@@ -1,70 +1,53 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using DuplicateFileTool.Annotations;
+﻿namespace DuplicateFileTool.Commands;
 
-namespace DuplicateFileTool.Commands
+internal sealed class FindDuplicatesCommand(
+    DuplicatesEngine duplicatesEngine,
+    IReadOnlyCollection<SearchPath> searchPaths,
+    Func<IInclusionPredicate<FileData>> getGetInclusionPredicate,
+    Func<IFileComparer> getSelectedComparer)
+    : CommandBase
 {
-    internal class FindDuplicatesCommand : CommandBase
+    private DuplicatesEngine DuplicatesEngine { get; } = duplicatesEngine;
+    private IReadOnlyCollection<SearchPath> SearchPaths { get; } = searchPaths;
+    private Func<IInclusionPredicate<FileData>> GetInclusionPredicate { get; } = getGetInclusionPredicate;
+    private Func<IFileComparer> GetSelectedComparer { get; } = getSelectedComparer;
+    private CancellationTokenSource? Cts { get; set; }
+
+    public event EventHandler? FindDuplicatesStarting;
+    public event EventHandler? FindDuplicatesFinished;
+
+    public override async void Execute(object? parameter)
     {
-        private DuplicatesEngine DuplicatesEngine { get; }
-        private IReadOnlyCollection<SearchPath> SearchPaths { get; }
-        private Func<IInclusionPredicate<FileData>> GetInclusionPredicate { get; }
-        private Func<IFileComparer> GetSelectedComparer { get; }
-        private CancellationTokenSource Cts { get; set; }
-
-        public event EventHandler FindDuplicatesStarting;
-        public event EventHandler FindDuplicatesFinished;
-
-        public FindDuplicatesCommand(
-            [NotNull] DuplicatesEngine duplicatesEngine,
-            [NotNull] IReadOnlyCollection<SearchPath> searchPaths,
-            [NotNull] Func<IInclusionPredicate<FileData>> getGetInclusionPredicate,
-            [NotNull] Func<IFileComparer> getSelectedComparer)
+        try
         {
-            DuplicatesEngine = duplicatesEngine;
-            SearchPaths = searchPaths;
-            GetInclusionPredicate = getGetInclusionPredicate;
-            GetSelectedComparer = getSelectedComparer;
+            CanCancel = true;
+            Enabled = false;
+            OnFindDuplicatesStarting();
+
+            var selectedComparer = GetSelectedComparer();
+            using (Cts = new CancellationTokenSource())
+                await DuplicatesEngine.FindDuplicates(SearchPaths, GetInclusionPredicate(), selectedComparer.CandidatePredicate, selectedComparer.ComparableFileFactory, Cts.Token);
         }
-
-        public override async void Execute(object parameter)
+        catch (OperationCanceledException) { /* ignore */ }
+        finally
         {
-            try
-            {
-                CanCancel = true;
-                Enabled = false;
-                OnFindDuplicatesStarting();
-
-                var selectedComparer = GetSelectedComparer();
-                using (Cts = new CancellationTokenSource())
-                    await DuplicatesEngine.FindDuplicates(SearchPaths, GetInclusionPredicate(), selectedComparer.CandidatePredicate, selectedComparer.ComparableFileFactory, Cts.Token);
-            }
-            catch (OperationCanceledException) { /* ignore */ }
-            finally
-            {
-                CanCancel = false;
-                Cts.Dispose();
-                Cts = null;
-                Enabled = true;
-                OnFindDuplicatesFinished();
-            }
-        }
-
-        public override void Cancel()
-        {
-            if (CanCancel)
-                Cts?.Cancel();
-        }
-
-        protected virtual void OnFindDuplicatesStarting()
-        {
-            FindDuplicatesStarting?.Invoke(this, EventArgs.Empty);
-        }
-
-        protected virtual void OnFindDuplicatesFinished()
-        {
-            FindDuplicatesFinished?.Invoke(this, EventArgs.Empty);
+            CanCancel = false;
+            Cts?.Dispose();
+            Cts = null;
+            Enabled = true;
+            OnFindDuplicatesFinished();
         }
     }
+
+    public override void Cancel()
+    {
+        if (CanCancel)
+            Cts?.Cancel();
+    }
+
+    private void OnFindDuplicatesStarting() => 
+        FindDuplicatesStarting?.Invoke(this, EventArgs.Empty);
+
+    private void OnFindDuplicatesFinished() => 
+        FindDuplicatesFinished?.Invoke(this, EventArgs.Empty);
 }

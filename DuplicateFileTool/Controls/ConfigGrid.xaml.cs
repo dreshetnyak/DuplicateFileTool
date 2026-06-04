@@ -1,28 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+﻿namespace DuplicateFileTool.Controls;
 
-namespace DuplicateFileTool.Controls
+/// <summary>
+/// Interaction logic for ConfigGrid.xaml
+/// </summary>
+public partial class ConfigGrid : System.Windows.Controls.UserControl
 {
-    /// <summary>
-    /// Interaction logic for ConfigGrid.xaml
-    /// </summary>
-    public partial class ConfigGrid : UserControl
+    public ConfigGrid()
     {
-        public ConfigGrid()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

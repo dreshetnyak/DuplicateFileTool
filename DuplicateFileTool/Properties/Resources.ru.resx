@@ -336,6 +336,9 @@
   <data name="Error_Unknown_file_extension_inclusion_type" xml:space="preserve">
     <value>Неизвестный тип включения расширений файлов</value>
   </data>
+  <data name="Error_Accessing_invalid_current_enumeration_item" xml:space="preserve">
+    <value>Попытка доступа к текущему элементу перечисления до его начала</value>
+  </data>
   <data name="FileHashComparer_Description" xml:space="preserve">
     <value>Разбивает файлы на фрагменты и вычисляет хэш данных фрагментов, затем сравнивает данные фрагменты для выявления дублированных файлов. Фрагменты хэша кэшируются для предотвращения повторного чтения файлов</value>
   </data>

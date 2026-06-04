@@ -1,127 +1,104 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
+﻿namespace DuplicateFileTool;
 
-namespace DuplicateFileTool
+internal sealed class CandidatesSearchProgressEventArgs(string filePath, int currentFileIndex, int totalFilesCount, int candidateGroupsCount, int candidateFilesCount, long candidatesTotalSize) : EventArgs
 {
-    internal class CandidatesSearchProgressEventArgs : EventArgs
+    public string FilePath { get; } = filePath;
+    public int CurrentFileIndex { get; } = currentFileIndex;
+    public int TotalFilesCount { get; } = totalFilesCount;
+    public int CandidateGroupsCount { get; } = candidateGroupsCount;
+    public int CandidateFilesCount { get; } = candidateFilesCount;
+    public long CandidatesTotalSize { get; set; } = candidatesTotalSize;
+}
+
+internal delegate void CandidatesSearchProgressEventHandler(object? sender, CandidatesSearchProgressEventArgs eventArgs);
+
+internal sealed class DuplicateCandidates
+{
+    public event CandidatesSearchProgressEventHandler? CandidatesSearchProgress;
+    public event FileSystemErrorEventHandler? FileSystemError;
+
+    public async Task<List<IComparableFile[]>> Find(
+        IReadOnlyCollection<FileData> srcFiles,
+        ICandidatePredicate duplicateCandidatePredicate,
+        IComparableFileFactory comparableFileFactory,
+        CancellationToken ctx)
     {
-        public string FilePath { get; }
-        public int CurrentFileIndex { get; }
-        public int TotalFilesCount { get; }
-        public int CandidateGroupsCount { get; }
-        public int CandidateFilesCount { get; }
-        public long CandidatesTotalSize { get; set; }
+        var duplicateCandidates = new List<IComparableFile[]>(256);
+        
 
-        public CandidatesSearchProgressEventArgs(string filePath, int currentFileIndex, int totalFilesCount, int candidateGroupsCount, int candidateFilesCount, long candidatesTotalSize)
+        var fileIndex = 0;
+        var filesCount = srcFiles.Count;
+        var candidatesTotalSize = 0L;
+        var candidateFilesCount = 0;
+
+        foreach (var currentFile in srcFiles)
         {
-            FilePath = filePath; 
-            CurrentFileIndex = currentFileIndex;
-            TotalFilesCount = totalFilesCount;
-            CandidateGroupsCount = candidateGroupsCount;
-            CandidateFilesCount = candidateFilesCount;
-            CandidatesTotalSize = candidatesTotalSize;
-        }
-    }
-
-    internal delegate void CandidatesSearchProgressEventHandler(object sender, CandidatesSearchProgressEventArgs eventArgs);
-
-    internal class DuplicateCandidates
-    {
-        public event CandidatesSearchProgressEventHandler CandidatesSearchProgress;
-        public event FileSystemErrorEventHandler FileSystemError;
-
-        public async Task<List<IComparableFile[]>> Find(IReadOnlyCollection<FileData> srcFiles, ICandidatePredicate duplicateCandidatePredicate, IComparableFileFactory comparableFileFactory, CancellationToken cancellationToken)
-        {
-            return await Task.Run(() => FindSync(srcFiles, duplicateCandidatePredicate, comparableFileFactory, cancellationToken), cancellationToken);
-        }
-
-        private List<IComparableFile[]> FindSync(
-            IReadOnlyCollection<FileData> srcFiles,
-            ICandidatePredicate duplicateCandidatePredicate,
-            IComparableFileFactory comparableFileFactory,
-            CancellationToken cancellationToken)
-        {
-            //var stopwatch = Stopwatch.StartNew();
-
-            var duplicateCandidates = new List<IComparableFile[]>(256);
-
-            var fileIndex = 0;
-            var filesCount = srcFiles.Count;
-            var candidatesTotalSize = 0L;
-            var candidateFilesCount = 0;
-            foreach (var currentFile in srcFiles)
+            try
             {
-                try
+                #region Check if the current file is already added
+                var currentFileFoundFlag = 0;
+                await Parallel.ForEachAsync(duplicateCandidates, ctx, (candidatesSet, token) =>
                 {
-                    bool IsCurrentFileAlreadyAdded(IComparableFile[] candidatesSet)
+                    foreach (var candidateFile in candidatesSet)
                     {
-                        foreach (var candidateFile in candidatesSet)
-                        {
-                            if (ReferenceEquals(candidateFile.FileData, currentFile))
-                                return true;
-                        }
+                        if (token.IsCancellationRequested || Volatile.Read(ref currentFileFoundFlag) == 1)
+                            return ValueTask.CompletedTask;
 
-                        return false;
+                        if (!ReferenceEquals(candidateFile.FileData, currentFile))
+                            continue;
+
+                        Interlocked.Exchange(ref currentFileFoundFlag, 1);
+                        break;
                     }
 
-                    if (duplicateCandidates.AsParallel().Any(IsCurrentFileAlreadyAdded))
-                        continue;
+                    return ValueTask.CompletedTask;
+                });
 
-                    var candidates = srcFiles
-                        .AsParallel()
-                        .WithCancellation(cancellationToken)
-                        .Where(file => duplicateCandidatePredicate.IsCandidate(file, currentFile))
-                        .ToArray();
+                if (currentFileFoundFlag == 1)
+                    continue;
+                #endregion
 
-                    var candidatesLength = candidates.Length;
-                    if (candidatesLength < 2)
-                        continue;
+                var candidates = srcFiles
+                    .AsParallel()
+                    .WithCancellation(ctx)
+                    .Where(file => duplicateCandidatePredicate.IsCandidate(file, currentFile))
+                    .ToArray();
 
-                    var candidatesGroup = new IComparableFile[candidatesLength];
-                    for (var index = 0; index < candidatesLength; index++)
-                    {
-                        var candidateFileData = candidates[index];
-                        candidatesGroup[index] = comparableFileFactory.Create(candidateFileData);
-                        candidatesTotalSize += candidateFileData.Size;
-                    }
+                var candidatesLength = candidates.Length;
+                if (candidatesLength < 2)
+                    continue;
 
-                    candidateFilesCount += candidatesLength;
-                    duplicateCandidates.Add(candidatesGroup);
-                }
-                catch (OperationCanceledException)
+                var candidatesGroup = new IComparableFile[candidatesLength];
+                for (var index = 0; index < candidatesLength; index++)
                 {
-                    throw;
+                    var candidateFileData = candidates[index];
+                    candidatesGroup[index] = comparableFileFactory.Create(candidateFileData);
+                    candidatesTotalSize += candidateFileData.Size;
                 }
-                catch (Exception ex)
-                {
-                    OnFileSystemError(currentFile.FullName, ex);
-                }
-                finally
-                {
-                    OnScanningPath(currentFile.FullName, fileIndex++, filesCount, duplicateCandidates.Count, candidateFilesCount, candidatesTotalSize);
-                }
+
+                candidateFilesCount += candidatesLength;
+                duplicateCandidates.Add(candidatesGroup);
             }
-
-            //stopwatch.Stop();
-            //var elapsed = TimeSpan.FromMilliseconds(stopwatch.ElapsedMilliseconds);
-            //System.Windows.MessageBox.Show($"Candidates search time: {elapsed:c}");
-
-            return duplicateCandidates;
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                OnFileSystemError(currentFile.FullName, ex);
+            }
+            finally
+            {
+                OnScanningPath(currentFile.FullName, fileIndex++, filesCount, duplicateCandidates.Count, candidateFilesCount, candidatesTotalSize);
+            }
         }
 
-        protected virtual void OnScanningPath(string filePath, int currentFileIndex, int totalFilesCount, int candidateGroupsFound, int candidateFilesFound, long candidatesTotalSize)
-        {
-            CandidatesSearchProgress?.Invoke(this, new CandidatesSearchProgressEventArgs(filePath, currentFileIndex, totalFilesCount, candidateGroupsFound, candidateFilesFound, candidatesTotalSize));
-        }
-
-        protected virtual void OnFileSystemError(string path, Exception ex)
-        {
-            FileSystemError?.Invoke(this, new FileSystemErrorEventArgs(path, ex.Message, ex));
-        }
+        return duplicateCandidates;
     }
+
+    private void OnScanningPath(string filePath, int currentFileIndex, int totalFilesCount, int candidateGroupsFound, int candidateFilesFound, long candidatesTotalSize) => 
+        CandidatesSearchProgress?.Invoke(this, new CandidatesSearchProgressEventArgs(filePath, currentFileIndex, totalFilesCount, candidateGroupsFound, candidateFilesFound, candidatesTotalSize));
+
+    private void OnFileSystemError(string path, Exception ex) => 
+        FileSystemError?.Invoke(this, new FileSystemErrorEventArgs(path, ex.Message, ex));
 }

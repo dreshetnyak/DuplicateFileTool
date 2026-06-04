@@ -1,74 +1,63 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
-namespace DuplicateFileTool
+namespace DuplicateFileTool;
+
+internal abstract class NotifyPropertyChanged : INotifyPropertyChanged
 {
-    internal abstract class NotifyPropertyChanged : INotifyPropertyChanged
-    {
-        public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = "") => 
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+}
+
+internal sealed class PropertiesChangeTracker<T> : NotifyPropertyChanged, IDisposable
+{
+    private bool _hasChanged;
+    private T TrackedObject { get; }
+
+    public bool HasChanged
+    {
+        get => _hasChanged;
+        set
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            if (_hasChanged == value)
+                return;
+            _hasChanged = value;
+            OnPropertyChanged();
         }
     }
 
-    internal class PropertiesChangeTracker<T> : NotifyPropertyChanged, IDisposable
+    public PropertiesChangeTracker(T trackedObject)
     {
-        private bool _hasChanged;
-        private T TrackedObject { get; }
+        TrackedObject = trackedObject ?? throw new ArgumentNullException(nameof(trackedObject));
+        Subscribe();
+    }
 
-        public bool HasChanged
-        {
-            get => _hasChanged;
-            set
-            {
-                if (_hasChanged == value)
-                    return;
-                _hasChanged = value;
-                OnPropertyChanged();
-            }
-        }
+    public void Dispose() => Unsubscribe();
 
-        public PropertiesChangeTracker(T trackedObject)
-        {
-            TrackedObject = trackedObject;
-            Subscribe();
-        }
+    private void Subscribe()
+    {
+        foreach (var trackableObject in GetTrackableObjects())
+            trackableObject.PropertyChanged += OnPropertyChanged;
+    }
 
-        public void Dispose()
-        {
-            Unsubscribe();
-        }
+    private void Unsubscribe()
+    {
+        foreach (var trackableObject in GetTrackableObjects())
+            trackableObject.PropertyChanged -= OnPropertyChanged;
+    }
 
-        private void Subscribe()
+    private IEnumerable<INotifyPropertyChanged> GetTrackableObjects()
+    {
+        foreach (var property in TrackedObject!.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public))
         {
-            foreach (var trackableObject in GetTrackableObjects())
-                trackableObject.PropertyChanged += OnPropertyChanged;
+            if (property.PropertyType.ImplementsInterface(typeof(INotifyPropertyChanged)) && property.GetValue(TrackedObject) is INotifyPropertyChanged propertyValue)
+                yield return propertyValue;
         }
-
-        private void Unsubscribe()
-        {
-            foreach (var trackableObject in GetTrackableObjects())
-                trackableObject.PropertyChanged -= OnPropertyChanged;
-        }
-
-        private IEnumerable<INotifyPropertyChanged> GetTrackableObjects()
-        {
-            var trackedObject = TrackedObject;
-            foreach (var property in trackedObject.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public))
-            {
-                if (property.PropertyType.ImplementsInterface(typeof(INotifyPropertyChanged)) && property.GetValue(trackedObject) is INotifyPropertyChanged propertyValue)
-                    yield return propertyValue;
-            }
-        }
+    }
         
-        private void OnPropertyChanged(object sender, PropertyChangedEventArgs eventArgs)
-        {
-            HasChanged = true;
-        }
-    }
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs eventArgs) => 
+        HasChanged = true;
 }

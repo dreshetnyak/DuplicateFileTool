@@ -1,32 +1,23 @@
-﻿using System;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 
-namespace DuplicateFileTool
+namespace DuplicateFileTool;
+
+internal sealed class UnmanagedMemory(int size) : IDisposable
 {
-    internal class UnmanagedMemory : IDisposable
+    private IntPtr Pointer { get; } = Marshal.AllocHGlobal(size);
+    private bool Disposed { get; set; }
+
+    ~UnmanagedMemory() => 
+        Dispose();
+
+    public void Dispose()
     {
-        private IntPtr Pointer { get; }
-        private bool Disposed { get; set; }
-
-        public UnmanagedMemory(int size)
-        {
-            Pointer = Marshal.AllocHGlobal(size);
-        }
-
-        ~UnmanagedMemory()
-        {
-            Dispose();
-        }
-
-        public void Dispose()
-        {
-            if (Disposed)
-                return;
-            Marshal.FreeHGlobal(Pointer);
-            Disposed = true;
-            GC.SuppressFinalize(this);
-        }
-
-        public static implicit operator IntPtr(UnmanagedMemory unmanagedMemory) => unmanagedMemory.Pointer;
+        if (Disposed)
+            return;
+        Marshal.FreeHGlobal(Pointer);
+        Disposed = true;
+        GC.SuppressFinalize(this);
     }
+
+    public static implicit operator IntPtr(UnmanagedMemory unmanagedMemory) => unmanagedMemory.Pointer;
 }

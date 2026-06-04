@@ -1,19 +1,13 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Windows.Data;
 
-namespace DuplicateFileTool.Converters
-{
-    internal class NegateBoolConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            return value is bool boolValue ? !boolValue : null;
-        }
+namespace DuplicateFileTool.Converters;
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            return value is bool boolValue ? !boolValue : null;
-        }
-    }
+internal sealed class NegateBoolConverter : IValueConverter
+{
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture) => 
+        value is bool boolValue ? !boolValue : null;
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => 
+        value is bool boolValue ? !boolValue : null;
 }

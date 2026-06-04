@@ -1,28 +1,19 @@
-﻿using System;
-using DuplicateFileTool.Annotations;
+﻿namespace DuplicateFileTool.Commands;
 
-namespace DuplicateFileTool.Commands
+internal sealed class RelayCommand(Action<object?> command, bool enabled = true) : CommandBase(enabled)
 {
-    internal class RelayCommand : CommandBase
+    public Action<object?> Command { get; } = command;
+
+    public override void Execute(object? parameter)
     {
-        public Action<object> Command { get; }
-
-        public override void Execute(object parameter)
+        try
         {
-            try
-            {
-                Enabled = false;
-                Command(parameter);
-            }
-            finally
-            {
-                Enabled = true;
-            }
+            Enabled = false;
+            Command(parameter);
         }
-
-        public RelayCommand([NotNull] Action<object> command, bool enabled = true) : base(enabled)
+        finally
         {
-            Command = command;
+            Enabled = true;
         }
     }
 }

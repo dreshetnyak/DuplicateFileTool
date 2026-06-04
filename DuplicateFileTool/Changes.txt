@@ -22,8 +22,13 @@ Bug. When results are collapsed and you change the page, the collapsing was not 
 =========================================================================
 Done:
 
-DuplicateFileTool 1.2.xxx: 2022-12-29
-Bug. If a results group has a files with different extensions then the exclusion filter will not 
+DuplicateFileTool 2.0.0: 2026-06-04
+The project has been upgraded to .NET 10.
+Converted the project to the modern SDK-style format.
+The code has been refactored to use the new language features and reduce SAST issues.
+Migrated the installer from WiX v3 to v4.
+Changed the project versioning to follow the semantic versioning.
+Bug. The directory enumerator now throws a clear error when the current item is accessed before the enumeration has started.
 
 DuplicateFileTool 1.2.974: 2022-12-29
 New. Added a filter for the results, now you can enter keywords to filter results and adjust the filter in different ways.

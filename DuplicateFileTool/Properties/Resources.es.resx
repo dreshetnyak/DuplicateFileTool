@@ -336,6 +336,9 @@
   <data name="Error_Unknown_file_extension_inclusion_type" xml:space="preserve">
     <value>El tipo de inclusión de extensión de archivos esta desconocido</value>
   </data>
+  <data name="Error_Accessing_invalid_current_enumeration_item" xml:space="preserve">
+    <value>Intentando acceder al elemento actual de la enumeración antes de que haya comenzado</value>
+  </data>
   <data name="FileHashComparer_Description" xml:space="preserve">
     <value>Calcula hash de los archivos al leerlos, compara el hash para determinar si los archivos son iguales. El hash calculado está guardado en cache para prevenir la lectura doble de los archivos</value>
   </data>

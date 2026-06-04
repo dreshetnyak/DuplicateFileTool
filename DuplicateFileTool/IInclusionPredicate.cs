@@ -1,7 +1,6 @@
-﻿namespace DuplicateFileTool
+﻿namespace DuplicateFileTool;
+
+internal interface IInclusionPredicate<in T>
 {
-    internal interface IInclusionPredicate<in T>
-    {
-        bool IsIncluded(T item);
-    }
+    bool IsIncluded(T item);
 }

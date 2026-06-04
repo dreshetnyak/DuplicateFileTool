@@ -11,7 +11,7 @@ using System.Windows;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("Duplicate File Tool")]
-[assembly: AssemblyCopyright("Copyright © 2020-2021 by Dennis Reshetnyak")]
+[assembly: AssemblyCopyright("Copyright © 2020-2026 by Dennis Reshetnyak")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -50,4 +50,4 @@ using System.Windows;
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.2.0.978")]
+[assembly: AssemblyVersion("2.0.0")]

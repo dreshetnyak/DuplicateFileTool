@@ -1,81 +1,69 @@
-﻿using System;
-using System.Linq;
-using System.Reflection;
-using DuplicateFileTool.Annotations;
+﻿using System.Reflection;
 
-namespace DuplicateFileTool
+namespace DuplicateFileTool;
+
+internal sealed class Reflected(object obj, BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.Public)
 {
-    internal class Reflected
+    private object ReflectedObject { get; } = obj;
+    private Type ReflectedObjectType { get; } = obj.GetType();
+    private BindingFlags BindingFlags { get; } = bindingFlags;
+
+    public bool TryGet(string name, out object? value)
     {
-        private object ReflectedObject { get; }
-        private Type ReflectedObjectType { get; }
-        private BindingFlags BindingFlags { get; }
-
-        public Reflected([NotNull] object obj, BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.Public)
+        var property = GetPropertyInfo(name);
+        if (property == default)
         {
-            ReflectedObject = obj;
-            ReflectedObjectType = obj.GetType();
-            BindingFlags = bindingFlags;
-        }
-
-        public bool TryGet(string name, out object value)
-        {
-            var property = GetPropertyInfo(name);
-            if (property == default)
-            {
-                value = default;
-                return false;
-            }
-
-            value = property.GetValue(ReflectedObject);
-            return true;
-        }
-
-        public bool TryGetValue(string name, out object value)
-        {
-            if (TryGet(name, out var obj) && new Reflected(obj).TryGet("Value", out value))
-                return true;
-            value = null;
+            value = default;
             return false;
         }
 
-        public bool TrySet(string name, string value)
+        value = property.GetValue(ReflectedObject);
+        return true;
+    }
+
+    public bool TryGetValue(string name, out object? value) => 
+        TryGet(name, out value) && 
+        value is not null && 
+        new Reflected(value).TryGet("Value", out value);
+
+    public bool TrySet(string name, string value)
+    {
+        var property = GetPropertyInfo(name);
+        if (property == default)
+            return false;
+
+        object convertedValue;
+        try { convertedValue = FromString(value, property.PropertyType); }
+        catch { return false; }
+
+        try { property.SetValue(ReflectedObject, convertedValue); }
+        catch { return false; }
+
+        return true;
+    }
+
+    public bool TrySetValue(string name, string stringValue) =>
+        TryGet(name, out var value) &&
+        value is not null && 
+        new Reflected(value).TrySet("Value", stringValue);
+
+    private PropertyInfo? GetPropertyInfo(string name)
+    {
+        foreach (var property in ReflectedObjectType.GetProperties(BindingFlags))
         {
-            var property = GetPropertyInfo(name);
-            if (property == default)
-                return false;
-
-            object convertedValue;
-            try { convertedValue = FromString(value, property.PropertyType); }
-            catch { return false; }
-
-            try { property.SetValue(ReflectedObject, convertedValue); }
-            catch { return false; }
-
-            return true;
+            if (property.Name == name) 
+                return property;
         }
 
-        public bool TrySetValue(string name, string stringValue)
-        {
-            return TryGet(name, out var obj) && 
-                   !ReferenceEquals(obj, null) && 
-                   new Reflected(obj).TrySet("Value", stringValue);
-        }
+        return null;
+    }
 
-        private PropertyInfo GetPropertyInfo(string name)
-        {
-            return ReflectedObjectType
-                .GetProperties(BindingFlags)
-                .FirstOrDefault(property => property.Name == name);
-        }
-
-        private static object FromString(string str, Type type)
-        {
-            if (type.IsEnum)
-                return Enum.Parse(type, str);
-            return type != typeof(Guid)
-                ? Convert.ChangeType(str, type)
-                : Guid.Parse(str);
-        }
+    private static object FromString(string str, Type type)
+    {
+        if (type.IsEnum)
+            return Enum.Parse(type, str);
+        return type != typeof(Guid)
+            ? Convert.ChangeType(str, type)
+            : Guid.Parse(str);
     }
 }

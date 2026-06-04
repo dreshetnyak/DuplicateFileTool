@@ -717,7 +717,15 @@ namespace DuplicateFileTool.Properties {
                 return ResourceManager.GetString("Error_Unknown_file_extension_inclusion_type", resourceCulture);
             }
         }
-        
+
+        public static string Error_Accessing_invalid_current_enumeration_item
+        {
+            get
+            {
+                return ResourceManager.GetString("Error_Accessing_invalid_current_enumeration_item", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Calculates file hash while read files, compares the hash values. The hash is cached to prevent reading files twice.
         /// </summary>

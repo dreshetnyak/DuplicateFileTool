@@ -27,7 +27,7 @@
             <StackPanel Orientation="Horizontal">
                 <StackPanel.ContextMenu>
                     <ContextMenu StaysOpen="False">
-                        <!-- Command and CommandParameter should be be fixed.  -->
+                        <!-- Command and CommandParameter should be fixed.  -->
                         <MenuItem Header="{x:Static resx:Resources.Ui_File_Tree_Context_Menu_Open_File_In_Explorer}" 
                                   Command="{DynamicResource OpenFileInExplorer}"
                                   CommandParameter="{Binding}">

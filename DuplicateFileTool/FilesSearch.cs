@@ -1,154 +1,143 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.IO;
 
-namespace DuplicateFileTool
+namespace DuplicateFileTool;
+
+internal sealed class FilesSearchProgressEventArgs(string path, bool isDirectory, int foundFilesCount) : EventArgs
 {
-    internal sealed class FilesSearchProgressEventArgs : EventArgs
-    {
-        public string Path { get; }
-        public bool IsDirectory { get; }
-        public int FoundFilesCount { get; }
-        public FilesSearchProgressEventArgs(string path, bool isDirectory, int foundFilesCount) { Path = path; IsDirectory = isDirectory; FoundFilesCount = foundFilesCount; }
-    }
-    internal delegate void FilesSearchProgressEventHandler(object sender, FilesSearchProgressEventArgs eventArgs);
+    public string Path { get; } = path;
+    public bool IsDirectory { get; } = isDirectory;
+    public int FoundFilesCount { get; } = foundFilesCount;
+}
+internal delegate void FilesSearchProgressEventHandler(object? sender, FilesSearchProgressEventArgs eventArgs);
    
-    internal class FilesSearch
+internal sealed class FilesSearch
+{
+    public event FilesSearchProgressEventHandler? FilesSearchProgress;
+    public event FileSystemErrorEventHandler? FileSystemError;
+
+    public async Task<IReadOnlyCollection<FileData>> Find(IReadOnlyCollection<SearchPath> searchPaths, IInclusionPredicate<FileData> inclusionPredicate, CancellationToken cancellationToken)
     {
-        public event FilesSearchProgressEventHandler FilesSearchProgress;
-        public event FileSystemErrorEventHandler FileSystemError;
+        var fileSearchResults = new List<Task<List<FileData>>>();
 
-        public async Task<IReadOnlyCollection<FileData>> Find(IReadOnlyCollection<SearchPath> searchPaths, IInclusionPredicate<FileData> inclusionPredicate, CancellationToken cancellationToken)
+        foreach (var physicalDrivePartitions in Drives.Get().GroupBy(drive => drive.PhysicalDriveNumber)) //Split the work by physical drives
         {
-            var fileSearchResults = new List<Task<IReadOnlyCollection<FileData>>>();
+            var physicalDrivePaths = searchPaths.Where(searchPath =>
+                physicalDrivePartitions.Any(driveInfo =>
+                    driveInfo.Name == new DirectoryInfo(searchPath.Path).Root.FullName)).ToArray();
 
-            foreach (var physicalDrivePartitions in Drives.Get().GroupBy(drive => drive.PhysicalDriveNumber)) //Split the work by physical drives
-            {
-                var physicalDrivePaths = searchPaths.Where(searchPath =>
-                    physicalDrivePartitions.Any(driveInfo =>
-                        driveInfo.Name == new DirectoryInfo(searchPath.Path).Root.FullName)).ToArray();
+            if (physicalDrivePaths.Length == 0)
+                continue;
 
-                if (physicalDrivePaths.Length == 0)
-                    continue;
-
-                fileSearchResults.Add(Task.Run(() => FindFiles(physicalDrivePaths, inclusionPredicate, cancellationToken), cancellationToken));
-            }
-
-            var searchResults = new List<FileData>();
-            foreach (var task in fileSearchResults)
-                searchResults.AddRange(await task);
-
-            return searchResults;
+            fileSearchResults.Add(Task.Run(() => FindFiles(physicalDrivePaths, inclusionPredicate, cancellationToken), cancellationToken));
         }
 
-        private IReadOnlyCollection<FileData> FindFiles(IEnumerable<SearchPath> searchPaths, IInclusionPredicate<FileData> inclusionPredicate, CancellationToken cancellationToken)
+        var searchResults = new List<FileData>();
+        foreach (var task in fileSearchResults)
+            searchResults.AddRange(await task);
+
+        return searchResults;
+    }
+
+    private List<FileData> FindFiles(IEnumerable<SearchPath> searchPaths, IInclusionPredicate<FileData> inclusionPredicate, CancellationToken cancellationToken)
+    {
+        var foundFiles = new List<FileData>();
+
+        var searchPathsList = searchPaths.ToList();
+        var includePaths = GetPaths(searchPathsList, InclusionType.Include);
+        var excludePaths = GetPaths(searchPathsList, InclusionType.Exclude);
+
+        try
         {
-            var foundFiles = new List<FileData>();
-
-            var searchPathsList = searchPaths.ToList();
-            var includePaths = GetPaths(searchPathsList, InclusionType.Include);
-            var excludePaths = GetPaths(searchPathsList, InclusionType.Exclude);
-
-            try
+            foreach (var path in includePaths)
             {
-                foreach (var path in includePaths)
+                cancellationToken.ThrowIfCancellationRequested();
+                foreach (var foundPath in FindPathFiles(path, excludePaths, foundFiles.Count, inclusionPredicate, cancellationToken))
                 {
-                    cancellationToken.ThrowIfCancellationRequested();
-                    foreach (var foundPath in FindPathFiles(path, excludePaths, foundFiles.Count, inclusionPredicate, cancellationToken))
-                    {
-                        if (inclusionPredicate.IsIncluded(foundPath))
-                            foundFiles.Add(foundPath);
-                    }
+                    if (inclusionPredicate.IsIncluded(foundPath))
+                        foundFiles.Add(foundPath);
                 }
             }
-            catch (OperationCanceledException)
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (DirectoryAccessFailedException ex)
+        {
+            OnFileSystemError(ex.DirectoryPath, ex.Message, ex);
+        }
+        catch (Exception ex)
+        {
+            OnFileSystemError("", ex.Message, ex);
+        }
+
+        return foundFiles;
+    }
+
+    private static List<string> GetPaths(IEnumerable<SearchPath> searchPaths, InclusionType inclusionType)
+    {
+        var paths = searchPaths
+            .Where(searchPath => searchPath.PathInclusionType == inclusionType)
+            .Select(searchPath => searchPath.Path)
+            .ToList();
+
+        paths.RemoveAll(path1 => paths.Exists(path2 => !ReferenceEquals(path1, path2) && path1.StartsWith(path2, StringComparison.OrdinalIgnoreCase)));
+
+        return paths;
+    }
+
+    private IEnumerable<FileData> FindPathFiles(string path, IReadOnlyCollection<string> excludePaths, int foundFilesCount, IInclusionPredicate<FileData> inclusionPredicate, CancellationToken cancellationToken)
+    {
+        using var directoryEnumerator = new DirectoryEnumeration(path).GetEnumerator();
+        var moreItems = false;
+        do
+        {
+            FileData fileData;
+            try
             {
-                throw;
+                moreItems = directoryEnumerator.MoveNext();
+                if (!moreItems)
+                    continue;
+                fileData = directoryEnumerator.Current;
             }
-            catch (DirectoryAccessFailedException ex)
+            catch (FileSystemException ex)
             {
-                OnFileSystemError(ex.DirectoryPath, ex.Message, ex);
+                OnFileSystemError(ex.FileFullName, ex.Message, ex);
+                continue;
             }
             catch (Exception ex)
             {
-                OnFileSystemError("", ex.Message, ex);
+                OnFileSystemError(path, ex.Message, ex);
+                continue;
             }
 
-            return foundFiles;
-        }
+            cancellationToken.ThrowIfCancellationRequested();
 
-        private static IReadOnlyCollection<string> GetPaths(IEnumerable<SearchPath> searchPaths, InclusionType inclusionType)
-        {
-            var paths = searchPaths
-                .Where(searchPath => searchPath.PathInclusionType == inclusionType)
-                .Select(searchPath => searchPath.Path)
-                .ToList();
+            if (!inclusionPredicate.IsIncluded(fileData))
+                continue;
 
-            paths.RemoveAll(path1 => paths.Any(path2 => !ReferenceEquals(path1, path2) && path1.StartsWith(path2, StringComparison.OrdinalIgnoreCase)));
-
-            return paths;
-        }
-
-        private IEnumerable<FileData> FindPathFiles(string path, IReadOnlyCollection<string> excludePaths, int foundFilesCount, IInclusionPredicate<FileData> inclusionPredicate, CancellationToken cancellationToken)
-        {
-            using var directoryEnumerator = new DirectoryEnumeration(path).GetEnumerator();
-            var moreItems = false;
-            do
+            var fileDataFullName = fileData.FullName;
+            if (!fileData.Attributes.IsDirectory)
             {
-                FileData fileData;
-                try
-                {
-                    if (!(moreItems = directoryEnumerator.MoveNext()))
-                        continue;
-                    fileData = directoryEnumerator.Current;
-                    if (fileData == null)
-                        continue;
-                }
-                catch (FileSystemException ex)
-                {
-                    OnFileSystemError(ex.FileFullName, ex.Message, ex);
-                    continue;
-                }
-                catch (Exception ex)
-                {
-                    OnFileSystemError(path, ex.Message, ex);
-                    continue;
-                }
+                FilesSearchProgress?.Invoke(this, new FilesSearchProgressEventArgs(fileDataFullName, false, foundFilesCount++));
+                yield return fileData;
+                continue;
+            }
 
-                cancellationToken.ThrowIfCancellationRequested();
+            if (excludePaths.Any(excludePath => fileDataFullName.StartsWith(excludePath, StringComparison.OrdinalIgnoreCase)))
+                continue;
 
-                if (!inclusionPredicate.IsIncluded(fileData))
-                    continue;
-
-                var fileDataFullName = fileData.FullName;
-                if (!fileData.Attributes.IsDirectory)
-                {
-                    FilesSearchProgress?.Invoke(this, new FilesSearchProgressEventArgs(fileDataFullName, false, foundFilesCount++));
-                    yield return fileData;
-                    continue;
-                }
-
-                if (excludePaths.Any(excludePath => fileDataFullName.StartsWith(excludePath, StringComparison.OrdinalIgnoreCase)))
-                    continue;
-
-                FilesSearchProgress?.Invoke(this, new FilesSearchProgressEventArgs(fileDataFullName, true, foundFilesCount));
+            FilesSearchProgress?.Invoke(this, new FilesSearchProgressEventArgs(fileDataFullName, true, foundFilesCount));
                 
-                foreach (var subDirFileData in FindPathFiles(fileDataFullName, excludePaths, foundFilesCount, inclusionPredicate, cancellationToken))
-                {
-                    FilesSearchProgress?.Invoke(this, new FilesSearchProgressEventArgs(fileDataFullName, false, foundFilesCount++));
-                    yield return subDirFileData;
-                }
+            foreach (var subDirFileData in FindPathFiles(fileDataFullName, excludePaths, foundFilesCount, inclusionPredicate, cancellationToken))
+            {
+                FilesSearchProgress?.Invoke(this, new FilesSearchProgressEventArgs(fileDataFullName, false, foundFilesCount++));
+                yield return subDirFileData;
+            }
 
-            } while (moreItems);
-        }
-
-        protected virtual void OnFileSystemError(string path, string message, Exception exception = null)
-        {
-            FileSystemError?.Invoke(this, new FileSystemErrorEventArgs(path, message, exception));
-        }
+        } while (moreItems);
     }
+
+    private void OnFileSystemError(string path, string message, Exception? exception = null) => 
+        FileSystemError?.Invoke(this, new FileSystemErrorEventArgs(path, message, exception));
 }
