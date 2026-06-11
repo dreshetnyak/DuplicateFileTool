@@ -15,7 +15,7 @@
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
     <ApplicationRevision>0</ApplicationRevision>
-    <ApplicationVersion>2.0.1.%2a</ApplicationVersion>
+    <ApplicationVersion>2.1.0.%2a</ApplicationVersion>
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
@@ -141,7 +141,7 @@
     <Resource Include="Images\StartGray.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Changes.txt" />
+    <Resource Include="Changes.md" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\First.png" />
@@ -172,6 +172,7 @@
     <Compile Remove="AddOrRemoveExtensionsModelView.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.8" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.9" />
+    <PackageReference Include="System.IO.Hashing" Version="10.0.9" />
   </ItemGroup>
 </Project>

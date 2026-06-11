@@ -40,6 +40,15 @@ internal interface ICandidatePredicate
     bool IsCandidate(FileData firstFile, FileData secondFile);
 }
 
+// Optional fast path for ICandidatePredicate implementations. Partitions the files into
+// groups within which pairwise comparison is worthwhile, letting the comparer use a
+// sub-quadratic strategy it alone can know (size buckets, LSH bands, etc.).
+// Files that cannot match anything may be omitted; groups may overlap.
+internal interface ICandidateGrouper
+{
+    IEnumerable<IReadOnlyList<FileData>> GroupCandidates(IReadOnlyCollection<FileData> files, CancellationToken cancellationToken);
+}
+
 #endregion
     
 #region Comparable File Factory

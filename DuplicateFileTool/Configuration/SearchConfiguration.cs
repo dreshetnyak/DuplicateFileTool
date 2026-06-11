@@ -30,6 +30,11 @@ internal sealed class SearchConfiguration : NotifyPropertyChanged, IChangeable, 
         Resources.Config_ExcludeOsFiles_Description,
         true);
 
+    public ConfigurationProperty<bool> ExcludeZeroSizeFiles { get; } = new(
+        Resources.Config_ExcludeZeroSizeFiles_Name,
+        Resources.Config_ExcludeZeroSizeFiles_Description,
+        true);
+
     public ConfigurationProperty<Guid> SelectedFileComparerGuid { get; } = new(
         Resources.Configur_SelectedFileComparerGuid_Name,
         Resources.Configur_SelectedFileComparerGuid_Description,

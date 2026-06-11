@@ -25,6 +25,9 @@ internal sealed class FileSearchInclusionPredicate(SearchConfiguration searchCon
             return false;
 
         var fileSize = fileData.Size;
+        if (SearchConfig.ExcludeZeroSizeFiles.Value && fileSize == 0)
+            return false;
+
         var sizeUnit = SearchConfig.ByteSizeUnit.Value;
         var maxFileSize = SearchConfig.MaxFileSize.Value;
             

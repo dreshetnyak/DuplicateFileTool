@@ -195,6 +195,12 @@
   <data name="Config_ExcludeSystemFiles_Name" xml:space="preserve">
     <value>Исключить системные файлы и директории</value>
   </data>
+  <data name="Config_ExcludeZeroSizeFiles_Description" xml:space="preserve">
+    <value>Если опция включена программа исключит из поиска файлы нулевого размера. Такие файлы не содержат данных для сравнения и не считаются дубликатами.</value>
+  </data>
+  <data name="Config_ExcludeZeroSizeFiles_Name" xml:space="preserve">
+    <value>Исключить файлы нулевого размера</value>
+  </data>
   <data name="Config_ExtensionInclusionType_Description" xml:space="preserve">
     <value>Список расширений файлов, которые должны быть включены или исключены из поиска</value>
   </data>
@@ -232,7 +238,7 @@
     <value>Минимальный размер файла</value>
   </data>
   <data name="Config_Results_Delete_To_Recycle_Bin_Description" xml:space="preserve">
-    <value>Определяет должны ли файлы удаляться в корзину или сразу удаляться перманентно</value>
+    <value>Определяет должны ли дублированные файлы удаляться в корзину или удаляться безвозвратно. Пустые каталоги всегда удаляются безвозвратно. Примечание: на некоторых съёмных дисках нет корзины, файлы удалённые с таких дисков удаляются безвозвратно</value>
   </data>
   <data name="Config_Results_Delete_To_Recycle_Bin_Name" xml:space="preserve">
     <value>Удалять в корзину</value>
@@ -315,6 +321,18 @@
   <data name="Error_File_x_not_found" xml:space="preserve">
     <value>Файл '{0}' не существует</value>
   </data>
+  <data name="Error_Recycle_Aborted" xml:space="preserve">
+    <value>Операция с корзиной была прервана</value>
+  </data>
+  <data name="Error_Recycle_Failed" xml:space="preserve">
+    <value>Не удалось переместить файл в корзину, код ошибки 0x{0:X}</value>
+  </data>
+  <data name="Error_Recycle_Not_Available" xml:space="preserve">
+    <value>В этом расположении нет корзины</value>
+  </data>
+  <data name="Error_Recycle_Path_Too_Long" xml:space="preserve">
+    <value>Путь к файлу слишком длинный для корзины</value>
+  </data>
   <data name="Error_The_value_is_greater_than_the_allowed_maximum" xml:space="preserve">
     <value>Значение превышает допустимый максимум</value>
   </data>
@@ -376,8 +394,32 @@
   <data name="Log_Performing_deletion_of_the_marked_duplicates" xml:space="preserve">
     <value>Осуществляется удаление выбранных дубликатов.</value>
   </data>
+  <data name="Log_Recycle_Deleting_Permanently" xml:space="preserve">
+    <value>Безвозвратное удаление: {0}</value>
+  </data>
+  <data name="Log_Recycle_Skipped" xml:space="preserve">
+    <value>Пропущен: {0}; файл не был удалён</value>
+  </data>
   <data name="Log_Unmarking_FullFileName" xml:space="preserve">
     <value>Отменён выбор: {0}</value>
+  </data>
+  <data name="RecyclePrompt_Apply_To_All" xml:space="preserve">
+    <value>Применить ко всем оставшимся файлам</value>
+  </data>
+  <data name="RecyclePrompt_Cancel" xml:space="preserve">
+    <value>Отменить удаление</value>
+  </data>
+  <data name="RecyclePrompt_Delete_Permanently" xml:space="preserve">
+    <value>Удалить безвозвратно</value>
+  </data>
+  <data name="RecyclePrompt_Header" xml:space="preserve">
+    <value>Следующий файл не может быть перемещён в корзину:</value>
+  </data>
+  <data name="RecyclePrompt_Ignore" xml:space="preserve">
+    <value>Пропустить</value>
+  </data>
+  <data name="RecyclePrompt_Title" xml:space="preserve">
+    <value>Невозможно переместить в корзину</value>
   </data>
   <data name="Ui_About_Program_Site" xml:space="preserve">
     <value>[Сайт]</value>

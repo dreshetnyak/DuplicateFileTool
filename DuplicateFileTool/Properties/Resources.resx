@@ -195,6 +195,12 @@
   <data name="Config_ExcludeSystemFiles_Name" xml:space="preserve">
     <value>Exclude system files and directories</value>
   </data>
+  <data name="Config_ExcludeZeroSizeFiles_Description" xml:space="preserve">
+    <value>If enabled the program will skip the files of zero size. Such files contain no data to compare, so they are not considered duplicates.</value>
+  </data>
+  <data name="Config_ExcludeZeroSizeFiles_Name" xml:space="preserve">
+    <value>Exclude zero size files</value>
+  </data>
   <data name="Config_ExtensionInclusionType_Description" xml:space="preserve">
     <value>Specifies if the listed extensions have to be included or excluded from the search</value>
   </data>
@@ -232,7 +238,7 @@
     <value>Minimum file size</value>
   </data>
   <data name="Config_Results_Delete_To_Recycle_Bin_Description" xml:space="preserve">
-    <value>Indicates if the duplicated files and directories should be deleted to the recycle bin or deleted permanently</value>
+    <value>Indicates if the duplicated files should be deleted to the recycle bin or deleted permanently. Empty directories are always removed permanently. Note: some removable drives have no recycle bin, files deleted from such drives are removed permanently</value>
   </data>
   <data name="Config_Results_Delete_To_Recycle_Bin_Name" xml:space="preserve">
     <value>Delete to recycle bin</value>
@@ -315,6 +321,18 @@
   <data name="Error_File_x_not_found" xml:space="preserve">
     <value>The file '{0}' does not exist</value>
   </data>
+  <data name="Error_Recycle_Aborted" xml:space="preserve">
+    <value>The recycle bin operation was aborted</value>
+  </data>
+  <data name="Error_Recycle_Failed" xml:space="preserve">
+    <value>Moving the file to the recycle bin has failed, error code 0x{0:X}</value>
+  </data>
+  <data name="Error_Recycle_Not_Available" xml:space="preserve">
+    <value>This location does not have a recycle bin</value>
+  </data>
+  <data name="Error_Recycle_Path_Too_Long" xml:space="preserve">
+    <value>The file path is too long for the recycle bin</value>
+  </data>
   <data name="Error_The_value_is_greater_than_the_allowed_maximum" xml:space="preserve">
     <value>The value is greater than the allowed maximum</value>
   </data>
@@ -376,8 +394,32 @@
   <data name="Log_Performing_deletion_of_the_marked_duplicates" xml:space="preserve">
     <value>Performing deletion of the marked duplicates.</value>
   </data>
+  <data name="Log_Recycle_Deleting_Permanently" xml:space="preserve">
+    <value>Deleting permanently: {0}</value>
+  </data>
+  <data name="Log_Recycle_Skipped" xml:space="preserve">
+    <value>Skipped: {0}; the file was left in place</value>
+  </data>
   <data name="Log_Unmarking_FullFileName" xml:space="preserve">
     <value>Unmarking: {0}</value>
+  </data>
+  <data name="RecyclePrompt_Apply_To_All" xml:space="preserve">
+    <value>Apply to all remaining files</value>
+  </data>
+  <data name="RecyclePrompt_Cancel" xml:space="preserve">
+    <value>Cancel deletion</value>
+  </data>
+  <data name="RecyclePrompt_Delete_Permanently" xml:space="preserve">
+    <value>Delete permanently</value>
+  </data>
+  <data name="RecyclePrompt_Header" xml:space="preserve">
+    <value>The following file cannot be moved to the recycle bin:</value>
+  </data>
+  <data name="RecyclePrompt_Ignore" xml:space="preserve">
+    <value>Ignore</value>
+  </data>
+  <data name="RecyclePrompt_Title" xml:space="preserve">
+    <value>Cannot move to the recycle bin</value>
   </data>
   <data name="Ui_About_Program_Site" xml:space="preserve">
     <value>[Program Site]</value>

@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Hashing;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Security.Cryptography;
 using DuplicateFileTool.Properties;
 
 namespace DuplicateFileTool.Comparers;
@@ -16,9 +16,8 @@ internal sealed class ComparableFileHashConfig : FileComparerConfig
         65535, new LongValidationRule(512, int.MaxValue));
 }
 
-internal sealed class FileHashComparer : FileComparer, IDisposable
+internal sealed class FileHashComparer : FileComparer
 {
-    public static HashAlgorithm Hash { get; } = MD5.Create();
     public override IFileComparerConfig Config { get; protected init; }
     public override ICandidatePredicate CandidatePredicate { get; protected init; }
     public override IComparableFileFactory ComparableFileFactory { get; protected init; }
@@ -33,8 +32,6 @@ internal sealed class FileHashComparer : FileComparer, IDisposable
         ComparableFileFactory = new ComparableFileHash.Factory(Config);
         CandidatePredicate = new ComparableFileHash.CandidatePredicate();
     }
-
-    public void Dispose() => Hash.Dispose();
 }
 
 [Localizable(true)]
@@ -42,11 +39,29 @@ internal sealed class FileHashComparer : FileComparer, IDisposable
 internal sealed class ComparableFileHash : IComparableFile, IDisposable
 {
     #region Candidate Predicate Implementation
-    public sealed class CandidatePredicate : ICandidatePredicate
+    public sealed class CandidatePredicate : ICandidatePredicate, ICandidateGrouper
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool IsCandidate(FileData firstFile, FileData secondFile) => 
+        public bool IsCandidate(FileData firstFile, FileData secondFile) =>
             firstFile.Size == secondFile.Size;
+
+        public IEnumerable<IReadOnlyList<FileData>> GroupCandidates(IReadOnlyCollection<FileData> files, CancellationToken cancellationToken)
+        {
+            var groupsBySize = new Dictionary<long, List<FileData>>();
+            foreach (var file in files)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                if (!groupsBySize.TryGetValue(file.Size, out var sizeGroup))
+                    groupsBySize.Add(file.Size, sizeGroup = new List<FileData>(2));
+                sizeGroup.Add(file);
+            }
+
+            foreach (var sizeGroup in groupsBySize.Values)
+            {
+                if (sizeGroup.Count > 1)
+                    yield return sizeGroup;
+            }
+        }
     }
 
     #endregion
@@ -146,7 +161,7 @@ internal sealed class ComparableFileHash : IComparableFile, IDisposable
         if (bytesRead == -1)
             throw new InvalidOperationException(string.Format(Resources.Error_ComparableFileHash_Cant_read_the_file, FileData.FullName) + new Win32Exception(Marshal.GetLastWin32Error()).Message);
 
-        var hashBytes = FileHashComparer.Hash.ComputeHash(fragmentForHash, 0, bytesRead);
+        var hashBytes = XxHash128.Hash(fragmentForHash.AsSpan(0, bytesRead)); //One-shot static hashing is thread-safe, the comparison runs in parallel drive lanes
         Cache.Add(hashBytes);
         return hashBytes;
     }

@@ -17,6 +17,13 @@ public partial class MainWindow : Window
         InitializeComponent();
         DataContext = new MainViewModel(ResultsTreeView);
         Closed += OnWindowClosed;
+        Activated += OnWindowActivated;
+    }
+
+    private void OnWindowActivated(object? sender, EventArgs e)
+    {
+        if (DataContext is MainViewModel viewModel)
+            viewModel.RefreshExpandedFileTreeItems();
     }
 
     private void OnWindowClosed(object? sender, EventArgs e)
@@ -25,6 +32,17 @@ public partial class MainWindow : Window
             return;
         try { disposable.Dispose(); }
         catch { /* ignore */ }
+    }
+
+    // Keeps the window wide enough that the Results toolbar (sort, filter, paging) is never clipped.
+    // The required width is measured at runtime instead of hardcoded so it stays correct for any UI culture.
+    private void OnResultsToolbarSizeChanged(object sender, SizeChangedEventArgs eventArgs)
+    {
+        var toolbar = (FrameworkElement)sender;
+        var nonToolbarWidth = ActualWidth - toolbar.ActualWidth;
+        var neededWidth = toolbar.DesiredSize.Width + nonToolbarWidth;
+        if (neededWidth > MinWidth)
+            MinWidth = neededWidth;
     }
 
 #pragma warning disable S2325

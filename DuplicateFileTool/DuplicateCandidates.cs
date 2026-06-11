@@ -23,8 +23,76 @@ internal sealed class DuplicateCandidates
         IComparableFileFactory comparableFileFactory,
         CancellationToken ctx)
     {
+        if (duplicateCandidatePredicate is ICandidateGrouper candidateGrouper)
+            return await Task.Run(() => FindGrouped(srcFiles, candidateGrouper, comparableFileFactory, ctx), ctx);
+
+        return await FindPairwise(srcFiles, duplicateCandidatePredicate, comparableFileFactory, ctx);
+    }
+
+    private List<IComparableFile[]> FindGrouped(
+        IReadOnlyCollection<FileData> srcFiles,
+        ICandidateGrouper candidateGrouper,
+        IComparableFileFactory comparableFileFactory,
+        CancellationToken ctx)
+    {
         var duplicateCandidates = new List<IComparableFile[]>(256);
-        
+
+        var candidateGroups = candidateGrouper.GroupCandidates(srcFiles, ctx).ToList();
+        var totalFilesCount = 0;
+        foreach (var candidateGroup in candidateGroups)
+            totalFilesCount += candidateGroup.Count;
+
+        var fileIndex = 0;
+        var candidatesTotalSize = 0L;
+        var candidateFilesCount = 0;
+
+        foreach (var candidateGroup in candidateGroups)
+        {
+            var comparableFiles = new List<IComparableFile>(candidateGroup.Count);
+            var groupSize = 0L;
+            foreach (var candidateFileData in candidateGroup)
+            {
+                try
+                {
+                    comparableFiles.Add(comparableFileFactory.Create(candidateFileData));
+                    groupSize += candidateFileData.Size;
+                }
+                catch (OperationCanceledException)
+                {
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    OnFileSystemError(candidateFileData.FullName, ex);
+                }
+                finally
+                {
+                    OnScanningPath(candidateFileData.FullName, fileIndex++, totalFilesCount, duplicateCandidates.Count, candidateFilesCount, candidatesTotalSize);
+                }
+            }
+
+            if (comparableFiles.Count < 2)
+            {
+                foreach (var comparableFile in comparableFiles)
+                    (comparableFile as IDisposable)?.Dispose();
+                continue;
+            }
+
+            candidatesTotalSize += groupSize;
+            candidateFilesCount += comparableFiles.Count;
+            duplicateCandidates.Add(comparableFiles.ToArray());
+        }
+
+        return duplicateCandidates;
+    }
+
+    private async Task<List<IComparableFile[]>> FindPairwise(
+        IReadOnlyCollection<FileData> srcFiles,
+        ICandidatePredicate duplicateCandidatePredicate,
+        IComparableFileFactory comparableFileFactory,
+        CancellationToken ctx)
+    {
+        var duplicateCandidates = new List<IComparableFile[]>(256);
 
         var fileIndex = 0;
         var filesCount = srcFiles.Count;

@@ -118,6 +118,36 @@ internal sealed class FileTreeItem : NotifyPropertyChanged
         Children.Add(ChildPlaceholder);
     }
 
+    public void Refresh()
+    {
+        if (!IsExpanded)
+            return;
+
+        var previousChildren = Children.ToList();
+        Children.Clear();
+        LoadChildren();
+        RestoreChildrenState(previousChildren);
+    }
+
+    private void RestoreChildrenState(IReadOnlyCollection<FileTreeItem> previousChildren)
+    {
+        foreach (var child in Children)
+        {
+            var previous = previousChildren.FirstOrDefault(item => string.Equals(item.ItemPath, child.ItemPath, StringComparison.OrdinalIgnoreCase));
+            if (previous == null)
+                continue;
+
+            if (previous.IsSelected)
+                child.IsSelected = true;
+
+            if (!previous.IsExpanded)
+                continue;
+
+            child.IsExpanded = true;
+            child.RestoreChildrenState(previous.Children);
+        }
+    }
+
     private static void SortFileData(List<FileData> directoryContent)
     {
         directoryContent.Sort((left, right) =>

@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel;
 using DuplicateFileTool.Configuration;
+using DuplicateFileTool.Windows;
+using Application = System.Windows.Application;
 
 namespace DuplicateFileTool.Commands;
 
@@ -35,7 +37,7 @@ internal sealed class DeleteMarkedFilesCommand : CommandBase
                 ctx = Cts.Token;
             }
 
-            await Duplicates.RemoveDuplicates(Duplicates.DuplicateGroups, ResultsConfig.RemoveEmptyDirectories.Value, ResultsConfig.DeleteToRecycleBin.Value, ctx);
+            await Duplicates.RemoveDuplicates(Duplicates.DuplicateGroups, ResultsConfig.RemoveEmptyDirectories.Value, ResultsConfig.DeleteToRecycleBin.Value, PromptRecycleFailure, ctx);
         }
         finally
         {
@@ -59,6 +61,15 @@ internal sealed class DeleteMarkedFilesCommand : CommandBase
         try { lock (CtsLock) Cts?.Cancel(); }
         catch { /* ignore */ }
     }
+
+    //Called on the deletion worker thread; the worker stays blocked until the user makes a choice
+    private static RecycleFailureResponse PromptRecycleFailure(string filePath, string reason) =>
+        Application.Current.Dispatcher.Invoke(() =>
+        {
+            var viewModel = new RecycleFailurePromptViewModel(filePath, reason);
+            new RecycleFailurePrompt(viewModel).ShowDialog();
+            return new RecycleFailureResponse(viewModel.Decision, viewModel.ApplyToAll);
+        });
 
     private void OnStarted() => 
         Started?.Invoke(this, EventArgs.Empty);

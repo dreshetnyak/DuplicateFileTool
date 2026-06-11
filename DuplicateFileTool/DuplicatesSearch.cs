@@ -1,5 +1,6 @@
-﻿using System.Diagnostics;
-using System.Runtime.CompilerServices;
+using System.Collections.Concurrent;
+using System.Diagnostics;
+using System.IO;
 
 namespace DuplicateFileTool;
 
@@ -21,10 +22,10 @@ internal sealed class DuplicatesSearchProgressEventArgs : EventArgs
             HasStats = true;
         else
             return;
-        CurrentFileIndex = context.CurrentFileIndex;
+        CurrentFileIndex = Volatile.Read(ref context.CurrentFileIndex);
         TotalFilesCount = context.TotalFilesCount;
-        DuplicateFilesCount = context.DuplicateFilesCount;
-        DuplicatedTotalSize = context.DuplicatedTotalSize;
+        DuplicateFilesCount = Volatile.Read(ref context.DuplicateFilesCount);
+        DuplicatedTotalSize = Interlocked.Read(ref context.DuplicatedTotalSize);
     }
 }
 
@@ -54,43 +55,95 @@ internal sealed class MatchResult(IComparableFile comparableFile)
 internal sealed class SearchContext(IFileComparerConfig comparerConfig)
 {
     public IFileComparerConfig ComparerConfig { get; set; } = comparerConfig;
-    public int CurrentFileIndex { get; set; }
     public int TotalFilesCount { get; set; }
-    public int DuplicateGroupsCount { get; set; }
-    public int DuplicateFilesCount { get; set; }
-    public long DuplicatedTotalSize { get; set; }
+
+    //The counters are fields because they are updated with the Interlocked operations from the drive lanes running in parallel
+    public int CurrentFileIndex;
+    public int DuplicateGroupsCount;
+    public int DuplicateFilesCount;
+    public long DuplicatedTotalSize;
 }
 
 internal sealed class DuplicatesSearch
 {
+    private const int SSD_LANE_WIDTH = 4;
+
     public event DuplicatesGroupFoundEventHandler? DuplicatesGroupFound;
     public event DuplicatesSearchProgressEventHandler? DuplicatesSearchProgress;
     public event FileSystemErrorEventHandler? FileSystemError;
 
-    public async Task Find(IReadOnlyCollection<IComparableFile[]> duplicateCandidates, IFileComparerConfig comparerConfig, CancellationToken cancellationToken)
-    {
-        await Task.Run(() => GetDuplicatesFromCandidates(duplicateCandidates, comparerConfig, cancellationToken), cancellationToken);
-    }
+    public Task Find(IReadOnlyCollection<IComparableFile[]> duplicateCandidates, IFileComparerConfig comparerConfig, CancellationToken cancellationToken) =>
+        GetDuplicatesFromCandidates(duplicateCandidates, comparerConfig, cancellationToken);
 
-    private void GetDuplicatesFromCandidates(IReadOnlyCollection<IComparableFile[]> duplicateCandidates, IFileComparerConfig comparerConfig, CancellationToken cancellationToken)
+    // Reading several streams at a time from one spinning drive makes its heads thrash, while an SSD
+    // serves concurrent reads without penalty. Every physical drive therefore gets a lane: the drives
+    // with a seek penalty (and the drives where it cannot be determined) admit one candidate group at
+    // a time, SSDs admit several. A group spanning multiple drives holds a slot in each of its lanes
+    // while it is being compared. The candidate groups are partitioned by the set of lanes they touch,
+    // every partition gets as many workers as its narrowest lane admits, and since each partition
+    // drains its own queue the groups of one drive can never starve the groups of another.
+    private async Task GetDuplicatesFromCandidates(IReadOnlyCollection<IComparableFile[]> duplicateCandidates, IFileComparerConfig comparerConfig, CancellationToken cancellationToken)
     {
         var context = new SearchContext(comparerConfig) { TotalFilesCount = duplicateCandidates.AsParallel().Sum(group => group.Length) };
 
-        foreach (var duplicateCandidateGroup in duplicateCandidates)
+        var driveLanes = new DriveLanes();
+        var lanePartitions = duplicateCandidates
+            .Select(candidateGroup => (CandidateGroup: candidateGroup, Lanes: driveLanes.GetOrderedLanes(candidateGroup)))
+            .GroupBy(scheduledGroup => string.Join(",", scheduledGroup.Lanes.Select(lane => lane.Order)));
+
+        var workerTasks = new List<Task>();
+        foreach (var lanePartition in lanePartitions)
         {
-            var groupDuplicates = GetDuplicatesFromGroup(duplicateCandidateGroup, context, cancellationToken);
-            if (groupDuplicates.Count == 0)
-                continue;
+            var scheduledGroups = lanePartition.ToList();
+            var partitionQueue = new ConcurrentQueue<IComparableFile[]>(scheduledGroups.Select(scheduledGroup => scheduledGroup.CandidateGroup));
+            var partitionLanes = scheduledGroups[0].Lanes;
+            var workersCount = Math.Min(partitionLanes.Min(lane => lane.Width), scheduledGroups.Count);
 
-            var (duplicatesCount, duplicatesSize) = GetGroupDuplicatedCountAndSize(groupDuplicates);
-            context.DuplicateGroupsCount += groupDuplicates.Count;
-            context.DuplicateFilesCount += duplicatesCount;
-            context.DuplicatedTotalSize += duplicatesSize;
-            DuplicatesSearchProgress?.Invoke(this, new DuplicatesSearchProgressEventArgs("", context));
+            for (var workerIndex = 0; workerIndex < workersCount; workerIndex++)
+            {
+                workerTasks.Add(Task.Run(async () =>
+                {
+                    while (partitionQueue.TryDequeue(out var candidateGroup))
+                    {
+                        //The lanes are ordered by creation, taking the slots in that fixed order is what makes the groups spanning the same drives unable to deadlock
+                        var acquiredCount = 0;
+                        try
+                        {
+                            foreach (var lane in partitionLanes)
+                            {
+                                await lane.Slots.WaitAsync(cancellationToken);
+                                acquiredCount++;
+                            }
 
-            foreach (var group in groupDuplicates)
-                DuplicatesGroupFound?.Invoke(this, new DuplicatesGroupFoundEventArgs(group));
+                            FindGroupDuplicates(candidateGroup, context, cancellationToken);
+                        }
+                        finally
+                        {
+                            for (var laneIndex = 0; laneIndex < acquiredCount; laneIndex++)
+                                partitionLanes[laneIndex].Slots.Release();
+                        }
+                    }
+                }, cancellationToken));
+            }
         }
+
+        await Task.WhenAll(workerTasks);
+    }
+
+    private void FindGroupDuplicates(IComparableFile[] duplicateCandidateGroup, SearchContext context, CancellationToken cancellationToken)
+    {
+        var groupDuplicates = GetDuplicatesFromGroup(duplicateCandidateGroup, context, cancellationToken);
+        if (groupDuplicates.Count == 0)
+            return;
+
+        var (duplicatesCount, duplicatesSize) = GetGroupDuplicatedCountAndSize(groupDuplicates);
+        Interlocked.Add(ref context.DuplicateGroupsCount, groupDuplicates.Count);
+        Interlocked.Add(ref context.DuplicateFilesCount, duplicatesCount);
+        Interlocked.Add(ref context.DuplicatedTotalSize, duplicatesSize);
+        DuplicatesSearchProgress?.Invoke(this, new DuplicatesSearchProgressEventArgs("", context));
+
+        foreach (var group in groupDuplicates)
+            DuplicatesGroupFound?.Invoke(this, new DuplicatesGroupFoundEventArgs(group));
     }
 
     private static (int duplicatesCount, long duplicatesSize) GetGroupDuplicatedCountAndSize(IEnumerable<List<MatchResult>> groupDuplicates)
@@ -123,22 +176,26 @@ internal sealed class DuplicatesSearch
     private List<List<MatchResult>> GetDuplicatesFromGroup(IReadOnlyCollection<IComparableFile> fileGroup, SearchContext context, CancellationToken cancellationToken)
     {
         var duplicates = new List<List<MatchResult>>();
+        var alreadyMatched = new HashSet<IComparableFile>(ReferenceEqualityComparer.Instance);
         foreach (var fileFromGroup in fileGroup)
         {
             try
             {
-                if (ContainsFile(duplicates, fileFromGroup))
+                if (alreadyMatched.Contains(fileFromGroup))
                     continue;
 
                 DuplicatesSearchProgress?.Invoke(this, new DuplicatesSearchProgressEventArgs(fileFromGroup.FileData.FullName, null));
 
                 var fileFromGroupDuplicates = GetFileDuplicates(fileFromGroup, fileGroup, context, cancellationToken);
+                if (fileFromGroupDuplicates.Count == 0)
+                    continue;
 
-                if (fileFromGroupDuplicates.Count != 0)
-                    duplicates.Add(fileFromGroupDuplicates);
+                duplicates.Add(fileFromGroupDuplicates);
+                foreach (var matchResult in fileFromGroupDuplicates)
+                    alreadyMatched.Add(matchResult.ComparableFile);
             }
             finally
-            { context.CurrentFileIndex++; }
+            { Interlocked.Increment(ref context.CurrentFileIndex); }
         }
 
         return duplicates;
@@ -152,7 +209,7 @@ internal sealed class DuplicatesSearch
         var completeMismatch = context.ComparerConfig.CompleteMismatch.Value;
         foreach (var fileFromGroup in fileGroup)
         {
-            if (ReferenceEquals(fileFromGroup, fileToFind)) 
+            if (ReferenceEquals(fileFromGroup, fileToFind))
                 continue; //Skip self
 
             int matchValue;
@@ -184,22 +241,65 @@ internal sealed class DuplicatesSearch
         return duplicates;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static bool ContainsFile(IEnumerable<List<MatchResult>> filesWhereToLook, IComparableFile fileToFind)
+    private void OnFileSystemError(string path, string message, Exception? exception = null) =>
+        FileSystemError?.Invoke(this, new FileSystemErrorEventArgs(path, message, exception));
+
+    #region Drive Lanes Implementation
+
+    private sealed class DriveLanes
     {
-        // ReSharper disable once LoopCanBeConvertedToQuery
-        foreach (var groupFiles in filesWhereToLook)
+        internal sealed record DriveLane(int Order, int Width, SemaphoreSlim Slots);
+
+        private readonly Dictionary<string, DriveLane> _laneByRoot = new(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<int, DriveLane> _laneByPhysicalDrive = [];
+        private int _lanesCreated;
+
+        //The distinct lanes of the group ordered by lane creation. Not thread-safe, the lanes are resolved up front before the parallel phase starts.
+        public DriveLane[] GetOrderedLanes(IComparableFile[] candidateGroup) =>
+            candidateGroup
+                .Select(file => GetLane(file.FileData.FullName))
+                .DistinctBy(lane => lane.Order)
+                .OrderBy(lane => lane.Order)
+                .ToArray();
+
+        private DriveLane GetLane(string filePath)
         {
-            // ReSharper disable once ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
-            foreach (var file in groupFiles)
+            var rootPath = GetRootPath(filePath);
+            if (_laneByRoot.TryGetValue(rootPath, out var lane))
+                return lane;
+
+            //Different drive letters can be partitions of one physical disk and must share a lane.
+            //Roots with no resolvable physical drive (network shares and the like) each get a lane of their own.
+            var physicalDriveNumber = rootPath.Length >= 2 && rootPath[1] == ':'
+                ? Drives.GetPhysicalDriveNumber(rootPath)
+                : DriveData.PHYSICAL_DRIVE_NUMBER_UNKNOWN;
+
+            if (physicalDriveNumber != DriveData.PHYSICAL_DRIVE_NUMBER_UNKNOWN && _laneByPhysicalDrive.TryGetValue(physicalDriveNumber, out lane))
             {
-                if (ReferenceEquals(fileToFind, file.ComparableFile))
-                    return true;
+                _laneByRoot.Add(rootPath, lane);
+                return lane;
             }
+
+            var laneWidth = physicalDriveNumber != DriveData.PHYSICAL_DRIVE_NUMBER_UNKNOWN && Drives.GetIncursSeekPenalty(physicalDriveNumber) == false
+                ? SSD_LANE_WIDTH
+                : 1;
+
+            lane = new DriveLane(_lanesCreated++, laneWidth, new SemaphoreSlim(laneWidth, laneWidth));
+            _laneByRoot.Add(rootPath, lane);
+            if (physicalDriveNumber != DriveData.PHYSICAL_DRIVE_NUMBER_UNKNOWN)
+                _laneByPhysicalDrive.Add(physicalDriveNumber, lane);
+            return lane;
         }
-        return false;
+
+        private static string GetRootPath(string path)
+        {
+            if (path.StartsWith(@"\\?\UNC\", StringComparison.OrdinalIgnoreCase))
+                path = @"\\" + path[8..];
+            else if (path.StartsWith(@"\\?\", StringComparison.Ordinal))
+                path = path[4..];
+            return Path.GetPathRoot(path) ?? path;
+        }
     }
 
-    private void OnFileSystemError(string path, string message, Exception? exception = null) => 
-        FileSystemError?.Invoke(this, new FileSystemErrorEventArgs(path, message, exception));
+    #endregion
 }

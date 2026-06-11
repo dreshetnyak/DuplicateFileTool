@@ -22,10 +22,13 @@ internal sealed class FileSystemErrorEventArgs(string path, string message, Exce
 internal delegate void FileSystemErrorEventHandler(object? sender, FileSystemErrorEventArgs eventArgs);
 
 [Localizable(true)]
-internal sealed class FileSystemException(string fileFullName, string message) : Exception(message)
+internal class FileSystemException(string fileFullName, string message) : Exception(message)
 {
     public string FileFullName { get; } = fileFullName;
 }
+
+/// <summary>Thrown when moving a file to the recycle bin fails; the file itself is still in place.</summary>
+internal sealed class RecycleOperationException(string fileFullName, string message) : FileSystemException(fileFullName, message);
 
 #endregion
 
@@ -212,14 +215,79 @@ internal static class FileSystem
         return new FileData(path, foundFileInfo);
     }
 
-    //TODO implement deleteToRecycleBin
+    public enum RecycleCheck { Ok, PathTooLong, NoRecycleBin }
+
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, bool> RemoteRootCache = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>Tells whether a file can be moved to the recycle bin before attempting the operation.
+    /// SHFileOperation is limited to MAX_PATH (it does not understand the long-path prefix) and
+    /// network locations have no recycle bin (the shell would delete the file permanently without any indication).</summary>
+    public static RecycleCheck CanRecycle(string path)
+    {
+        if (path.Length >= Win32.MAX_PATH)
+            return RecycleCheck.PathTooLong;
+
+        if (path.StartsWith(@"\\"))
+            return RecycleCheck.NoRecycleBin; //UNC path
+
+        var root = Path.GetPathRoot(path);
+        if (string.IsNullOrEmpty(root))
+            return RecycleCheck.Ok;
+
+        var isRemote = RemoteRootCache.GetOrAdd(root, rootPath => Win32.GetDriveType(rootPath) == Win32.DRIVE_REMOTE);
+        return isRemote ? RecycleCheck.NoRecycleBin : RecycleCheck.Ok;
+    }
+
     public static void DeleteFile(FileData fileData, bool deleteToRecycleBin = false)
     {
         if (fileData.Attributes.IsReadonly)
             RemoveFileReadonlyAttribute(fileData);
 
+        if (deleteToRecycleBin)
+        {
+            DeleteFileToRecycleBin(fileData.FullName);
+            return;
+        }
+
         if (!Win32.DeleteFile(MakeLongPath(fileData.FullName)))
             throw new FileSystemException(fileData.FullName, new Win32Exception(Marshal.GetLastWin32Error()).Message);
+    }
+
+    private static void DeleteFileToRecycleBin(string fileFullName)
+    {
+        var fileOperation = new Win32.SHFILEOPSTRUCT
+        {
+            wFunc = Win32.FO_DELETE,
+            pFrom = fileFullName + '\0', //The marshaler appends the second terminator of the double-null-terminated list
+            fFlags = Win32.FOF_ALLOWUNDO | Win32.FOF_NOCONFIRMATION | Win32.FOF_SILENT | Win32.FOF_NOERRORUI
+        };
+
+        var result = Win32.SHFileOperation(ref fileOperation);
+        if (result != 0)
+            throw new RecycleOperationException(fileFullName, GetRecycleErrorMessage(result));
+        if (fileOperation.fAnyOperationsAborted)
+            throw new RecycleOperationException(fileFullName, Properties.Resources.Error_Recycle_Aborted);
+    }
+
+    private static string GetRecycleErrorMessage(int shellOperationResult)
+    {
+        // SHFileOperation reports legacy DE_* codes; map them to the closest Win32 error so the
+        // message text comes from the OS, localized, like every other error in the application.
+        var win32ErrorCode = shellOperationResult switch
+        {
+            0x74 => 123,           //DE_ROOTDIR -> ERROR_INVALID_NAME
+            0x76 => 16,            //DE_DELCURDIR -> ERROR_CURRENT_DIRECTORY
+            0x78 => 5,             //DE_ACCESSDENIEDSRC -> ERROR_ACCESS_DENIED
+            0x79 or 0xB7 => 206,   //DE_PATHTOODEEP, DE_ERROR_MAX -> ERROR_FILENAME_EXCED_RANGE
+            0x7C => 161,           //DE_INVALIDFILES -> ERROR_BAD_PATHNAME
+            0x86 or 0x87 or 0x88 => 19, //DE_SRC_IS_CDROM/DVD/CDRECORD -> ERROR_WRITE_PROTECT
+            > 0 and < 0x71 => shellOperationResult, //Below the DE_* range SHFileOperation returns standard Win32 error codes
+            _ => 0
+        };
+
+        return win32ErrorCode != 0
+            ? new Win32Exception(win32ErrorCode).Message
+            : string.Format(Properties.Resources.Error_Recycle_Failed, shellOperationResult);
     }
 
     public static bool RemoveFileReadonlyAttribute(FileData fileData)
@@ -280,8 +348,10 @@ internal static class FileSystem
         return false;
     }
 
-    //TODO implement deleteToRecycleBin
-    public static void DeleteDirectoryTreeWithParents(string path, Action<string> writeLog, Action<string, string> deletionError, bool deleteToRecycleBin = false)
+    // Empty directories are always removed permanently, even when files go to the recycle bin: they
+    // carry no data to restore, and recycling each one would only clutter the bin (Explorer recreates
+    // missing directories when restoring a file anyway).
+    public static void DeleteDirectoryTreeWithParents(string path, Action<string> writeLog, Action<string, string> deletionError)
     {
         var deletionFailed = !DeleteEmptySubDirectories(path, writeLog, deletionError);
         if (deletionFailed)

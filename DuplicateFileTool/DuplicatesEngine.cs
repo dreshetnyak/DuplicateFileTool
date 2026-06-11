@@ -69,6 +69,7 @@ internal sealed class DuplicateGroup : NotifyPropertyChanged
     private long _duplicatedSize;
     private string _duplicatedSizeText = "";
     private bool _isSelected;
+    private bool _isExpanded = true;
 
     public int GroupNumber
     {
@@ -121,6 +122,17 @@ internal sealed class DuplicateGroup : NotifyPropertyChanged
         set
         {
             _isSelected = value;
+            OnPropertyChanged();
+        }
+    }
+    public bool IsExpanded
+    {
+        get => _isExpanded;
+        set
+        {
+            if (_isExpanded == value)
+                return;
+            _isExpanded = value;
             OnPropertyChanged();
         }
     }
@@ -178,6 +190,14 @@ internal sealed class DuplicatesEngine : NotifyPropertyChanged
     private long _toBeDeletedCount;
 
     #endregion
+
+    // Progress events arrive per processed file; pushing each one through PropertyChanged floods the UI thread.
+    // The handlers below always record the latest values in the backing fields but raise change notifications
+    // at most every 250 ms for text/counters and every 100 ms for the progress bar; final values are flushed explicitly.
+    private readonly UpdateThrottle _textUpdateThrottle = new(250);
+    private readonly UpdateThrottle _barUpdateThrottle = new(100);
+    private string _currentProgressPath = "";
+    private string _lastDeletionMessage = "";
 
     private FilesSearch Files { get; } = new();
     private DuplicateCandidates Candidates { get; } = new();
@@ -339,36 +359,37 @@ internal sealed class DuplicatesEngine : NotifyPropertyChanged
         List<IComparableFile[]>? duplicateCandidates = null;
         try
         {
-            //var startFindFiles = DateTime.UtcNow;
+            var startFindFiles = DateTime.UtcNow;
             var files = await Files.Find(searchPaths, inclusionPredicate, cancellationToken);
-            //var endFindFiles = DateTime.UtcNow;
+            var endFindFiles = DateTime.UtcNow;
 
-            //var startCandidates = DateTime.UtcNow;
+            var startCandidates = DateTime.UtcNow;
             duplicateCandidates = await Candidates.Find(files, duplicateCandidatePredicate, comparableFileFactory, cancellationToken);
-            //var endCandidates = DateTime.UtcNow;
+            var endCandidates = DateTime.UtcNow;
 
-            //var startSearch = DateTime.UtcNow;
+            var startSearch = DateTime.UtcNow;
             await Duplicates.Find(duplicateCandidates, comparableFileFactory.Config, cancellationToken);
-            //var endSearch = DateTime.UtcNow;
+            var endSearch = DateTime.UtcNow;
 
-            ////TODO This is a debug code. Remove it after testing.
-            //// ReSharper disable LocalizableElement
-            //var elapsedFindFiles = endFindFiles - startFindFiles;
-            //var elapsedCandidates = endCandidates - startCandidates;
-            //var elapsedSearch = endSearch - startSearch;
-            //await File.AppendAllTextAsync(
-            //    "Timings.txt",
-            //    $"Start time : {startFindFiles.ToLocalTime():yyyy-MM-dd HH:mm:ss}{Environment.NewLine}" +
-            //    $"Files      : {elapsedFindFiles.TotalMinutes:N0} min, {elapsedFindFiles.Seconds:00} sec.{Environment.NewLine}" +
-            //    $"Candidates : {elapsedCandidates.TotalMinutes:N0} min, {elapsedCandidates.Seconds:00} sec.{Environment.NewLine}" +
-            //    $"Comparison : {elapsedSearch.TotalMinutes:N0} min, {elapsedSearch.Seconds} sec.{Environment.NewLine}{Environment.NewLine}", 
-            //    CancellationToken.None);
-            //// ReSharper restore LocalizableElement
+            //TODO This is a debug code. Remove it after testing.
+            // ReSharper disable LocalizableElement
+            var elapsedFindFiles = endFindFiles - startFindFiles;
+            var elapsedCandidates = endCandidates - startCandidates;
+            var elapsedSearch = endSearch - startSearch;
+            await File.AppendAllTextAsync(
+                "Timings.txt",
+                $"Start time : {startFindFiles.ToLocalTime():yyyy-MM-dd HH:mm:ss}{Environment.NewLine}" +
+                $"Files      : {elapsedFindFiles.TotalMinutes:N0} min, {elapsedFindFiles.Seconds:00} sec.{Environment.NewLine}" +
+                $"Candidates : {elapsedCandidates.TotalMinutes:N0} min, {elapsedCandidates.Seconds:00} sec.{Environment.NewLine}" +
+                $"Comparison : {elapsedSearch.TotalMinutes:N0} min, {elapsedSearch.Seconds} sec.{Environment.NewLine}{Environment.NewLine}",
+                CancellationToken.None);
+            // ReSharper restore LocalizableElement
         }
         catch (OperationCanceledException)
         {
             ProgressText = Resources.Ui_Progress_Duplicates_Search_Cancelled;
             ProgressPercentage = 0;
+            RaiseProgressStatsChanged();
             return;
         }
         finally
@@ -380,6 +401,7 @@ internal sealed class DuplicatesEngine : NotifyPropertyChanged
 
         ProgressText = Resources.Ui_Progress_Duplicates_Search_Done;
         ProgressPercentage = 0;
+        RaiseProgressStatsChanged();
     }
 
     public void Clear()
@@ -399,6 +421,8 @@ internal sealed class DuplicatesEngine : NotifyPropertyChanged
         ToBeDeletedCount = 0;
         ProgressText = "";
         ProgressPercentage = 0;
+        _currentProgressPath = "";
+        _lastDeletionMessage = "";
         GC.Collect();
     }
 
@@ -416,35 +440,68 @@ internal sealed class DuplicatesEngine : NotifyPropertyChanged
 
     private void OnFilesSearchProgress(object? sender, FilesSearchProgressEventArgs eventArgs)
     {
-        if (eventArgs.IsDirectory) 
-            ProgressText = Resources.Ui_Progress_Scanning + eventArgs.Path;
-        IncludedFilesCount = eventArgs.FoundFilesCount;
+        if (eventArgs.IsDirectory)
+            _currentProgressPath = eventArgs.Path;
+        _includedFilesCount = eventArgs.FoundFilesCount;
+
+        if (!_textUpdateThrottle.IsUpdateDue())
+            return;
+        ProgressText = Resources.Ui_Progress_Scanning + _currentProgressPath;
+        OnPropertyChanged(nameof(IncludedFilesCount));
     }
 
     private void OnCandidatesSearchProgress(object? sender, CandidatesSearchProgressEventArgs eventArgs)
     {
-        ProgressText = Resources.Ui_Progress_Analyzing + eventArgs.FilePath;
-        UpdateProgressStats(eventArgs.TotalFilesCount, eventArgs.CurrentFileIndex);
-        CandidateGroupsCount = eventArgs.CandidateGroupsCount;
-        CandidateFilesCount = eventArgs.CandidateFilesCount;
-        CandidatesTotalSize = eventArgs.CandidatesTotalSize;
+        _currentProgressPath = eventArgs.FilePath;
+        SetProgressStats(eventArgs.TotalFilesCount, eventArgs.CurrentFileIndex);
+        _candidateGroupsCount = eventArgs.CandidateGroupsCount;
+        _candidateFilesCount = eventArgs.CandidateFilesCount;
+        _candidatesTotalSize = eventArgs.CandidatesTotalSize;
+
+        if (_barUpdateThrottle.IsUpdateDue())
+            OnPropertyChanged(nameof(ProgressPercentage));
+        if (!_textUpdateThrottle.IsUpdateDue())
+            return;
+        ProgressText = Resources.Ui_Progress_Analyzing + _currentProgressPath;
+        RaiseProgressStatsChanged();
     }
 
     private void OnDuplicatesSearchProgress(object? sender, DuplicatesSearchProgressEventArgs eventArgs)
     {
-        ProgressText = Resources.Ui_Progress_Comparing + eventArgs.FilePath;
-        if (!eventArgs.HasStats) 
+        if (eventArgs.FilePath.Length != 0)
+            _currentProgressPath = eventArgs.FilePath;
+        if (eventArgs.HasStats)
+        {
+            SetProgressStats(eventArgs.TotalFilesCount, eventArgs.CurrentFileIndex);
+            _duplicateFilesCount = eventArgs.DuplicateFilesCount;
+            _duplicatedTotalSize = eventArgs.DuplicatedTotalSize;
+        }
+
+        if (_barUpdateThrottle.IsUpdateDue())
+            OnPropertyChanged(nameof(ProgressPercentage));
+        if (!_textUpdateThrottle.IsUpdateDue())
             return;
-        UpdateProgressStats(eventArgs.TotalFilesCount, eventArgs.CurrentFileIndex);
-        DuplicateFilesCount = eventArgs.DuplicateFilesCount;
-        DuplicatedTotalSize = eventArgs.DuplicatedTotalSize;
+        ProgressText = Resources.Ui_Progress_Comparing + _currentProgressPath;
+        RaiseProgressStatsChanged();
     }
 
-    private void UpdateProgressStats(int totalFilesCount, int currentFileIndex)
+    private void SetProgressStats(int totalFilesCount, int currentFileIndex)
     {
-        TotalFilesCount = totalFilesCount;
-        CurrentFileIndex = currentFileIndex;
-        ProgressPercentage = (int)((double)currentFileIndex * 10000 / totalFilesCount);
+        _totalFilesCount = totalFilesCount;
+        _currentFileIndex = currentFileIndex;
+        _progressPercentage = (int)((double)currentFileIndex * 10000 / totalFilesCount);
+    }
+
+    private void RaiseProgressStatsChanged()
+    {
+        OnPropertyChanged(nameof(IncludedFilesCount));
+        OnPropertyChanged(nameof(TotalFilesCount));
+        OnPropertyChanged(nameof(CurrentFileIndex));
+        OnPropertyChanged(nameof(CandidateGroupsCount));
+        OnPropertyChanged(nameof(CandidateFilesCount));
+        OnPropertyChanged(nameof(CandidatesTotalSize));
+        OnPropertyChanged(nameof(DuplicateFilesCount));
+        OnPropertyChanged(nameof(DuplicatedTotalSize));
     }
 
     private void OnFileSystemError(object? sender, FileSystemErrorEventArgs eventArgs)
@@ -462,19 +519,25 @@ internal sealed class DuplicatesEngine : NotifyPropertyChanged
 
     #region Removing Duplicates
 
-    public async Task RemoveDuplicates(ObservableCollection<DuplicateGroup> duplicates, bool removeEmptyDirs, bool deleteToRecycleBin, CancellationToken cancellationToken)
+    public async Task RemoveDuplicates(ObservableCollection<DuplicateGroup> duplicates, bool removeEmptyDirs, bool deleteToRecycleBin, RecycleFailurePromptHandler promptRecycleFailure, CancellationToken cancellationToken)
     {
-        await DuplicatesRemover.RemoveDuplicates(duplicates, removeEmptyDirs, deleteToRecycleBin, cancellationToken);
+        await DuplicatesRemover.RemoveDuplicates(duplicates, removeEmptyDirs, deleteToRecycleBin, promptRecycleFailure, cancellationToken);
+        ProgressText = _lastDeletionMessage;
         ProgressPercentage = 0;
+        OnPropertyChanged(nameof(ToBeDeletedSize));
+        OnPropertyChanged(nameof(DuplicatedTotalSize));
+        OnPropertyChanged(nameof(ToBeDeletedCount));
     }
 
     private void OnDeletionMessage(object? sender, DeletionMessageEventArgs eventArgs)
     {
         var deletionMessage = eventArgs.Message;
-        ProgressText = deletionMessage.Text;
+        _lastDeletionMessage = deletionMessage.Text;
         var deletionMessageType = deletionMessage.Type;
         if (deletionMessageType is MessageType.Error or MessageType.Warning)
             Application.Current.Dispatcher.Invoke(() => Errors.Add(new ErrorMessage(deletionMessage.Path, deletionMessage.Text, deletionMessageType)));
+        if (_textUpdateThrottle.IsUpdateDue())
+            ProgressText = _lastDeletionMessage;
     }
 
     private void DeletionStateChanged(object? sender, DeletionStateEventArgs eventArgs)
@@ -482,11 +545,19 @@ internal sealed class DuplicatesEngine : NotifyPropertyChanged
         var deletionState = eventArgs.State;
         var total = (double)deletionState.TotalFilesForDeletionCount;
         var current = (double)deletionState.CurrentFileForDeletionIndex;
-        ProgressPercentage = (int)(current * 10000 / total);
+        _progressPercentage = (int)(current * 10000 / total);
         var deletedSizeDelta = deletionState.DeletedSizeDelta;
-        ToBeDeletedSize += deletedSizeDelta;
-        DuplicatedTotalSize += deletedSizeDelta;
-        ToBeDeletedCount += deletionState.DeletedCountDelta;
+        _toBeDeletedSize += deletedSizeDelta;
+        _duplicatedTotalSize += deletedSizeDelta;
+        _toBeDeletedCount += deletionState.DeletedCountDelta;
+
+        if (_barUpdateThrottle.IsUpdateDue())
+            OnPropertyChanged(nameof(ProgressPercentage));
+        if (!_textUpdateThrottle.IsUpdateDue())
+            return;
+        OnPropertyChanged(nameof(ToBeDeletedSize));
+        OnPropertyChanged(nameof(DuplicatedTotalSize));
+        OnPropertyChanged(nameof(ToBeDeletedCount));
     }
 
     #endregion

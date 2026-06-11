@@ -69,6 +69,8 @@ internal sealed class MainViewModel : NotifyPropertyChanged, IResultsFilter, IDi
     private string _progressText = "";
     private double _progressPercentage;
     private double _taskbarProgress;
+    private readonly UpdateThrottle _textUpdateThrottle = new(250);
+    private readonly UpdateThrottle _barUpdateThrottle = new(100);
     private string _duplicatesSortingOrderToolTip = "";
     private string _resultsFilterKeywords = "";
     private bool _isFilterFilePath = true;
@@ -240,6 +242,7 @@ internal sealed class MainViewModel : NotifyPropertyChanged, IResultsFilter, IDi
     public RelayCommand ClearResults { get; }
     public RelayCommand ClearErrors { get; }
     public RelayCommand ClearSearchPaths { get; }
+    public RelayCommand RefreshFileTree { get; }
     public AddOrRemoveExtensionsCommand AddOrRemoveExtensions { get; }
     public RelayCommand ClearExtensions { get; }
     public RelayCommand Navigate { get; }
@@ -293,13 +296,14 @@ internal sealed class MainViewModel : NotifyPropertyChanged, IResultsFilter, IDi
         AutoSelectByPath.Finished += OnAutoSelectByPathFinished;
         AutoSelectByPath.Progress += OnAutoSelectByPathProgress;
         DuplicateFile.ItemSelected += OnDuplicateFileSelected;
+        FileTreeItem.ItemSelected += OnFileTreeItemSelected;
 
         ResetSelection = new ResetSelectionCommand(Duplicates.DuplicateGroups);
         ResetSelection.UpdateToDeleteSize += OnUpdateToDelete;
 
         DeleteMarkedFiles = new DeleteMarkedFilesCommand(Duplicates, Config.ResultsConfig);
         DeleteMarkedFiles.Started += (_, _) => { Ui.Entry.Enabled = false; DuplicateGroupsProxyView.LoadFirstPage(); };
-        DeleteMarkedFiles.Finished += (_, _) => Ui.Entry.Enabled = true;
+        DeleteMarkedFiles.Finished += (_, _) => { Ui.Entry.Enabled = true; RefreshExpandedFileTreeItems(); };
 
         AddPath = new AddPathCommand(SearchPaths, () => SelectedFileTreeItem);
         OpenFileInExplorer = new OpenFileInExplorerCommand();
@@ -309,6 +313,7 @@ internal sealed class MainViewModel : NotifyPropertyChanged, IResultsFilter, IDi
         ClearResults = new RelayCommand(_ => Duplicates.Clear());
         ClearErrors = new RelayCommand(_ => Duplicates.Errors.Clear());
         ClearSearchPaths = new RelayCommand(_ => SearchPaths.Clear());
+        RefreshFileTree = new RelayCommand(_ => RefreshExpandedFileTreeItems());
 
         ClearExtensions = new RelayCommand(_ => SearchConfig.Extensions.Clear());
         AddOrRemoveExtensions = new AddOrRemoveExtensionsCommand(SearchConfig.Extensions, Config.ExtensionsConfig);
@@ -441,8 +446,16 @@ internal sealed class MainViewModel : NotifyPropertyChanged, IResultsFilter, IDi
         var fileTreeContent = FileTreeItem.GetFileSystemItemsForDrives();
         foreach (var fileSystemItem in fileTreeContent)
             FileTree.Add(fileSystemItem);
-        FileTreeItem.ItemSelected += (sender, _) => { SelectedFileTreeItem = sender as FileTreeItem; };
     }
+
+    public void RefreshExpandedFileTreeItems()
+    {
+        foreach (var fileTreeItem in FileTree)
+            fileTreeItem.Refresh();
+    }
+
+    private void OnFileTreeItemSelected(object? sender, EventArgs eventArgs) =>
+        SelectedFileTreeItem = sender as FileTreeItem;
 
     private void OnDuplicateFileSelected(object? sender, EventArgs eventArgs)
     {
@@ -469,9 +482,13 @@ internal sealed class MainViewModel : NotifyPropertyChanged, IResultsFilter, IDi
 
     private void OnAutoSelectByPathProgress(object? sender, AutoSelectProgressEventArgs eventArgs)
     {
-        var totalFilesCount = eventArgs.TotalFilesCount;
-        TaskbarProgress = ProgressPercentage = totalFilesCount != 0 ? (double)eventArgs.CurrentFileIndex * 10000 / eventArgs.TotalFilesCount : 0;
-        ProgressText = string.Format(Resources.Ui_AutoSelectByPath_Progress, eventArgs.SelectedCount);
+        if (_barUpdateThrottle.IsUpdateDue())
+        {
+            var totalFilesCount = eventArgs.TotalFilesCount;
+            TaskbarProgress = ProgressPercentage = totalFilesCount != 0 ? (double)eventArgs.CurrentFileIndex * 10000 / eventArgs.TotalFilesCount : 0;
+        }
+        if (_textUpdateThrottle.IsUpdateDue())
+            ProgressText = string.Format(Resources.Ui_AutoSelectByPath_Progress, eventArgs.SelectedCount);
     }
 
     private void OnResultsFilterChanged()

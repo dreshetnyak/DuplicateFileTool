@@ -195,6 +195,12 @@
   <data name="Config_ExcludeSystemFiles_Name" xml:space="preserve">
     <value>Excluir los archivos y carpetas del sistema</value>
   </data>
+  <data name="Config_ExcludeZeroSizeFiles_Description" xml:space="preserve">
+    <value>Si habilitado la búsqueda excluirá los archivos de tamaño cero. Estos archivos no contienen datos para comparar, por lo que no se consideran duplicados.</value>
+  </data>
+  <data name="Config_ExcludeZeroSizeFiles_Name" xml:space="preserve">
+    <value>Excluir los archivos de tamaño cero</value>
+  </data>
   <data name="Config_ExtensionInclusionType_Description" xml:space="preserve">
     <value>Especifica si las extensiones de los archivos ubicados en la lista deben ser incluidos o excluidos de la búsqueda</value>
   </data>
@@ -232,7 +238,7 @@
     <value>Tamaño mínimo de archivo</value>
   </data>
   <data name="Config_Results_Delete_To_Recycle_Bin_Description" xml:space="preserve">
-    <value>Indica si los archivos duplicados deben ser eliminados al papelera de reciclaje o eliminados de forma permanente</value>
+    <value>Indica si los archivos duplicados deben ser eliminados a la papelera de reciclaje o eliminados de forma permanente. Los directorios vacíos siempre se eliminan de forma permanente. Nota: algunas unidades extraíbles no tienen papelera de reciclaje, los archivos eliminados de esas unidades se eliminan de forma permanente</value>
   </data>
   <data name="Config_Results_Delete_To_Recycle_Bin_Name" xml:space="preserve">
     <value>Borrar al papel de reciclaje</value>
@@ -315,6 +321,18 @@
   <data name="Error_File_x_not_found" xml:space="preserve">
     <value>El archivo '{0}' no existe</value>
   </data>
+  <data name="Error_Recycle_Aborted" xml:space="preserve">
+    <value>La operación de la papelera de reciclaje fue interrumpida</value>
+  </data>
+  <data name="Error_Recycle_Failed" xml:space="preserve">
+    <value>No se pudo mover el archivo a la papelera de reciclaje, código de error 0x{0:X}</value>
+  </data>
+  <data name="Error_Recycle_Not_Available" xml:space="preserve">
+    <value>Esta ubicación no tiene papelera de reciclaje</value>
+  </data>
+  <data name="Error_Recycle_Path_Too_Long" xml:space="preserve">
+    <value>La ruta del archivo es demasiado larga para la papelera de reciclaje</value>
+  </data>
   <data name="Error_The_value_is_greater_than_the_allowed_maximum" xml:space="preserve">
     <value>El valor excede el máximo permitido</value>
   </data>
@@ -376,8 +394,32 @@
   <data name="Log_Performing_deletion_of_the_marked_duplicates" xml:space="preserve">
     <value>Borrando los duplicados seleccionados.</value>
   </data>
+  <data name="Log_Recycle_Deleting_Permanently" xml:space="preserve">
+    <value>Borrando permanentemente: {0}</value>
+  </data>
+  <data name="Log_Recycle_Skipped" xml:space="preserve">
+    <value>Omitido: {0}; el archivo no fue borrado</value>
+  </data>
   <data name="Log_Unmarking_FullFileName" xml:space="preserve">
     <value>Deseleccionando: {0}</value>
+  </data>
+  <data name="RecyclePrompt_Apply_To_All" xml:space="preserve">
+    <value>Aplicar a todos los archivos restantes</value>
+  </data>
+  <data name="RecyclePrompt_Cancel" xml:space="preserve">
+    <value>Cancelar el borrado</value>
+  </data>
+  <data name="RecyclePrompt_Delete_Permanently" xml:space="preserve">
+    <value>Borrar permanentemente</value>
+  </data>
+  <data name="RecyclePrompt_Header" xml:space="preserve">
+    <value>El siguiente archivo no se puede mover a la papelera de reciclaje:</value>
+  </data>
+  <data name="RecyclePrompt_Ignore" xml:space="preserve">
+    <value>Ignorar</value>
+  </data>
+  <data name="RecyclePrompt_Title" xml:space="preserve">
+    <value>No se puede mover a la papelera de reciclaje</value>
   </data>
   <data name="Ui_About_Program_Site" xml:space="preserve">
     <value>[Sitio de Programa]</value>

@@ -32,7 +32,7 @@ The project follows semantic versioning (since 2.0.0). The version number is sto
 2. `DuplicateFileTool/Properties/AssemblyInfo.cs` — `[assembly: AssemblyVersion("2.0.1")]` (this is the runtime source of truth)
 3. `DuplicateFileToolInstaller/Package.wxs` — the `<Package Version="2.0.1" ...>` attribute (drives installer upgrade logic)
 
-`Configuration/ConfigManager.GetAppName()` reads the assembly version at runtime and formats it as `Major.Minor.Build` for display (the patch number lives in the Build component). The human-readable changelog is `DuplicateFileTool/Changes.txt` — add a new `DuplicateFileTool <version>: <date>` block under the `Done:` section for each release.
+`Configuration/ConfigManager.GetAppName()` reads the assembly version at runtime and formats it as `Major.Minor.Build` for display (the patch number lives in the Build component). The human-readable changelog is `DuplicateFileTool/Changes.md` (Markdown) — completed-but-unreleased changes go as bullets under the `## Unreleased` section; on release, move them into a new `### DuplicateFileTool <version>: <date>` block under the `## Released` section. The file also holds the feature `## Backlog` and a `## Work in Progress` section. Entries are bullets prefixed with `New.` / `Bug.` / `Fix.` / `Improvement.`
 
 ## Solution Structure
 

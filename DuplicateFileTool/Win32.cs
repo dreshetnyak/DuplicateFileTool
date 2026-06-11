@@ -17,6 +17,9 @@ internal sealed partial class Win32
     internal static readonly int FILE_ATTRIBUTE_DIRECTORY = 0x00000010;
     internal const int MAX_PATH = 260;
     internal const int IOCTL_VOLUME_GET_VOLUME_DISK_EXTENTS = 0x00560000;
+    internal const int IOCTL_STORAGE_QUERY_PROPERTY = 0x002D1400;
+    internal const uint StorageDeviceSeekPenaltyProperty = 7; //STORAGE_PROPERTY_ID enumeration value
+    internal const uint PropertyStandardQuery = 0; //STORAGE_QUERY_TYPE enumeration value
     internal const uint LANG_NEUTRAL = 0x00;
     internal const uint LANG_ENGLISH = 0x09;
     internal const uint LANG_SPANISH = 0x0a;
@@ -28,7 +31,13 @@ internal sealed partial class Win32
     internal const uint FORMAT_MESSAGE_FROM_SYSTEM = 0x00001000;
     internal const uint FORMAT_MESSAGE_ALLOCATE_BUFFER = 0x00000100;
     internal const uint FORMAT_MESSAGE_IGNORE_INSERTS = 0x00000200;
-        
+    internal const uint DRIVE_REMOTE = 4;
+    internal const uint FO_DELETE = 0x0003;
+    internal const ushort FOF_SILENT = 0x0004;
+    internal const ushort FOF_NOCONFIRMATION = 0x0010;
+    internal const ushort FOF_ALLOWUNDO = 0x0040;
+    internal const ushort FOF_NOERRORUI = 0x0400;
+
     // ReSharper enable InconsistentNaming
 
     [StructLayout(LayoutKind.Sequential)]
@@ -161,6 +170,26 @@ internal sealed partial class Win32
         public DISK_EXTENT? Extents;
     }
 
+    [StructLayout(LayoutKind.Sequential)]
+#pragma warning disable S101
+    internal sealed class STORAGE_PROPERTY_QUERY
+#pragma warning restore S101
+    {
+        public uint PropertyId;
+        public uint QueryType;
+        public byte AdditionalParameters;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+#pragma warning disable S101
+    internal sealed class DEVICE_SEEK_PENALTY_DESCRIPTOR
+#pragma warning restore S101
+    {
+        public uint Version;
+        public uint Size;
+        public byte IncursSeekPenalty;
+    }
+
     #endregion
 
     // EntryPoint must be the explicit "W" (Unicode) export: kernel32 has no plain "DeleteFile"/"RemoveDirectory"
@@ -173,6 +202,32 @@ internal sealed partial class Win32
     [LibraryImport("kernel32.dll", EntryPoint = "RemoveDirectoryW", SetLastError = true, StringMarshalling = StringMarshalling.Utf16)]
     [return: MarshalAs(UnmanagedType.Bool)]
     internal static partial bool RemoveDirectory(string lpPathName);
+
+    // The struct layout matches the 64-bit SHFILEOPSTRUCTW (no packing); on 32-bit the struct is packed,
+    // but this application only ships as win-x64. pFrom/pTo must be double-null-terminated lists; the
+    // marshaler appends one terminator, the caller must append the other.
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+#pragma warning disable S101
+    internal struct SHFILEOPSTRUCT
+#pragma warning restore S101
+    {
+        internal IntPtr hwnd;
+        internal uint wFunc;
+        internal string pFrom;
+        internal string? pTo;
+        internal ushort fFlags;
+        [MarshalAs(UnmanagedType.Bool)]
+        internal bool fAnyOperationsAborted;
+        internal IntPtr hNameMappings;
+        internal string? lpszProgressTitle;
+    }
+
+    // SHFileOperation returns its own legacy error codes (DE_*), not GetLastError values
+    [DllImport("shell32.dll", EntryPoint = "SHFileOperationW", CharSet = CharSet.Unicode)]
+    internal static extern int SHFileOperation(ref SHFILEOPSTRUCT lpFileOp);
+
+    [LibraryImport("kernel32.dll", EntryPoint = "GetDriveTypeW", StringMarshalling = StringMarshalling.Utf16)]
+    internal static partial uint GetDriveType(string lpRootPathName);
 
     [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto, BestFitMapping = false)]
     internal static extern SafeFileHandle CreateFile(string lpFileName, FileAccess dwDesiredAccess, FileShare dwShareMode, SECURITY_ATTRIBUTES? securityAttrs, CreationDisposition dwCreationDisposition, int dwFlagsAndAttributes, IntPtr hTemplateFile);

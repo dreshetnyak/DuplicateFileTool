@@ -124,4 +124,29 @@ internal static class Drives
         Marshal.PtrToStructure(outBuffer, volumeDiskExtents);
         return (int)volumeDiskExtents.Extents!.DiskNumber;
     }
+
+    // Spinning disks report a seek penalty, SSDs do not. Returns null when the drive does not
+    // support the query (some USB enclosures and virtual drives), the caller should then assume
+    // the worst case, that is a drive with a seek penalty.
+    public static bool? GetIncursSeekPenalty(int physicalDriveNumber)
+    {
+        using var driveHandle = Win32.CreateFile($"\\\\.\\PhysicalDrive{physicalDriveNumber}", Win32.FileAccess.None, Win32.FileShare.Read | Win32.FileShare.Write, null, Win32.CreationDisposition.OpenExisting, 0, IntPtr.Zero);
+        if (driveHandle.IsInvalid)
+            return null;
+
+        var propertyQuery = new Win32.STORAGE_PROPERTY_QUERY { PropertyId = Win32.StorageDeviceSeekPenaltyProperty, QueryType = Win32.PropertyStandardQuery };
+        var inBufferSize = Marshal.SizeOf(propertyQuery);
+        using var inBuffer = new UnmanagedMemory(inBufferSize);
+        Marshal.StructureToPtr(propertyQuery, inBuffer, false);
+
+        var seekPenaltyDescriptor = new Win32.DEVICE_SEEK_PENALTY_DESCRIPTOR();
+        var outBufferSize = Marshal.SizeOf(seekPenaltyDescriptor);
+        using var outBuffer = new UnmanagedMemory(outBufferSize);
+
+        if (!Win32.DeviceIoControl(driveHandle, Win32.IOCTL_STORAGE_QUERY_PROPERTY, inBuffer, inBufferSize, outBuffer, outBufferSize, out _, IntPtr.Zero))
+            return null;
+
+        Marshal.PtrToStructure(outBuffer, seekPenaltyDescriptor);
+        return seekPenaltyDescriptor.IncursSeekPenalty != 0;
+    }
 }

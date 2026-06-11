@@ -275,7 +275,25 @@ namespace DuplicateFileTool.Properties {
                 return ResourceManager.GetString("Config_ExcludeSystemFiles_Name", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to If enabled the program will skip the files of zero size. Such files contain no data to compare, so they are not considered duplicates..
+        /// </summary>
+        public static string Config_ExcludeZeroSizeFiles_Description {
+            get {
+                return ResourceManager.GetString("Config_ExcludeZeroSizeFiles_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Exclude zero size files.
+        /// </summary>
+        public static string Config_ExcludeZeroSizeFiles_Name {
+            get {
+                return ResourceManager.GetString("Config_ExcludeZeroSizeFiles_Name", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Specifies if the listed extensions have to be included or excluded from the search.
         /// </summary>
@@ -656,6 +674,42 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The recycle bin operation was aborted.
+        /// </summary>
+        public static string Error_Recycle_Aborted {
+            get {
+                return ResourceManager.GetString("Error_Recycle_Aborted", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Moving the file to the recycle bin has failed, error code 0x{0:X}.
+        /// </summary>
+        public static string Error_Recycle_Failed {
+            get {
+                return ResourceManager.GetString("Error_Recycle_Failed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This location does not have a recycle bin.
+        /// </summary>
+        public static string Error_Recycle_Not_Available {
+            get {
+                return ResourceManager.GetString("Error_Recycle_Not_Available", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The file path is too long for the recycle bin.
+        /// </summary>
+        public static string Error_Recycle_Path_Too_Long {
+            get {
+                return ResourceManager.GetString("Error_Recycle_Path_Too_Long", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to The value is greater than the allowed maximum.
         /// </summary>
         public static string Error_The_value_is_greater_than_the_allowed_maximum {
@@ -838,6 +892,24 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Deleting permanently: {0}.
+        /// </summary>
+        public static string Log_Recycle_Deleting_Permanently {
+            get {
+                return ResourceManager.GetString("Log_Recycle_Deleting_Permanently", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Skipped: {0}; the file was left in place.
+        /// </summary>
+        public static string Log_Recycle_Skipped {
+            get {
+                return ResourceManager.GetString("Log_Recycle_Skipped", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Unmarking: {0}.
         /// </summary>
         public static string Log_Unmarking_FullFileName {
@@ -845,7 +917,61 @@ namespace DuplicateFileTool.Properties {
                 return ResourceManager.GetString("Log_Unmarking_FullFileName", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Apply to all remaining files.
+        /// </summary>
+        public static string RecyclePrompt_Apply_To_All {
+            get {
+                return ResourceManager.GetString("RecyclePrompt_Apply_To_All", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Cancel deletion.
+        /// </summary>
+        public static string RecyclePrompt_Cancel {
+            get {
+                return ResourceManager.GetString("RecyclePrompt_Cancel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Delete permanently.
+        /// </summary>
+        public static string RecyclePrompt_Delete_Permanently {
+            get {
+                return ResourceManager.GetString("RecyclePrompt_Delete_Permanently", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The following file cannot be moved to the recycle bin:.
+        /// </summary>
+        public static string RecyclePrompt_Header {
+            get {
+                return ResourceManager.GetString("RecyclePrompt_Header", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Ignore.
+        /// </summary>
+        public static string RecyclePrompt_Ignore {
+            get {
+                return ResourceManager.GetString("RecyclePrompt_Ignore", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot move to the recycle bin.
+        /// </summary>
+        public static string RecyclePrompt_Title {
+            get {
+                return ResourceManager.GetString("RecyclePrompt_Title", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to [Program Site].
         /// </summary>
