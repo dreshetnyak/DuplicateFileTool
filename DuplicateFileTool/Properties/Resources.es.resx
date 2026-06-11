@@ -258,6 +258,24 @@
   <data name="Config_Results_Remove_Empty_Directories_Name" xml:space="preserve">
     <value>Remover carpetas vacías</value>
   </data>
+  <data name="Config_Results_Name_Column_Width_Name" xml:space="preserve">
+    <value>Ancho de la columna Nombre en los resultados</value>
+  </data>
+  <data name="Config_Results_Name_Column_Width_Description" xml:space="preserve">
+    <value>El ancho en píxeles de la columna Nombre en la lista de resultados</value>
+  </data>
+  <data name="Config_Results_Size_Column_Width_Name" xml:space="preserve">
+    <value>Ancho de la columna Tamaño en los resultados</value>
+  </data>
+  <data name="Config_Results_Size_Column_Width_Description" xml:space="preserve">
+    <value>El ancho en píxeles de la columna Tamaño en la lista de resultados</value>
+  </data>
+  <data name="Config_Results_Modified_Column_Width_Name" xml:space="preserve">
+    <value>Ancho de la columna Última modificación en los resultados</value>
+  </data>
+  <data name="Config_Results_Modified_Column_Width_Description" xml:space="preserve">
+    <value>El ancho en píxeles de la columna Última modificación en la lista de resultados</value>
+  </data>
   <data name="Config_Results_Sort_Descending_Description" xml:space="preserve">
     <value>Indica si los resultados de la búsqueda deben ser ordenados de forma descendente, al contario serán ordenados de forma ascendente</value>
   </data>
@@ -463,17 +481,23 @@
   <data name="Ui_Count_size_in_Megabytes" xml:space="preserve">
     <value>MB</value>
   </data>
-  <data name="Ui_Duplicated_size" xml:space="preserve">
-    <value>, Tamaño duplicado: </value>
+  <data name="Ui_Results_Column_Name" xml:space="preserve">
+    <value>Nombre</value>
+  </data>
+  <data name="Ui_Results_Column_Size" xml:space="preserve">
+    <value>Tamaño</value>
+  </data>
+  <data name="Ui_Results_Column_Last_Modified" xml:space="preserve">
+    <value>Última modificación</value>
+  </data>
+  <data name="Ui_Results_Group_Caption" xml:space="preserve">
+    <value>Grupo {0} ({1} archivos)</value>
   </data>
   <data name="Ui_Duplicates_Sorting_Order_Ascending" xml:space="preserve">
     <value>Ordenación actual es Ascendente</value>
   </data>
   <data name="Ui_Duplicates_Sorting_Order_Descending" xml:space="preserve">
     <value>Ordenación actual es Descendente</value>
-  </data>
-  <data name="Ui_Duplicate_files_group_N" xml:space="preserve">
-    <value>El grupo de duplicados #</value>
   </data>
   <data name="Ui_Errors_Clear" xml:space="preserve">
     <value>Vaciar la lista de errores</value>
@@ -546,9 +570,6 @@
   </data>
   <data name="Ui_Extension_Type_Name_Video" xml:space="preserve">
     <value>Videos</value>
-  </data>
-  <data name="Ui_Files" xml:space="preserve">
-    <value>, Archivos: </value>
   </data>
   <data name="Ui_File_Tree_Context_Menu_Open_File_In_Explorer" xml:space="preserve">
     <value>Abrir en el Explorador</value>

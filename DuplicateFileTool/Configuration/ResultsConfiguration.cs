@@ -32,6 +32,25 @@ internal sealed class ResultsConfiguration : NotifyPropertyChanged, IChangeable,
         Resources.Config_Results_Delete_To_Recycle_Bin_Description,
         false);
 
+    // Widths of the results tree-table columns, persisted between runs; managed by the view, not the settings UI.
+    public ConfigurationProperty<double> NameColumnWidth { get; } = new(
+        Resources.Config_Results_Name_Column_Width_Name,
+        Resources.Config_Results_Name_Column_Width_Description,
+        500,
+        isHidden: true);
+
+    public ConfigurationProperty<double> SizeColumnWidth { get; } = new(
+        Resources.Config_Results_Size_Column_Width_Name,
+        Resources.Config_Results_Size_Column_Width_Description,
+        80,
+        isHidden: true);
+
+    public ConfigurationProperty<double> ModifiedColumnWidth { get; } = new(
+        Resources.Config_Results_Modified_Column_Width_Name,
+        Resources.Config_Results_Modified_Column_Width_Description,
+        130,
+        isHidden: true);
+
     public bool HasChanged
     {
         get => ChangeTracker.HasChanged;

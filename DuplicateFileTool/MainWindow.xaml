@@ -42,27 +42,38 @@
             </StackPanel>
         </HierarchicalDataTemplate>
 
-        <HierarchicalDataTemplate DataType="{x:Type local:DuplicateGroup}" ItemsSource="{Binding DuplicateFiles}">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="{x:Static resx:Resources.Ui_Duplicate_files_group_N}" />
-                <TextBlock Text="{Binding GroupNumber}" />
-                <TextBlock Text="{x:Static resx:Resources.Ui_Files}" />
-                <TextBlock Text="{Binding FilesCount}" />
-                <TextBlock Text="{x:Static resx:Resources.Ui_Duplicated_size}" />
-                <TextBlock Text="{Binding DuplicatedSizeText}" />
-            </StackPanel>
-        </HierarchicalDataTemplate>
+        <!-- The visual content of the results rows comes from the TreeListView column cell templates below;
+             this template only supplies the group-to-files hierarchy. -->
+        <HierarchicalDataTemplate DataType="{x:Type local:DuplicateGroup}" ItemsSource="{Binding DuplicateFiles}" />
 
-        <HierarchicalDataTemplate DataType="{x:Type local:DuplicateFile}">
-            <Grid>
+        <Style x:Key="MarkedFileTextStyle" TargetType="TextBlock">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsMarkedForDeletion, Mode=OneWay}" Value="True">
+                    <Setter Property="TextDecorations" Value="Strikethrough" />
+                    <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <DataTemplate x:Key="GroupNameCellTemplate" DataType="{x:Type local:DuplicateGroup}">
+            <StackPanel Orientation="Horizontal">
+                <ToggleButton Style="{StaticResource TreeListViewExpandCollapseToggleStyle}"
+                              ClickMode="Press"
+                              IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type TreeViewItem}}, Mode=TwoWay}" />
+                <TextBlock Text="{Binding GroupCaption}" VerticalAlignment="Center" Margin="0,1,5,1" />
+            </StackPanel>
+        </DataTemplate>
+
+        <DataTemplate x:Key="FileNameCellTemplate" DataType="{x:Type local:DuplicateFile}">
+            <Grid Margin="16,0,0,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="20"/>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="22"/>
                 </Grid.ColumnDefinitions>
-                
-                <Button Grid.Column="0" Visibility="{Binding IsMarkForDeletionVisible, Mode=OneWay, Converter={StaticResource BoolVisibilityConverter}}" 
-                        Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" 
+
+                <Button Grid.Column="0" Visibility="{Binding IsMarkForDeletionVisible, Mode=OneWay, Converter={StaticResource BoolVisibilityConverter}}"
+                        Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
                         Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.ToggleDeletionMark}"
                         CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type TreeViewItem}}, Path=Header}"
                         ToolTip="{x:Static resx:Resources.Ui_ToolTip_Toggle_Mark_For_Deletion}" Margin="0,1,3,1">
@@ -78,21 +89,11 @@
                 </Button>
 
                 <ContentControl Grid.Column="1" MouseDoubleClick="OnOpenWithDefaultApp">
-                    <TextBlock Text="{Binding FileFullName}" Margin="0,0,5,0" VerticalAlignment="Center">
-                        <TextBlock.Style>
-                            <Style TargetType="TextBlock">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsMarkedForDeletion, Mode=OneWay}" Value="True">
-                                        <Setter Property="TextDecorations" Value="Strikethrough" />
-                                        <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
+                    <TextBlock Text="{Binding FileFullName}" ToolTip="{Binding FileFullName}" Margin="0,0,5,0" VerticalAlignment="Center"
+                               Style="{StaticResource MarkedFileTextStyle}" />
                 </ContentControl>
 
-                <Button Grid.Column="2" Margin="0,1,5,1" 
+                <Button Grid.Column="2" Margin="0,1,5,1"
                         Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
                         Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.OpenFileInExplorer}"
                         CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type TreeViewItem}}, Path=Header}"
@@ -101,7 +102,29 @@
                 </Button>
 
             </Grid>
-        </HierarchicalDataTemplate>
+        </DataTemplate>
+
+        <DataTemplate x:Key="GroupSizeCellTemplate" DataType="{x:Type local:DuplicateGroup}">
+            <TextBlock Text="{Binding DuplicatedSizeText}" TextAlignment="Right" VerticalAlignment="Center" Margin="0,0,6,0" />
+        </DataTemplate>
+
+        <DataTemplate x:Key="FileSizeCellTemplate" DataType="{x:Type local:DuplicateFile}">
+            <TextBlock Text="{Binding FileSize}" TextAlignment="Right" VerticalAlignment="Center" Margin="0,0,6,0"
+                       Style="{StaticResource MarkedFileTextStyle}" />
+        </DataTemplate>
+
+        <DataTemplate x:Key="GroupModifiedCellTemplate" DataType="{x:Type local:DuplicateGroup}">
+            <TextBlock />
+        </DataTemplate>
+
+        <DataTemplate x:Key="FileModifiedCellTemplate" DataType="{x:Type local:DuplicateFile}">
+            <TextBlock Text="{Binding LastWriteTimeText}" VerticalAlignment="Center" Margin="0,0,6,0"
+                       Style="{StaticResource MarkedFileTextStyle}" />
+        </DataTemplate>
+
+        <controls:DuplicateCellTemplateSelector x:Key="NameCellTemplateSelector" GroupTemplate="{StaticResource GroupNameCellTemplate}" FileTemplate="{StaticResource FileNameCellTemplate}" />
+        <controls:DuplicateCellTemplateSelector x:Key="SizeCellTemplateSelector" GroupTemplate="{StaticResource GroupSizeCellTemplate}" FileTemplate="{StaticResource FileSizeCellTemplate}" />
+        <controls:DuplicateCellTemplateSelector x:Key="ModifiedCellTemplateSelector" GroupTemplate="{StaticResource GroupModifiedCellTemplate}" FileTemplate="{StaticResource FileModifiedCellTemplate}" />
 
         <Style x:Key="ImageButton" TargetType="{x:Type Button}">
             <Setter Property="Template">
@@ -867,20 +890,20 @@
                                 </Grid>
                             </Border>
                         </Grid>
-                        <TreeView Grid.Row="1" x:Name="ResultsTreeView" ItemsSource="{Binding DuplicateGroupsProxyView}" Margin="0,0,3,0">
-                            <TreeView.Resources>
-                                <Style TargetType="{x:Type TreeViewItem}">
-                                    <Setter Property="IsExpanded" Value="True" />
-                                </Style>
-                            </TreeView.Resources>
-                            <TreeView.ItemContainerStyle>
-                                <Style TargetType="{x:Type TreeViewItem}">
+                        <controls:TreeListView Grid.Row="1" x:Name="ResultsTreeView" ItemsSource="{Binding DuplicateGroupsProxyView}" Margin="0,0,3,0">
+                            <controls:TreeListView.Columns>
+                                <GridViewColumn x:Name="ResultsNameColumn" Header="{x:Static resx:Resources.Ui_Results_Column_Name}" CellTemplateSelector="{StaticResource NameCellTemplateSelector}" />
+                                <GridViewColumn x:Name="ResultsSizeColumn" Header="{x:Static resx:Resources.Ui_Results_Column_Size}" CellTemplateSelector="{StaticResource SizeCellTemplateSelector}" />
+                                <GridViewColumn x:Name="ResultsModifiedColumn" Header="{x:Static resx:Resources.Ui_Results_Column_Last_Modified}" CellTemplateSelector="{StaticResource ModifiedCellTemplateSelector}" />
+                            </controls:TreeListView.Columns>
+                            <controls:TreeListView.ItemContainerStyle>
+                                <Style TargetType="{x:Type controls:TreeListViewItem}" BasedOn="{StaticResource {x:Type controls:TreeListViewItem}}">
                                     <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                                     <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
                                     <Setter Property="KeyboardNavigation.AcceptsReturn" Value="True" />
                                 </Style>
-                            </TreeView.ItemContainerStyle>
-                        </TreeView>
+                            </controls:TreeListView.ItemContainerStyle>
+                        </controls:TreeListView>
                     </Grid>
 
                     <Grid Grid.Column="1" >

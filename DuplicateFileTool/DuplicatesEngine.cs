@@ -25,6 +25,7 @@ internal sealed class DuplicateFile(DuplicateGroup parentGroup, MatchResult matc
 
     public string FileFullName => FileData.FullName;
     public string FileSize => FileData.Size.BytesLengthToString();
+    public string LastWriteTimeText => FileData.LastWriteTime.ToString("g");
     public bool IsMarkForDeletionVisible => !IsMarkedForDeletion && ParentGroup.DuplicateFiles.Count(file => !file.IsMarkedForDeletion) > 1;
     public bool IsMarkedForDeletion
     {
@@ -80,6 +81,7 @@ internal sealed class DuplicateGroup : NotifyPropertyChanged
                 return;
             _groupNumber = value;
             OnPropertyChanged();
+            OnPropertyChanged(nameof(GroupCaption));
         }
     }
     public int FilesCount
@@ -89,10 +91,12 @@ internal sealed class DuplicateGroup : NotifyPropertyChanged
         {
             if (_filesCount == value)
                 return;
-            _filesCount = value; 
+            _filesCount = value;
             OnPropertyChanged();
+            OnPropertyChanged(nameof(GroupCaption));
         }
     }
+    public string GroupCaption => string.Format(Resources.Ui_Results_Group_Caption, GroupNumber, FilesCount);
     public long DuplicatedSize
     {
         get => _duplicatedSize;
@@ -359,31 +363,31 @@ internal sealed class DuplicatesEngine : NotifyPropertyChanged
         List<IComparableFile[]>? duplicateCandidates = null;
         try
         {
-            var startFindFiles = DateTime.UtcNow;
+            //var startFindFiles = DateTime.UtcNow;
             var files = await Files.Find(searchPaths, inclusionPredicate, cancellationToken);
-            var endFindFiles = DateTime.UtcNow;
+            //var endFindFiles = DateTime.UtcNow;
 
-            var startCandidates = DateTime.UtcNow;
+            //var startCandidates = DateTime.UtcNow;
             duplicateCandidates = await Candidates.Find(files, duplicateCandidatePredicate, comparableFileFactory, cancellationToken);
-            var endCandidates = DateTime.UtcNow;
+            //var endCandidates = DateTime.UtcNow;
 
-            var startSearch = DateTime.UtcNow;
+            //var startSearch = DateTime.UtcNow;
             await Duplicates.Find(duplicateCandidates, comparableFileFactory.Config, cancellationToken);
-            var endSearch = DateTime.UtcNow;
+            //var endSearch = DateTime.UtcNow;
 
-            //TODO This is a debug code. Remove it after testing.
-            // ReSharper disable LocalizableElement
-            var elapsedFindFiles = endFindFiles - startFindFiles;
-            var elapsedCandidates = endCandidates - startCandidates;
-            var elapsedSearch = endSearch - startSearch;
-            await File.AppendAllTextAsync(
-                "Timings.txt",
-                $"Start time : {startFindFiles.ToLocalTime():yyyy-MM-dd HH:mm:ss}{Environment.NewLine}" +
-                $"Files      : {elapsedFindFiles.TotalMinutes:N0} min, {elapsedFindFiles.Seconds:00} sec.{Environment.NewLine}" +
-                $"Candidates : {elapsedCandidates.TotalMinutes:N0} min, {elapsedCandidates.Seconds:00} sec.{Environment.NewLine}" +
-                $"Comparison : {elapsedSearch.TotalMinutes:N0} min, {elapsedSearch.Seconds} sec.{Environment.NewLine}{Environment.NewLine}",
-                CancellationToken.None);
-            // ReSharper restore LocalizableElement
+            ////TODO This is a debug code. Remove it after testing.
+            //// ReSharper disable LocalizableElement
+            //var elapsedFindFiles = endFindFiles - startFindFiles;
+            //var elapsedCandidates = endCandidates - startCandidates;
+            //var elapsedSearch = endSearch - startSearch;
+            //await File.AppendAllTextAsync(
+            //    "Timings.txt",
+            //    $"Start time : {startFindFiles.ToLocalTime():yyyy-MM-dd HH:mm:ss}{Environment.NewLine}" +
+            //    $"Files      : {elapsedFindFiles.TotalMinutes:N0} min, {elapsedFindFiles.Seconds:00} sec.{Environment.NewLine}" +
+            //    $"Candidates : {elapsedCandidates.TotalMinutes:N0} min, {elapsedCandidates.Seconds:00} sec.{Environment.NewLine}" +
+            //    $"Comparison : {elapsedSearch.TotalMinutes:N0} min, {elapsedSearch.Seconds} sec.{Environment.NewLine}{Environment.NewLine}",
+            //    CancellationToken.None);
+            //// ReSharper restore LocalizableElement
         }
         catch (OperationCanceledException)
         {

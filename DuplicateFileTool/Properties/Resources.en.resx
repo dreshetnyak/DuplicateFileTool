@@ -258,6 +258,24 @@
   <data name="Config_Results_Remove_Empty_Directories_Name" xml:space="preserve">
     <value>Remove empty directories</value>
   </data>
+  <data name="Config_Results_Name_Column_Width_Name" xml:space="preserve">
+    <value>Results Name column width</value>
+  </data>
+  <data name="Config_Results_Name_Column_Width_Description" xml:space="preserve">
+    <value>The width in pixels of the Name column in the results list</value>
+  </data>
+  <data name="Config_Results_Size_Column_Width_Name" xml:space="preserve">
+    <value>Results Size column width</value>
+  </data>
+  <data name="Config_Results_Size_Column_Width_Description" xml:space="preserve">
+    <value>The width in pixels of the Size column in the results list</value>
+  </data>
+  <data name="Config_Results_Modified_Column_Width_Name" xml:space="preserve">
+    <value>Results Last Modified column width</value>
+  </data>
+  <data name="Config_Results_Modified_Column_Width_Description" xml:space="preserve">
+    <value>The width in pixels of the Last Modified column in the results list</value>
+  </data>
   <data name="Config_Results_Sort_Descending_Description" xml:space="preserve">
     <value>Indicates if the results should be sorted in a descending is checked or otherwise ascending order</value>
   </data>
@@ -463,17 +481,23 @@
   <data name="Ui_Count_size_in_Megabytes" xml:space="preserve">
     <value>MB</value>
   </data>
-  <data name="Ui_Duplicated_size" xml:space="preserve">
-    <value>, Duplicated size: </value>
+  <data name="Ui_Results_Column_Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="Ui_Results_Column_Size" xml:space="preserve">
+    <value>Size</value>
+  </data>
+  <data name="Ui_Results_Column_Last_Modified" xml:space="preserve">
+    <value>Last Modified</value>
+  </data>
+  <data name="Ui_Results_Group_Caption" xml:space="preserve">
+    <value>Group {0} ({1} files)</value>
   </data>
   <data name="Ui_Duplicates_Sorting_Order_Ascending" xml:space="preserve">
     <value>Current sorting order is Ascending</value>
   </data>
   <data name="Ui_Duplicates_Sorting_Order_Descending" xml:space="preserve">
     <value>Current sorting order is Descending</value>
-  </data>
-  <data name="Ui_Duplicate_files_group_N" xml:space="preserve">
-    <value>Duplicate files group #</value>
   </data>
   <data name="Ui_Errors_Clear" xml:space="preserve">
     <value>Clear errors list</value>
@@ -546,9 +570,6 @@
   </data>
   <data name="Ui_Extension_Type_Name_Video" xml:space="preserve">
     <value>Video</value>
-  </data>
-  <data name="Ui_Files" xml:space="preserve">
-    <value>, Files: </value>
   </data>
   <data name="Ui_File_Tree_Context_Menu_Open_File_In_Explorer" xml:space="preserve">
     <value>Open in the Explorer</value>

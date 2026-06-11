@@ -15,9 +15,35 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
-        DataContext = new MainViewModel(ResultsTreeView);
+        var viewModel = new MainViewModel(ResultsTreeView);
+        DataContext = viewModel;
+        LoadResultsColumnWidths(viewModel.Config.ResultsConfig);
         Closed += OnWindowClosed;
         Activated += OnWindowActivated;
+    }
+
+    private void LoadResultsColumnWidths(Configuration.ResultsConfiguration resultsConfig)
+    {
+        ResultsNameColumn.Width = resultsConfig.NameColumnWidth.Value;
+        ResultsSizeColumn.Width = resultsConfig.SizeColumnWidth.Value;
+        ResultsModifiedColumn.Width = resultsConfig.ModifiedColumnWidth.Value;
+    }
+
+    private void SaveResultsColumnWidths(Configuration.ResultsConfiguration resultsConfig)
+    {
+        SaveColumnWidth(ResultsNameColumn, resultsConfig.NameColumnWidth);
+        SaveColumnWidth(ResultsSizeColumn, resultsConfig.SizeColumnWidth);
+        SaveColumnWidth(ResultsModifiedColumn, resultsConfig.ModifiedColumnWidth);
+    }
+
+    private static void SaveColumnWidth(GridViewColumn column, ConfigurationProperty<double> configProperty)
+    {
+        var width = double.IsNaN(column.Width) ? column.ActualWidth : column.Width;
+        // Whole pixels round-trip through the config file the same way under every culture,
+        // unlike fractional values whose decimal separator is culture-specific.
+        width = Math.Round(width);
+        if (width > 0)
+            configProperty.Value = width;
     }
 
     private void OnWindowActivated(object? sender, EventArgs e)
@@ -28,9 +54,11 @@ public partial class MainWindow : Window
 
     private void OnWindowClosed(object? sender, EventArgs e)
     {
-        if (DataContext is not IDisposable disposable)
+        if (DataContext is not MainViewModel viewModel)
             return;
-        try { disposable.Dispose(); }
+        try { SaveResultsColumnWidths(viewModel.Config.ResultsConfig); }
+        catch { /* ignore */ }
+        try { viewModel.Dispose(); }
         catch { /* ignore */ }
     }
 

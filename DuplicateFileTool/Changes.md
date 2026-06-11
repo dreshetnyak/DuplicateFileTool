@@ -19,6 +19,10 @@
 
 ## Released
 
+### DuplicateFileTool 2.2.0: 2026-06-11
+
+- New. The results list is now a tree-table with Name, Size and Last Modified columns. Group rows show the group caption and the duplicated size, file rows show the file size and the culture-formatted last write time, and the marked-for-deletion styling covers the whole row. Columns are resizable and their widths are remembered between runs. Long paths are clipped at the column edge with the full path shown in a tooltip.
+
 ### DuplicateFileTool 2.1.0: 2026-06-11
 
 - New. Implemented the "Delete to recycle bin" setting that previously existed but had no effect. Files are moved to the recycle bin like Windows Explorer does. When a file cannot be recycled (the path is too long, the location is a network share without a recycle bin, or the operation fails), the program asks whether to delete the file permanently, leave it in place, or cancel the deletion, with an option to apply the choice to all remaining files in the run. Empty directories are always removed permanently since they contain no data to restore.

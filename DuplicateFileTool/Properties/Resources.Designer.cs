@@ -464,6 +464,60 @@ namespace DuplicateFileTool.Properties {
                 return ResourceManager.GetString("Config_Results_Remove_Empty_Directories_Name", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The width in pixels of the Last Modified column in the results list.
+        /// </summary>
+        public static string Config_Results_Modified_Column_Width_Description {
+            get {
+                return ResourceManager.GetString("Config_Results_Modified_Column_Width_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Results Last Modified column width.
+        /// </summary>
+        public static string Config_Results_Modified_Column_Width_Name {
+            get {
+                return ResourceManager.GetString("Config_Results_Modified_Column_Width_Name", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The width in pixels of the Name column in the results list.
+        /// </summary>
+        public static string Config_Results_Name_Column_Width_Description {
+            get {
+                return ResourceManager.GetString("Config_Results_Name_Column_Width_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Results Name column width.
+        /// </summary>
+        public static string Config_Results_Name_Column_Width_Name {
+            get {
+                return ResourceManager.GetString("Config_Results_Name_Column_Width_Name", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The width in pixels of the Size column in the results list.
+        /// </summary>
+        public static string Config_Results_Size_Column_Width_Description {
+            get {
+                return ResourceManager.GetString("Config_Results_Size_Column_Width_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Results Size column width.
+        /// </summary>
+        public static string Config_Results_Size_Column_Width_Name {
+            get {
+                return ResourceManager.GetString("Config_Results_Size_Column_Width_Name", resourceCulture);
+            }
+        }
         
         /// <summary>
         ///   Looks up a localized string similar to Indicates if the results should be sorted in a descending is checked or otherwise ascending order.
@@ -1117,24 +1171,6 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Duplicate files group #.
-        /// </summary>
-        public static string Ui_Duplicate_files_group_N {
-            get {
-                return ResourceManager.GetString("Ui_Duplicate_files_group_N", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to , Duplicated size: .
-        /// </summary>
-        public static string Ui_Duplicated_size {
-            get {
-                return ResourceManager.GetString("Ui_Duplicated_size", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Current sorting order is Ascending.
         /// </summary>
         public static string Ui_Duplicates_Sorting_Order_Ascending {
@@ -1378,15 +1414,6 @@ namespace DuplicateFileTool.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to , Files: .
-        /// </summary>
-        public static string Ui_Files {
-            get {
-                return ResourceManager.GetString("Ui_Files", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to English.
         /// </summary>
         public static string Ui_Language_Name_English {
@@ -1473,6 +1500,42 @@ namespace DuplicateFileTool.Properties {
         public static string Ui_Results_Clear_Results {
             get {
                 return ResourceManager.GetString("Ui_Results_Clear_Results", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Last Modified.
+        /// </summary>
+        public static string Ui_Results_Column_Last_Modified {
+            get {
+                return ResourceManager.GetString("Ui_Results_Column_Last_Modified", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Name.
+        /// </summary>
+        public static string Ui_Results_Column_Name {
+            get {
+                return ResourceManager.GetString("Ui_Results_Column_Name", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Size.
+        /// </summary>
+        public static string Ui_Results_Column_Size {
+            get {
+                return ResourceManager.GetString("Ui_Results_Column_Size", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Group {0} ({1} files).
+        /// </summary>
+        public static string Ui_Results_Group_Caption {
+            get {
+                return ResourceManager.GetString("Ui_Results_Group_Caption", resourceCulture);
             }
         }
         

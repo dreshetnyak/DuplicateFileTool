@@ -55,8 +55,7 @@ internal static class Utility
 {
     public static string GetAssemblyLocation()
     {
-        try { return Path.GetDirectoryName(typeof(Utility).Assembly.Location) ?? ""; }
-        catch { return ""; }
+        return AppContext.BaseDirectory;
     }
 
     public static bool MakeSureDirectoryExists(string path)

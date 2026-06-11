@@ -26,11 +26,12 @@ There are no test projects in this solution.
 
 ## Versioning
 
-The project follows semantic versioning (since 2.0.0). The version number is stored in **three** places that must be kept in sync when releasing:
+The project follows semantic versioning (since 2.0.0). The version number is stored in **four** places that must be kept in sync when releasing:
 
 1. `DuplicateFileTool/DuplicateFileTool.csproj` — `<ApplicationVersion>` (e.g. `2.0.1.%2a`)
 2. `DuplicateFileTool/Properties/AssemblyInfo.cs` — `[assembly: AssemblyVersion("2.0.1")]` (this is the runtime source of truth)
 3. `DuplicateFileToolInstaller/Package.wxs` — the `<Package Version="2.0.1" ...>` attribute (drives installer upgrade logic)
+4. `README.md` — the shields.io version badge (`![Version](https://img.shields.io/badge/version-2.0.1-informational)`)
 
 `Configuration/ConfigManager.GetAppName()` reads the assembly version at runtime and formats it as `Major.Minor.Build` for display (the patch number lives in the Build component). The human-readable changelog is `DuplicateFileTool/Changes.md` (Markdown) — completed-but-unreleased changes go as bullets under the `## Unreleased` section; on release, move them into a new `### DuplicateFileTool <version>: <date>` block under the `## Released` section. The file also holds the feature `## Backlog` and a `## Work in Progress` section. Entries are bullets prefixed with `New.` / `Bug.` / `Fix.` / `Improvement.`
 

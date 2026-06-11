@@ -258,6 +258,24 @@
   <data name="Config_Results_Remove_Empty_Directories_Name" xml:space="preserve">
     <value>Удалять пустые директории</value>
   </data>
+  <data name="Config_Results_Name_Column_Width_Name" xml:space="preserve">
+    <value>Ширина колонки Имя в результатах</value>
+  </data>
+  <data name="Config_Results_Name_Column_Width_Description" xml:space="preserve">
+    <value>Ширина в пикселях колонки Имя в списке результатов</value>
+  </data>
+  <data name="Config_Results_Size_Column_Width_Name" xml:space="preserve">
+    <value>Ширина колонки Размер в результатах</value>
+  </data>
+  <data name="Config_Results_Size_Column_Width_Description" xml:space="preserve">
+    <value>Ширина в пикселях колонки Размер в списке результатов</value>
+  </data>
+  <data name="Config_Results_Modified_Column_Width_Name" xml:space="preserve">
+    <value>Ширина колонки Дата изменения в результатах</value>
+  </data>
+  <data name="Config_Results_Modified_Column_Width_Description" xml:space="preserve">
+    <value>Ширина в пикселях колонки Дата изменения в списке результатов</value>
+  </data>
   <data name="Config_Results_Sort_Descending_Description" xml:space="preserve">
     <value>Определяет должны ли результаты сортироваться по убыванию, иначе они будут отсортированы по возрастанию</value>
   </data>
@@ -463,17 +481,23 @@
   <data name="Ui_Count_size_in_Megabytes" xml:space="preserve">
     <value>МБ</value>
   </data>
-  <data name="Ui_Duplicated_size" xml:space="preserve">
-    <value>, Дублированный размер: </value>
+  <data name="Ui_Results_Column_Name" xml:space="preserve">
+    <value>Имя</value>
+  </data>
+  <data name="Ui_Results_Column_Size" xml:space="preserve">
+    <value>Размер</value>
+  </data>
+  <data name="Ui_Results_Column_Last_Modified" xml:space="preserve">
+    <value>Дата изменения</value>
+  </data>
+  <data name="Ui_Results_Group_Caption" xml:space="preserve">
+    <value>Группа {0} (файлов: {1})</value>
   </data>
   <data name="Ui_Duplicates_Sorting_Order_Ascending" xml:space="preserve">
     <value>Текущий порядок сортировки - По возрастанию</value>
   </data>
   <data name="Ui_Duplicates_Sorting_Order_Descending" xml:space="preserve">
     <value>Текущий порядок сортировки - По убыванию</value>
-  </data>
-  <data name="Ui_Duplicate_files_group_N" xml:space="preserve">
-    <value>Группа дубликатов #</value>
   </data>
   <data name="Ui_Errors_Clear" xml:space="preserve">
     <value>Очистить список ошибок</value>
@@ -546,9 +570,6 @@
   </data>
   <data name="Ui_Extension_Type_Name_Video" xml:space="preserve">
     <value>Видео</value>
-  </data>
-  <data name="Ui_Files" xml:space="preserve">
-    <value>, Файлы: </value>
   </data>
   <data name="Ui_File_Tree_Context_Menu_Open_File_In_Explorer" xml:space="preserve">
     <value>Открыть в менеджере файлов</value>
