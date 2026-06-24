@@ -19,6 +19,10 @@
 
 ## Released
 
+### DuplicateFileTool 2.3.0: 2026-06-24
+
+- New. The Results tab now has a vertical splitter between the duplicates list and the Duplicates Information panel, so the two sides can be resized.
+
 ### DuplicateFileTool 2.2.0: 2026-06-11
 
 - New. The results list is now a tree-table with Name, Size and Last Modified columns. Group rows show the group caption and the duplicated size, file rows show the file size and the culture-formatted last write time, and the marked-for-deletion styling covers the whole row. Columns are resizable and their widths are remembered between runs. Long paths are clipped at the column edge with the full path shown in a tooltip.

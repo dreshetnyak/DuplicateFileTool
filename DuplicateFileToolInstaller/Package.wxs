@@ -5,7 +5,7 @@
   <Package
     Name="Duplicate File Tool"
     Manufacturer="Dennis Reshetnyak"
-    Version="2.2.0"
+    Version="2.3.0"
     UpgradeCode="F5EAE4DE-2E5B-4E48-A282-1208C1345D14"
     InstallerVersion="405"
     Scope="perMachine">

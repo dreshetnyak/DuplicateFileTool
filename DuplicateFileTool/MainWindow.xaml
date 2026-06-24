@@ -505,8 +505,9 @@
                 </TabItem.Header>
                 <Grid Margin="3,3,3,3">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" MinWidth="200" />
+                        <ColumnDefinition Width="4" />
+                        <ColumnDefinition Width="Auto" MinWidth="170" />
                     </Grid.ColumnDefinitions>
 
                     <Grid Grid.Column="0" Margin="0,0,0,3">
@@ -906,7 +907,9 @@
                         </controls:TreeListView>
                     </Grid>
 
-                    <Grid Grid.Column="1" >
+                    <GridSplitter Grid.Column="1" Width="4" HorizontalAlignment="Stretch" Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}" />
+
+                    <Grid Grid.Column="2" >
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="*" />
