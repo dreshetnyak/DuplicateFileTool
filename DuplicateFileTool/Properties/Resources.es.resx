@@ -817,4 +817,25 @@
   <data name="Ui_ToolTip_Results_Filter_Keywords_Include" xml:space="preserve">
     <value>Mostrar los resultados que incluyen las palabras clave</value>
   </data>
+  <data name="Ui_FolderComparison_ZeroSurvivor_Warning" xml:space="preserve">
+    <value>Advertencia: eliminar los elementos marcados aquí no dejará ninguna otra copia.</value>
+  </data>
+  <data name="Ui_ToolTip_Clear_Folder_Selection" xml:space="preserve">
+    <value>Borrar la selección de esta carpeta</value>
+  </data>
+  <data name="Ui_FolderComparison_Placeholder" xml:space="preserve">
+    <value>Seleccione un grupo de duplicados para comparar sus carpetas.</value>
+  </data>
+  <data name="Ui_ToolTip_FolderComparison_Rail_Toggle" xml:space="preserve">
+    <value>Mostrar u ocultar la lista de carpetas</value>
+  </data>
+  <data name="Ui_FolderComparison_Rail_LimitReached" xml:space="preserve">
+    <value>Número máximo de carpetas seleccionadas</value>
+  </data>
+  <data name="Ui_FolderComparison_Rail_ListTitle" xml:space="preserve">
+    <value>Carpetas del grupo seleccionado:</value>
+  </data>
+  <data name="Ui_FolderComparison_NoFoldersSelected" xml:space="preserve">
+    <value>No hay carpetas seleccionadas</value>
+  </data>
 </root>

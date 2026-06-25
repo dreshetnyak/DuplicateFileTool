@@ -288,22 +288,20 @@ internal sealed class MainViewModel : NotifyPropertyChanged, IResultsFilter, IDi
         CancelDuplicatesSearch = new RelayCommand(_ => FindDuplicates.Cancel());
 
         ToggleDeletionMark = new ToggleDeletionMarkCommand();
-        ToggleDeletionMark.DeletionMarkToggle += OnUpdateToDelete;
-            
+
         AutoSelectByPath = new AutoSelectByPathCommand(Duplicates.DuplicateGroups);
-        AutoSelectByPath.FilesAutoMarkedForDeletion += OnUpdateToDelete;
         AutoSelectByPath.Starting += OnAutoSelectByPathStarting;
         AutoSelectByPath.Finished += OnAutoSelectByPathFinished;
         AutoSelectByPath.Progress += OnAutoSelectByPathProgress;
         DuplicateFile.ItemSelected += OnDuplicateFileSelected;
+        DuplicateGroup.ItemSelected += OnDuplicateGroupSelected;
         FileTreeItem.ItemSelected += OnFileTreeItemSelected;
 
-        ResetSelection = new ResetSelectionCommand(Duplicates.DuplicateGroups);
-        ResetSelection.UpdateToDeleteSize += OnUpdateToDelete;
+        ResetSelection = new ResetSelectionCommand(Duplicates.DeletionSelection);
 
         DeleteMarkedFiles = new DeleteMarkedFilesCommand(Duplicates, Config.ResultsConfig);
         DeleteMarkedFiles.Started += (_, _) => { Ui.Entry.Enabled = false; DuplicateGroupsProxyView.LoadFirstPage(); };
-        DeleteMarkedFiles.Finished += (_, _) => { Ui.Entry.Enabled = true; RefreshExpandedFileTreeItems(); };
+        DeleteMarkedFiles.Finished += OnDeleteMarkedFilesFinished;
 
         AddPath = new AddPathCommand(SearchPaths, () => SelectedFileTreeItem);
         OpenFileInExplorer = new OpenFileInExplorerCommand();
@@ -454,23 +452,53 @@ internal sealed class MainViewModel : NotifyPropertyChanged, IResultsFilter, IDi
             fileTreeItem.Refresh();
     }
 
+    // A deletion run mutates files/groups on disk and in the model. Refresh the search-page tree, then force the
+    // folder-comparison control to rebuild so deleted files disappear from its columns. The control rebuilds when
+    // CurrentComparisonGroup changes (its setter guards ReferenceEquals), so re-drive the property: if the current
+    // group was emptied/removed by the run, fall back to null (the placeholder, OQ-6); otherwise toggle through null
+    // to force a change notification and re-enumerate the surviving group's folders from disk. DeleteMarkedFiles.Finished
+    // resumes on the UI thread (its async-void Execute captures the UI context, like the RefreshExpandedFileTreeItems
+    // call already relied on), so this runs on the UI thread.
+    private void OnDeleteMarkedFilesFinished(object? sender, EventArgs eventArgs)
+    {
+        Ui.Entry.Enabled = true;
+        RefreshExpandedFileTreeItems();
+
+        var group = Duplicates.CurrentComparisonGroup;
+        if (group != null && !Duplicates.DuplicateGroups.Contains(group))
+            group = null;                            // the group was emptied/removed by the deletion → placeholder
+        Duplicates.CurrentComparisonGroup = null;    // force a change notification
+        Duplicates.CurrentComparisonGroup = group;   // rebuild (re-enumerates folders from disk), or placeholder if null
+    }
+
     private void OnFileTreeItemSelected(object? sender, EventArgs eventArgs) =>
         SelectedFileTreeItem = sender as FileTreeItem;
 
     private void OnDuplicateFileSelected(object? sender, EventArgs eventArgs)
     {
-        AutoSelectByPath.Path = sender is DuplicateFile { IsSelected: true } duplicateFile
-            ? duplicateFile.FileFullName
-            : "";
+        if (sender is DuplicateFile { IsSelected: true } duplicateFile)
+        {
+            AutoSelectByPath.Path = duplicateFile.FileFullName;
+            // Drive the folder-comparison control to the selected file's group. Only set on selection, never clear on
+            // deselect: single-select fires the old row's deselect before the new row's select, so clearing here would
+            // briefly flip CurrentComparisonGroup to null and make the control rebuild twice (flicker). Selecting
+            // another file in the same group is a no-op (the setter guards ReferenceEquals), so no rebuild.
+            Duplicates.CurrentComparisonGroup = Duplicates.GetGroupForPath(duplicateFile.FileFullName);
+            // Persist the selected file's path so each folder column can light up its outer background when the file
+            // lives in that folder. Set-on-select only (same flicker rationale as the group above).
+            Duplicates.SelectedDuplicateFilePath = duplicateFile.FileFullName;
+        }
+        else
+            AutoSelectByPath.Path = "";
     }
 
-    private void OnUpdateToDelete(object? sender, UpdateToDeleteEventArgs eventArgs)
+    private void OnDuplicateGroupSelected(object? sender, EventArgs eventArgs)
     {
-        Duplicates.ToBeDeletedCount += eventArgs.Count;
-        Duplicates.ToBeDeletedSize += eventArgs.Size;
+        if (sender is DuplicateGroup { IsSelected: true } group)
+            Duplicates.CurrentComparisonGroup = group;
     }
 
-    private void OnAutoSelectByPathStarting(object? sender, EventArgs eventArgs) => 
+    private void OnAutoSelectByPathStarting(object? sender, EventArgs eventArgs) =>
         Ui.Entry.Enabled = false;
 
     private void OnAutoSelectByPathFinished(object? sender, AutoSelectStartingEventArgs eventEventArgs)

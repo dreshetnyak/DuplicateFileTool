@@ -1,0 +1,152 @@
+<UserControl x:Class="DuplicateFileTool.Controls.FolderComparison"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:resx="clr-namespace:DuplicateFileTool.Properties"
+             mc:Ignorable="d"
+             d:DesignHeight="450" d:DesignWidth="800">
+
+    <!--
+        Two-region layout (issue 030). Column 0 is the collapsible folder-selection rail; column 1 is the existing
+        folder-columns region (one FolderComparisonItem per distinct containing folder of the current group's files,
+        laid out side by side in a pixel-width Grid so the total can overflow the viewport, inside a horizontal
+        ScrollViewer with draggable GridSplitters between columns). A centered placeholder is shown in column 1 while
+        no group is selected (and while no column survives). The columns Grid is built in code-behind because the
+        column count is dynamic (see FolderComparison.xaml.cs).
+
+        The rail is a real grid column: expanding it pushes/reflows the columns region (dock), never overlays it. It is
+        the standard WPF Expander with ExpandDirection="Right" (a round chevron toggle button at the top that expands
+        the content to the right) wrapped in a rounded, light-gray Border echoing the settings cards. Because the rail
+        column is Auto-width, the Expander sizes itself — a slim header strip when collapsed, header + fixed-width list
+        when expanded — and the grid pushes column 1 over. It starts collapsed on every (re)build (no persistence; reset
+        in code-behind). The folder list lives in the Expander's content (PART_RailList).
+    -->
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <!-- Column 0: the rail. Auto while collapsed (the slim Right-expanding Expander header strip sizes it);
+                 switched to a resizable pixel width while expanded (see OnRailExpanded/OnRailCollapsed in code-behind)
+                 so PART_RailSplitter can adjust it. Collapses to 0 width when no group is selected, via the rail
+                 Border's Visibility. -->
+            <ColumnDefinition x:Name="PART_RailColumn" Width="Auto" />
+            <!-- Column 1: the draggable divider between the rail and the folder columns; enabled only while expanded. -->
+            <ColumnDefinition Width="Auto" />
+            <!-- Column 2: the folder-columns region, pushed over when the rail expands. -->
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- The rail: the standard WPF Expander (round top toggle button, expands right and pushes the columns — never
+             overlays) wrapped in a rounded, light-gray Border echoing the settings cards. -->
+        <Border x:Name="PART_Rail"
+                Grid.Column="0"
+                BorderBrush="LightGray"
+                BorderThickness="1"
+                CornerRadius="10,10,10,10"
+                Background="Transparent">
+            <Expander x:Name="PART_RailExpander"
+                      ExpandDirection="Right"
+                      IsExpanded="False"
+                      Padding="2"
+                      Expanded="OnRailExpanded"
+                      Collapsed="OnRailCollapsed"
+                      ToolTip="{x:Static resx:Resources.Ui_ToolTip_FolderComparison_Rail_Toggle}">
+                <!--
+                    The folder list: one checkbox per distinct folder of the current group (issue 040), bound to the same
+                    FolderEntries selection model the columns derive from, so the rail list and the columns can never
+                    disagree. FolderEntries is a code-behind property (not the DataContext), so it is reached via the
+                    UserControl ancestor. Each row is a CheckBox (IsChecked <-> IsSelected, IsEnabled <-> entry IsEnabled)
+                    plus the folder path clipped to the rail width with the full path on hover. The expanded rail width
+                    (default ~250px; see PRD) is driven by the rail column (RailExpandedWidth in code-behind) so the
+                    content fills whatever width PART_RailSplitter has dragged the column to.
+                -->
+                <DockPanel>
+                    <!-- Fixed title above the (scrolling) folder list, naming what the checkboxes are. -->
+                    <TextBlock DockPanel.Dock="Top"
+                               Text="{x:Static resx:Resources.Ui_FolderComparison_Rail_ListTitle}"
+                               FontWeight="Bold"
+                               Margin="2,2,2,4" />
+                    <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                                  VerticalScrollBarVisibility="Auto">
+                        <ItemsControl x:Name="PART_RailList"
+                                      Margin="2"
+                                      ItemsSource="{Binding FolderEntries, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <CheckBox Margin="0,2,0,2"
+                                              IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                              IsEnabled="{Binding IsEnabled}"
+                                              ToolTipService.ShowOnDisabled="True"
+                                              ToolTip="{x:Static resx:Resources.Ui_FolderComparison_Rail_LimitReached}">
+                                        <TextBlock Text="{Binding DisplayPath}"
+                                                   ToolTip="{Binding DisplayPath}"
+                                                   TextTrimming="CharacterEllipsis" />
+                                    </CheckBox>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </DockPanel>
+            </Expander>
+        </Border>
+
+        <!-- The vertical divider between the rail and the folder columns. Window-coloured (invisible, like every other
+             splitter) and only enabled while the rail is expanded, so a collapsed rail cannot be resized. While expanded
+             it adjusts the rail's pixel width (previous column) and the columns region (next, star). -->
+        <GridSplitter x:Name="PART_RailSplitter"
+                      Grid.Column="1"
+                      Width="5"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Stretch"
+                      Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}"
+                      ResizeBehavior="PreviousAndNext"
+                      ResizeDirection="Columns"
+                      IsEnabled="{Binding IsExpanded, ElementName=PART_RailExpander}" />
+
+        <!--
+            Column 2: the folder-columns region. It has three mutually-exclusive states, selected by
+            UpdateColumnsAreaState() in code-behind (issue 070):
+              * no current group        -> PART_Placeholder ("no group selected"); the rail is also hidden.
+              * group, 0 folders shown  -> PART_EmptySelection ("no folders selected"); the rail stays visible.
+              * group, >=1 folder shown -> PART_Scroll (the columns); the rail stays visible.
+        -->
+        <Grid Grid.Column="2">
+            <ScrollViewer x:Name="PART_Scroll"
+                          HorizontalScrollBarVisibility="Auto"
+                          VerticalScrollBarVisibility="Disabled">
+                <!-- A 4px gap below the columns, but only while the horizontal scrollbar is actually shown (the columns
+                     overflow the viewport), so the columns don't touch the scrollbar. When everything fits and no
+                     scrollbar appears, the columns sit flush at the bottom with no wasted space. Driven by the
+                     ScrollViewer's computed scrollbar visibility (Auto only resolves it to Visible on overflow). -->
+                <Grid x:Name="PART_Columns" HorizontalAlignment="Left">
+                    <Grid.Style>
+                        <Style TargetType="Grid">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ComputedHorizontalScrollBarVisibility, ElementName=PART_Scroll}" Value="Visible">
+                                    <Setter Property="Margin" Value="0,0,0,4" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Grid.Style>
+                </Grid>
+            </ScrollViewer>
+
+            <TextBlock x:Name="PART_Placeholder"
+                       Text="{x:Static resx:Resources.Ui_FolderComparison_Placeholder}"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       Foreground="Gray"
+                       TextWrapping="Wrap"
+                       TextAlignment="Center" />
+
+            <!-- Shown when a group is selected but the user has unchecked every folder (distinct from the no-group placeholder). -->
+            <TextBlock x:Name="PART_EmptySelection"
+                       Text="{x:Static resx:Resources.Ui_FolderComparison_NoFoldersSelected}"
+                       Visibility="Collapsed"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       Foreground="Gray"
+                       TextWrapping="Wrap"
+                       TextAlignment="Center" />
+        </Grid>
+    </Grid>
+</UserControl>

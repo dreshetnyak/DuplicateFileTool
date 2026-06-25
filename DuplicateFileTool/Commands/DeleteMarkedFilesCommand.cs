@@ -41,7 +41,9 @@ internal sealed class DeleteMarkedFilesCommand : CommandBase
         }
         finally
         {
-            Enabled = Duplicates.DuplicateGroups.Any(group => group.DuplicateFiles.Any(file => file.IsMarkedForDeletion));
+            // Enable iff anything is still marked. Derive from the unified set's count (covers non-duplicate and
+            // folder selections too), not a duplicate-group walk which would miss a non-duplicate-only selection.
+            Enabled = Duplicates.ToBeDeletedCount != 0;
 
             try
             {

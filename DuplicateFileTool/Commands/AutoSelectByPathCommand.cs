@@ -36,7 +36,6 @@ internal sealed class AutoSelectByPathCommand : CommandBase
         }
     }
 
-    public event UpdateToDeleteEventHandler? FilesAutoMarkedForDeletion;
     public event AutoSelectProgressEventHandler? Progress;
     public event EventHandler? Starting;
     public event AutoSelectStartingEventHandler? Finished;
@@ -69,14 +68,16 @@ internal sealed class AutoSelectByPathCommand : CommandBase
         if (path == "")
             return "";
 
-        using var dialog = new FolderBrowserDialog
-        {
-            Description = Resources.Ui_AutoSelectByPath_Description,
-            RootFolder = Environment.SpecialFolder.Desktop,
-            SelectedPath = new FileInfo(path).DirectoryName ?? "",
-            ShowNewFolderButton = false
-        };
-        return dialog.ShowDialog() == DialogResult.OK ? dialog.SelectedPath : "";
+        // The classic SHBrowseForFolder tree picker centered over the main window. WinForms' FolderBrowserDialog can
+        // render the same legacy tree but cannot be centered on the parent (it centers on screen and exposes no
+        // reposition hook), so this drives SHBrowseForFolder directly via the BFFM_INITIALIZED callback. Runs on the
+        // UI (STA) thread because Execute() calls this synchronously before Task.Run.
+        var mainWindow = System.Windows.Application.Current?.MainWindow;
+        var ownerHandle = mainWindow != null
+            ? new System.Windows.Interop.WindowInteropHelper(mainWindow).Handle
+            : IntPtr.Zero;
+        var initialPath = new FileInfo(path).DirectoryName ?? "";
+        return ClassicFolderPicker.Show(ownerHandle, Resources.Ui_AutoSelectByPath_Description, initialPath);
     }
 
     private void MarkDuplicatedFiles(string selectedPath)
@@ -115,8 +116,9 @@ internal sealed class AutoSelectByPathCommand : CommandBase
             {
                 if (duplicateFile.IsMarkedForDeletion || !FullFileNameStartsWithPath(duplicateFile.FileFullName, selectedPath))
                     continue;
+                // Marking mutates the engine's DeletionSelection set, which updates the to-be-deleted totals via
+                // DuplicatesEngine.OnDeletionSelectionChanged. No delta event is fired here.
                 duplicateFile.IsMarkedForDeletion = true;
-                OnFilesMarkedForDeletion(1, duplicateFile.FileData.Size);
                 selectedCount++;
             }
             finally
@@ -168,10 +170,7 @@ internal sealed class AutoSelectByPathCommand : CommandBase
         return pathItems;
     }
 
-    private void OnFilesMarkedForDeletion(long count, long size) => 
-        FilesAutoMarkedForDeletion?.Invoke(this, new UpdateToDeleteEventArgs(count, size));
-
-    private void OnAutoSelectProgress(int selectedCount, int currentFileIndex, int totalFilesCount) => 
+    private void OnAutoSelectProgress(int selectedCount, int currentFileIndex, int totalFilesCount) =>
         Progress?.Invoke(this, new AutoSelectProgressEventArgs(selectedCount, currentFileIndex, totalFilesCount));
 
     private void OnAutoSelectStarting() => 

@@ -357,4 +357,66 @@ internal sealed partial class Win32
 
 
     #endregion
+
+    #region Browse For Folder (classic SHBrowseForFolder tree picker)
+
+    internal const uint BIF_RETURNONLYFSDIRS = 0x00000001;
+    internal const uint BIF_NEWDIALOGSTYLE = 0x00000040; // resizable tree dialog; requires an STA caller
+    internal const uint BIF_NONEWFOLDERBUTTON = 0x00000200;
+    internal const int BFFM_INITIALIZED = 1;             // sent to the callback once the dialog window exists
+    internal const uint BFFM_SETSELECTIONW = 0x0400 + 103; // WM_USER + 103; lParam is a path string when wParam = TRUE
+    internal const uint SWP_NOSIZE = 0x0001;
+    internal const uint SWP_NOZORDER = 0x0004;
+    internal const uint SWP_NOACTIVATE = 0x0010;
+
+    // BFFCALLBACK. DllImport (classic) marshalling turns this into a native function pointer; the caller must keep
+    // the delegate instance rooted for the dialog's lifetime.
+    internal delegate int BrowseCallbackProc(IntPtr hwnd, int msg, IntPtr lParam, IntPtr lpData);
+
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+    internal struct BROWSEINFO
+    {
+        internal IntPtr hwndOwner;
+        internal IntPtr pidlRoot;
+        internal string? pszDisplayName;
+        internal string? lpszTitle;
+        internal uint ulFlags;
+        internal BrowseCallbackProc? lpfn;
+        internal IntPtr lParam;
+        internal int iImage;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct RECT
+    {
+        internal int Left;
+        internal int Top;
+        internal int Right;
+        internal int Bottom;
+    }
+
+    // DllImport (not LibraryImport) because of the delegate field in BROWSEINFO and the string marshalling, matching
+    // the SHFileOperation declaration above.
+    [DllImport("shell32.dll", EntryPoint = "SHBrowseForFolderW", CharSet = CharSet.Unicode)]
+    internal static extern IntPtr SHBrowseForFolder(ref BROWSEINFO lpbi);
+
+    [DllImport("shell32.dll", EntryPoint = "SHGetPathFromIDListW", CharSet = CharSet.Unicode)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    internal static extern bool SHGetPathFromIDList(IntPtr pidl, StringBuilder pszPath);
+
+    [DllImport("ole32.dll")]
+    internal static extern void CoTaskMemFree(IntPtr pv);
+
+    [DllImport("user32.dll", EntryPoint = "SendMessageW", CharSet = CharSet.Unicode)]
+    internal static extern IntPtr SendMessage(IntPtr hWnd, uint msg, IntPtr wParam, string lParam);
+
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    internal static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
+
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    internal static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int x, int y, int cx, int cy, uint uFlags);
+
+    #endregion
 }

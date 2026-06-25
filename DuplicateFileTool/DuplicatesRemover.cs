@@ -67,15 +67,26 @@ internal sealed class DuplicatesRemover
 
     private RecycleFailureDecision? _stickyRecycleDecision; //"Apply to all remaining" choice, lasts for one deletion run
 
-    public async Task RemoveDuplicates(ObservableCollection<DuplicateGroup> duplicateFiles, bool removeEmptyDirs, bool deleteToRecycleBin, RecycleFailurePromptHandler promptRecycleFailure, CancellationToken cancellationToken)
+    public async Task RemoveDuplicates(ObservableCollection<DuplicateGroup> duplicateFiles, DeletionSelection selection, Func<string, bool> isDuplicate, bool removeEmptyDirs, bool deleteToRecycleBin, RecycleFailurePromptHandler promptRecycleFailure, CancellationToken cancellationToken)
     {
         OnDeletionMessage(Resources.Log_Performing_deletion_of_the_marked_duplicates);
-        var deletionState = new DeletionState { TotalFilesForDeletionCount = duplicateFiles.Sum(group => group.DuplicateFiles.Count(dupFile => dupFile.IsMarkedForDeletion)) };
+        var deletionState = new DeletionState { TotalFilesForDeletionCount = selection.Count };
         _stickyRecycleDecision = null;
 
         try
         {
-            await Task.Run(() => DeleteSelectedFilesInGroupsCollection(duplicateFiles, deletionState, removeEmptyDirs, deleteToRecycleBin, promptRecycleFailure, cancellationToken), cancellationToken);
+            await Task.Run(() =>
+            {
+                // Pass 1: duplicates, walked through the groups so the group/file collections update and emptied
+                // groups collapse. Pass 2: every remaining set path that is not a duplicate (non-duplicates have
+                // no group to update).
+                DeleteSelectedFilesInGroupsCollection(duplicateFiles, deletionState, selection, removeEmptyDirs, deleteToRecycleBin, promptRecycleFailure, cancellationToken);
+                DeleteNonDuplicateSetFiles(deletionState, selection, isDuplicate, removeEmptyDirs, deleteToRecycleBin, promptRecycleFailure, cancellationToken);
+                // After both file passes, force-remove the folders the user explicitly selected as a whole. This is
+                // UNCONDITIONAL (not gated on removeEmptyDirs): an explicitly-selected folder is removed even when the
+                // setting is off. The per-file dup-only empty-dir cleanup above stays governed by the setting.
+                RemoveSelectedDirectories(selection, cancellationToken);
+            }, cancellationToken);
             OnDeletionMessage(Resources.Log_Deletion_Completed + string.Format(Resources.Log_Files_Deletion_Summary, deletionState.TotalDeletedCount, deletionState.TotalDeletedSize));
         }
         catch (OperationCanceledException) //Cancelled via the cancel button or via the recycle failure prompt
@@ -84,23 +95,15 @@ internal sealed class DuplicatesRemover
         }
     }
 
-    private void DeleteSelectedFilesInGroupsCollection(ObservableCollection<DuplicateGroup> duplicateGroups, DeletionState deletionState, bool removeEmptyDirs, bool deleteToRecycleBin, RecycleFailurePromptHandler promptRecycleFailure, CancellationToken cancellationToken)
+    private void DeleteSelectedFilesInGroupsCollection(ObservableCollection<DuplicateGroup> duplicateGroups, DeletionState deletionState, DeletionSelection selection, bool removeEmptyDirs, bool deleteToRecycleBin, RecycleFailurePromptHandler promptRecycleFailure, CancellationToken cancellationToken)
     {
         var duplicateGroupsCount = duplicateGroups.Count;
         for (var index = 0; index < duplicateGroupsCount; index++)
         {
             var duplicateFileGroup = duplicateGroups[index];
             var duplicateFiles = duplicateFileGroup.DuplicateFiles;
-            var unmarkedFilesCount = duplicateFiles.Count(file => !file.IsMarkedForDeletion);
 
-            if (unmarkedFilesCount < 1)
-            {
-                Application.Current.Dispatcher.Invoke(() => OnDeletionMessage(Resources.Warning_Encountered_a_group_with_all_files_selected, MessageType.Warning));
-                UnmarkAll(duplicateFileGroup, deletionState);
-                continue;
-            }
-
-            DeleteSelectedFilesInGroup(duplicateFileGroup, deletionState, removeEmptyDirs, deleteToRecycleBin, promptRecycleFailure, cancellationToken);
+            DeleteSelectedFilesInGroup(duplicateFileGroup, deletionState, selection, removeEmptyDirs, deleteToRecycleBin, promptRecycleFailure, cancellationToken);
 
             if (duplicateFiles.Count > 1)
                 continue;
@@ -114,23 +117,7 @@ internal sealed class DuplicatesRemover
         }
     }
 
-    private void UnmarkAll(DuplicateGroup duplicateFileGroup, DeletionState deletionState)
-    {
-        foreach (var duplicatedFile in duplicateFileGroup.DuplicateFiles)
-        {
-            if (duplicatedFile.IsMarkedForDeletion)
-                continue;
-
-            OnDeletionMessage(string.Format(Resources.Log_Unmarking_FullFileName, duplicatedFile.FileFullName));
-            duplicatedFile.IsMarkedForDeletion = false;
-            deletionState.CurrentFileForDeletionIndex++;
-            deletionState.DeletedSizeDelta = 0;
-            deletionState.DeletedCountDelta = 0;
-            OnDeletionStateChanged(deletionState);
-        }
-    }
-
-    private void DeleteSelectedFilesInGroup(DuplicateGroup duplicateFileGroup, DeletionState deletionStatus, bool removeEmptyDirs, bool deleteToRecycleBin, RecycleFailurePromptHandler promptRecycleFailure, CancellationToken cancellationToken)
+    private void DeleteSelectedFilesInGroup(DuplicateGroup duplicateFileGroup, DeletionState deletionStatus, DeletionSelection selection, bool removeEmptyDirs, bool deleteToRecycleBin, RecycleFailurePromptHandler promptRecycleFailure, CancellationToken cancellationToken)
     {
         var duplicateFiles = duplicateFileGroup.DuplicateFiles;
         var duplicateFilesCount = duplicateFiles.Count;
@@ -142,89 +129,148 @@ internal sealed class DuplicatesRemover
             if (!duplicatedFile.IsMarkedForDeletion)
                 continue;
 
-            var fileData = duplicatedFile.FileData;
-            var fullFileName = fileData.FullName;
-            Application.Current.Dispatcher.Invoke(() => OnDeletionMessage(string.Format(Resources.Log_Deleting_Name_Size, fullFileName, duplicatedFile.FileSize)));
+            if (!TryDeleteFile(duplicatedFile.FileData, deletionStatus, selection, removeEmptyDirs, deleteToRecycleBin, promptRecycleFailure, cancellationToken))
+                continue; //Skipped/ignored: the file stays in its group and in the set; pass 2 excludes it (still a duplicate).
 
-            var toRecycleBin = deleteToRecycleBin;
-            if (toRecycleBin)
-            {
-                var recycleCheck = FileSystem.CanRecycle(fullFileName);
-                if (recycleCheck != FileSystem.RecycleCheck.Ok)
-                {
-                    var reason = recycleCheck == FileSystem.RecycleCheck.PathTooLong
-                        ? Resources.Error_Recycle_Path_Too_Long
-                        : Resources.Error_Recycle_Not_Available;
+            var indexClosure = index;
+            Application.Current.Dispatcher.Invoke(() => duplicateFiles.RemoveAt(indexClosure));
+            index--;
+            duplicateFilesCount--;
+        }
+    }
 
-                    switch (GetRecycleFailureDecision(promptRecycleFailure, fullFileName, reason))
-                    {
-                        case RecycleFailureDecision.Cancel:
-                            throw new OperationCanceledException();
-                        case RecycleFailureDecision.Ignore:
-                            SkipFile(deletionStatus, fullFileName);
-                            continue;
-                        case RecycleFailureDecision.DeletePermanently:
-                            Application.Current.Dispatcher.Invoke(() => OnDeletionMessage(fullFileName, string.Format(Resources.Log_Recycle_Deleting_Permanently, fullFileName), MessageType.Warning));
-                            toRecycleBin = false;
-                            break;
-                    }
-                }
-            }
-
-            deletionStatus.DeletedSizeDelta = 0;
-            deletionStatus.DeletedCountDelta = 0;
-
-            try
-            {
-                try
-                {
-                    FileSystem.DeleteFile(fileData, toRecycleBin);
-                }
-                catch (RecycleOperationException ex) //The file is still in place, ask the user what to do
-                {
-                    switch (GetRecycleFailureDecision(promptRecycleFailure, fullFileName, ex.Message))
-                    {
-                        case RecycleFailureDecision.Cancel:
-                            throw new OperationCanceledException();
-                        case RecycleFailureDecision.Ignore:
-                            Application.Current.Dispatcher.Invoke(() => OnDeletionMessage(fullFileName, string.Format(Resources.Log_Recycle_Skipped, fullFileName), MessageType.Warning));
-                            continue;
-                        case RecycleFailureDecision.DeletePermanently:
-                            Application.Current.Dispatcher.Invoke(() => OnDeletionMessage(fullFileName, string.Format(Resources.Log_Recycle_Deleting_Permanently, fullFileName), MessageType.Warning));
-                            FileSystem.DeleteFile(fileData, deleteToRecycleBin: false);
-                            break;
-                    }
-                }
-
-                var indexClosure = index;
-                Application.Current.Dispatcher.Invoke(() => duplicateFiles.RemoveAt(indexClosure));
-                index--;
-                duplicateFilesCount--;
-
-                deletionStatus.TotalDeletedCount++;
-                var fileSize = fileData.Size;
-                deletionStatus.TotalDeletedSize += fileSize;
-                deletionStatus.DeletedSizeDelta = -fileSize;
-                deletionStatus.DeletedCountDelta = -1;
-            }
-            catch (FileSystemException ex)
-            {
-                Application.Current.Dispatcher.Invoke(() => OnDeletionMessage(ex.FileFullName, string.Format(Resources.Log_Error_Deletion_Failed, ex.FileFullName, ex.Message), MessageType.Error));
-                continue;
-            }
-            finally
-            {
-                deletionStatus.CurrentFileForDeletionIndex++;
-                Application.Current.Dispatcher.Invoke(() => OnDeletionStateChanged(deletionStatus));
-            }
-
+    private void DeleteNonDuplicateSetFiles(DeletionState deletionState, DeletionSelection selection, Func<string, bool> isDuplicate, bool removeEmptyDirs, bool deleteToRecycleBin, RecycleFailurePromptHandler promptRecycleFailure, CancellationToken cancellationToken)
+    {
+        foreach (var path in selection.GetFilePaths())
+        {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var dirPath = fileData.DirPath;
-            if (!removeEmptyDirs || !FileSystem.IsDirectoryTreeEmpty(dirPath))
-                continue;
+            if (isDuplicate(path))
+                continue; //A duplicate (or a duplicate skipped in pass 1): handled by pass 1, never deleted here.
 
+            var fileData = FileSystem.GetFileData(path);
+            if (fileData.IsEmpty) //Gone or inaccessible: log and skip without disturbing the set/totals.
+            {
+                Application.Current.Dispatcher.Invoke(() => OnDeletionMessage(path, string.Format(Resources.Log_Error_Deletion_Failed, path, Resources.Error_File_not_found), MessageType.Error));
+                continue;
+            }
+
+            TryDeleteFile(fileData, deletionState, selection, removeEmptyDirs, deleteToRecycleBin, promptRecycleFailure, cancellationToken);
+        }
+    }
+
+    /// <summary>
+    /// Deletes one file with the full recycle/permanent/fallback/sticky logic, updates the throttled deletion-state
+    /// deltas, removes the path from the set silently and runs the (setting-gated) empty-dir cleanup. Used by both
+    /// the duplicate group-walk (pass 1) and the non-duplicate set pass (pass 2).
+    /// </summary>
+    /// <returns>True if the file was deleted; false if it was skipped/ignored.</returns>
+    private bool TryDeleteFile(FileData fileData, DeletionState deletionState, DeletionSelection selection, bool removeEmptyDirs, bool deleteToRecycleBin, RecycleFailurePromptHandler promptRecycleFailure, CancellationToken cancellationToken)
+    {
+        var fullFileName = fileData.FullName;
+        Application.Current.Dispatcher.Invoke(() => OnDeletionMessage(string.Format(Resources.Log_Deleting_Name_Size, fullFileName, fileData.Size)));
+
+        var toRecycleBin = deleteToRecycleBin;
+        if (toRecycleBin)
+        {
+            var recycleCheck = FileSystem.CanRecycle(fullFileName);
+            if (recycleCheck != FileSystem.RecycleCheck.Ok)
+            {
+                var reason = recycleCheck == FileSystem.RecycleCheck.PathTooLong
+                    ? Resources.Error_Recycle_Path_Too_Long
+                    : Resources.Error_Recycle_Not_Available;
+
+                switch (GetRecycleFailureDecision(promptRecycleFailure, fullFileName, reason))
+                {
+                    case RecycleFailureDecision.Cancel:
+                        throw new OperationCanceledException();
+                    case RecycleFailureDecision.Ignore:
+                        SkipFile(deletionState, fullFileName);
+                        return false;
+                    case RecycleFailureDecision.DeletePermanently:
+                        Application.Current.Dispatcher.Invoke(() => OnDeletionMessage(fullFileName, string.Format(Resources.Log_Recycle_Deleting_Permanently, fullFileName), MessageType.Warning));
+                        toRecycleBin = false;
+                        break;
+                }
+            }
+        }
+
+        deletionState.DeletedSizeDelta = 0;
+        deletionState.DeletedCountDelta = 0;
+
+        try
+        {
+            try
+            {
+                FileSystem.DeleteFile(fileData, toRecycleBin);
+            }
+            catch (RecycleOperationException ex) //The file is still in place, ask the user what to do
+            {
+                switch (GetRecycleFailureDecision(promptRecycleFailure, fullFileName, ex.Message))
+                {
+                    case RecycleFailureDecision.Cancel:
+                        throw new OperationCanceledException();
+                    case RecycleFailureDecision.Ignore:
+                        Application.Current.Dispatcher.Invoke(() => OnDeletionMessage(fullFileName, string.Format(Resources.Log_Recycle_Skipped, fullFileName), MessageType.Warning));
+                        return false;
+                    case RecycleFailureDecision.DeletePermanently:
+                        Application.Current.Dispatcher.Invoke(() => OnDeletionMessage(fullFileName, string.Format(Resources.Log_Recycle_Deleting_Permanently, fullFileName), MessageType.Warning));
+                        FileSystem.DeleteFile(fileData, deleteToRecycleBin: false);
+                        break;
+                }
+            }
+
+            deletionState.TotalDeletedCount++;
+            var fileSize = fileData.Size;
+            deletionState.TotalDeletedSize += fileSize;
+            deletionState.DeletedSizeDelta = -fileSize;
+            deletionState.DeletedCountDelta = -1;
+
+            // Silent set removal: DeletionStateChanged (throttled) owns the displayed-totals decrement, so removing
+            // the entry here keeps the set consistent without double-counting. The directories set is left intact.
+            selection.RemoveSilent(fullFileName);
+        }
+        catch (FileSystemException ex)
+        {
+            Application.Current.Dispatcher.Invoke(() => OnDeletionMessage(ex.FileFullName, string.Format(Resources.Log_Error_Deletion_Failed, ex.FileFullName, ex.Message), MessageType.Error));
+            return false;
+        }
+        finally
+        {
+            deletionState.CurrentFileForDeletionIndex++;
+            Application.Current.Dispatcher.Invoke(() => OnDeletionStateChanged(deletionState));
+        }
+
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var dirPath = fileData.DirPath;
+        if (removeEmptyDirs && FileSystem.IsDirectoryTreeEmpty(dirPath))
+        {
             FileSystem.DeleteDirectoryTreeWithParents(dirPath,
+                message => Application.Current.Dispatcher.Invoke(() => OnDeletionMessage(string.Format(Resources.Log_Deleting_Name, message))),
+                (path, errorMessage) => Application.Current.Dispatcher.Invoke(() => OnDeletionMessage(path, errorMessage, MessageType.Error)));
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Force-removes every folder the user marked as a whole (issue 012's directories set) whose tree the run
+    /// emptied, regardless of the removeEmptyDirs setting (OQ-1). A directory still holding a leftover file, or one
+    /// containing a junction, reports non-empty (see FileSystem.IsDirectoryTreeEmpty's reparse guard) and is left in
+    /// place; a directory already removed by the per-file cleanup (setting on) is skipped. Uses the same
+    /// dispatcher-wrapped logging callbacks as the per-file empty-dir cleanup in <see cref="TryDeleteFile"/>.
+    /// </summary>
+    private void RemoveSelectedDirectories(DeletionSelection selection, CancellationToken cancellationToken)
+    {
+        foreach (var dir in selection.GetSelectedDirectories())
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (!FileSystem.DirectoryExists(dir) || !FileSystem.IsDirectoryTreeEmpty(dir))
+                continue; //Already gone (per-file cleanup) or not empty (leftover file or contained junction): leave it.
+
+            FileSystem.DeleteDirectoryTreeWithParents(dir,
                 message => Application.Current.Dispatcher.Invoke(() => OnDeletionMessage(string.Format(Resources.Log_Deleting_Name, message))),
                 (path, errorMessage) => Application.Current.Dispatcher.Invoke(() => OnDeletionMessage(path, errorMessage, MessageType.Error)));
         }

@@ -5,7 +5,7 @@ A fast, Windows desktop application for finding and removing duplicate files. It
 ![Platform](https://img.shields.io/badge/platform-Windows-blue)
 ![.NET](https://img.shields.io/badge/.NET-10-512BD4)
 ![License](https://img.shields.io/badge/license-GPLv3-green)
-![Version](https://img.shields.io/badge/version-2.3.0-informational)
+![Version](https://img.shields.io/badge/version-2.4.0-informational)
 
 ## How it works
 

@@ -17,6 +17,10 @@
 
 ## Unreleased
 
+- New. The Results tab shows a folder-comparison panel below the duplicates list. Selecting a duplicate group, or any file in it, lists every distinct folder that holds the group's files side by side, each with a full, expandable file tree (file-type icon, name, size and last-modified) that scrolls and whose columns can be resized with splitters. You can mark any file for deletion, duplicate or not, or a whole folder, which marks its entire subtree (scanned in the background with a busy indicator); all marks are one selection shared with the results list, the deletion counts and the freed-size total. The folder column matching the selected results row is highlighted, the duplicates the current group owns in each folder are highlighted, and any marked file that would leave no surviving copy is shown with a red row and a warning under its tree. Each folder has a clear button, the global Reset clears everything, directory junctions are shown but never entered, and a deletion run removes the marked files plus the now-empty selected folders, with the panel refreshing afterwards. (Temporary placement under the results list; the Results page will be redesigned later.)
+- Bug. The "Auto Select by Path" command opened the modern Explorer-style folder browser instead of the folder tree it used to show — a side effect of moving to modern .NET, where WinForms upgrades the classic picker to the Vista dialog by default. It again shows the classic folder tree.
+- Improvement. The "Auto Select by Path" folder picker now opens centered over the application window and pre-selects the folder of the currently selected file.
+
 ## Released
 
 ### DuplicateFileTool 2.3.0: 2026-06-24

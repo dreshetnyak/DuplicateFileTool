@@ -1,0 +1,112 @@
+<UserControl x:Class="DuplicateFileTool.Controls.FolderComparisonItem"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:controls="clr-namespace:DuplicateFileTool.Controls"
+             xmlns:converters="clr-namespace:DuplicateFileTool.Converters"
+             xmlns:resx="clr-namespace:DuplicateFileTool.Properties"
+             mc:Ignorable="d"
+             d:DesignHeight="450" d:DesignWidth="300">
+    <UserControl.Resources>
+        <converters:BooleanToVisibilityConverter x:Key="BoolVisibilityConverter" />
+    </UserControl.Resources>
+
+    <!-- One folder column wrapped in a rounded, light-gray card echoing PART_Rail (FolderComparison.xaml). The card
+         fills its grid column (no outer margin), so it sits flush to its neighbours — separated only by the
+         GridSplitters between columns — with no even gap around it. The card border doubles as the selection accent:
+         it turns the app accent (#FF1BBBFA, the hover/expand accent) with a faint accent fill when this column's folder
+         holds the currently selected results-tree file (IsSelectedColumn). That accent is deliberately different from
+         the inner row tints (issue 015: light-blue belonging, light-red zero-survivor), so it reads as "this column
+         matches the selected row" without fighting the row backgrounds. The default brush/background live in Style
+         setters (not local attributes) so the DataTrigger can override them — a local value outranks a style trigger. -->
+    <Border BorderThickness="1"
+            CornerRadius="10"
+            Padding="4">
+        <Border.Style>
+            <Style TargetType="Border">
+                <Setter Property="BorderBrush" Value="LightGray" />
+                <Setter Property="Background" Value="Transparent" />
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding IsSelectedColumn, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="True">
+                        <Setter Property="BorderBrush" Value="#FF1BBBFA" />
+                        <Setter Property="Background" Value="#1A1BBBFA" />
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+        </Border.Style>
+
+        <!-- One folder column: [Auto] header (path + clear) / [*] tree / [Auto] warning line. -->
+        <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Header: the folder path (single line, clipped with a full-path tooltip) and a clear button docked right. -->
+        <Grid Grid.Row="0" Margin="0,0,0,2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Column="0"
+                       Text="{Binding FullName}"
+                       ToolTip="{Binding FullName}"
+                       TextTrimming="CharacterEllipsis"
+                       VerticalAlignment="Center"
+                       Margin="2,1,4,1"
+                       FontWeight="SemiBold" />
+
+            <!-- Clear this folder's marks. Disabled (and shown in its gray variant, like the toolbar image buttons)
+                 while the folder has nothing marked, so there is nothing to clear (IsEnabled <- HasSelection). -->
+            <Button Grid.Column="1"
+                    Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
+                    Click="OnClearFolder"
+                    Margin="0,1,2,1"
+                    IsEnabled="{Binding HasSelection, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                    ToolTip="{x:Static resx:Resources.Ui_ToolTip_Clear_Folder_Selection}">
+                <Image Height="16" VerticalAlignment="Center" RenderOptions.BitmapScalingMode="Fant">
+                    <Image.Style>
+                        <Style TargetType="{x:Type Image}">
+                            <Setter Property="Source" Value="/Images/Reset.png" />
+                            <Style.Triggers>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter Property="Source" Value="/Images/ResetGray.png" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Image.Style>
+                </Image>
+            </Button>
+        </Grid>
+
+        <!-- Tree: the folder's contents (issues 014/015). -->
+        <controls:FolderTree Grid.Row="1" ItemsSource="{Binding Children}" />
+
+        <!-- Warning line: shown only while a zero-survivor file is marked anywhere in this folder's subtree. -->
+        <TextBlock Grid.Row="2"
+                   Margin="2,2,2,1"
+                   Foreground="DarkRed"
+                   FontWeight="SemiBold"
+                   TextWrapping="Wrap"
+                   Visibility="{Binding ShowWarning, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolVisibilityConverter}, ConverterParameter=Collapse}"
+                   Text="{x:Static resx:Resources.Ui_FolderComparison_ZeroSurvivor_Warning}" />
+
+        <!-- Busy overlay (issue 022): while an eager subtree scan (012) runs anywhere in this column, the root
+             FolderItem reports IsScanBusy. The DataContext is that root, so {Binding IsScanBusy} drives this overlay.
+             It dims the whole column (all three rows) and, being hit-test visible, swallows input until the scan ends,
+             showing a small centered indeterminate ProgressBar (no text → no new localized string). It is the last
+             child of the content Grid, so it paints on top of the header/tree/warning. -->
+        <Border Grid.Row="0" Grid.RowSpan="3"
+                Background="#80F0F0F0"
+                IsHitTestVisible="True"
+                Visibility="{Binding IsScanBusy, Converter={StaticResource BoolVisibilityConverter}, ConverterParameter=Collapse}">
+            <ProgressBar IsIndeterminate="True"
+                         Width="120" Height="14"
+                         HorizontalAlignment="Center" VerticalAlignment="Center" />
+        </Border>
+        </Grid>
+    </Border>
+</UserControl>

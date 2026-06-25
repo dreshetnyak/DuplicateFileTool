@@ -1,38 +1,20 @@
-﻿using System.Collections.ObjectModel;
-
 namespace DuplicateFileTool.Commands;
 
 internal sealed class ResetSelectionCommand : CommandBase
 {
-    private ObservableCollection<DuplicateGroup> DuplicateGroups { get; }
+    private DeletionSelection DeletionSelection { get; }
 
-    public event UpdateToDeleteEventHandler? UpdateToDeleteSize;
-
-    public ResetSelectionCommand(ObservableCollection<DuplicateGroup> duplicateGroups)
+    public ResetSelectionCommand(DeletionSelection deletionSelection)
     {
         Enabled = false;
-        DuplicateGroups = duplicateGroups;
+        DeletionSelection = deletionSelection;
     }
 
     public override void Execute(object? parameter)
     {
-        DeselectAll();
+        // Clear the entire unified set (duplicate + non-duplicate + folder marks) in one shot. This fires a single
+        // Reset change event, which the engine handles by zeroing the to-be-deleted totals while every row refreshes.
+        // Walking DuplicateGroups would only reach duplicate marks and miss non-duplicate and folder marks.
+        DeletionSelection.Clear();
     }
-
-    private void DeselectAll()
-    {
-        foreach (var duplicateFileGroup in DuplicateGroups)
-        {
-            foreach (var duplicatedFile in duplicateFileGroup.DuplicateFiles)
-            {
-                if (!duplicatedFile.IsMarkedForDeletion) 
-                    continue;
-                duplicatedFile.IsMarkedForDeletion = false;
-                OnUpdateToDeleteSize(-1, -duplicatedFile.FileData.Size);
-            }
-        }
-    }
-
-    private void OnUpdateToDeleteSize(long count, long size) => 
-        UpdateToDeleteSize?.Invoke(this, new UpdateToDeleteEventArgs(count, size));
 }

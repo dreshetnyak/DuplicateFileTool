@@ -817,4 +817,25 @@
   <data name="Ui_ToolTip_Results_Filter_Keywords_Include" xml:space="preserve">
     <value>Display results with the entered keywords</value>
   </data>
+  <data name="Ui_FolderComparison_ZeroSurvivor_Warning" xml:space="preserve">
+    <value>Warning: deleting the marked items here will leave no other copy.</value>
+  </data>
+  <data name="Ui_ToolTip_Clear_Folder_Selection" xml:space="preserve">
+    <value>Clear this folder's selection</value>
+  </data>
+  <data name="Ui_FolderComparison_Placeholder" xml:space="preserve">
+    <value>Select a duplicate group to compare its folders.</value>
+  </data>
+  <data name="Ui_ToolTip_FolderComparison_Rail_Toggle" xml:space="preserve">
+    <value>Show or hide the folder list</value>
+  </data>
+  <data name="Ui_FolderComparison_Rail_LimitReached" xml:space="preserve">
+    <value>Maximum number of folders selected</value>
+  </data>
+  <data name="Ui_FolderComparison_Rail_ListTitle" xml:space="preserve">
+    <value>Selected group folders:</value>
+  </data>
+  <data name="Ui_FolderComparison_NoFoldersSelected" xml:space="preserve">
+    <value>No folders selected</value>
+  </data>
 </root>

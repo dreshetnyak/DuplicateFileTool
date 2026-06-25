@@ -817,4 +817,25 @@
   <data name="Ui_ToolTip_Results_Filter_Keywords_Include" xml:space="preserve">
     <value>Отображать результаты содержащие ключевые слова</value>
   </data>
+  <data name="Ui_FolderComparison_ZeroSurvivor_Warning" xml:space="preserve">
+    <value>Предупреждение: удаление отмеченных здесь элементов не оставит других копий.</value>
+  </data>
+  <data name="Ui_ToolTip_Clear_Folder_Selection" xml:space="preserve">
+    <value>Очистить выбор в этой папке</value>
+  </data>
+  <data name="Ui_FolderComparison_Placeholder" xml:space="preserve">
+    <value>Выберите группу дубликатов, чтобы сравнить их папки.</value>
+  </data>
+  <data name="Ui_ToolTip_FolderComparison_Rail_Toggle" xml:space="preserve">
+    <value>Показать или скрыть список папок</value>
+  </data>
+  <data name="Ui_FolderComparison_Rail_LimitReached" xml:space="preserve">
+    <value>Выбрано максимальное число папок</value>
+  </data>
+  <data name="Ui_FolderComparison_Rail_ListTitle" xml:space="preserve">
+    <value>Папки выбранной группы:</value>
+  </data>
+  <data name="Ui_FolderComparison_NoFoldersSelected" xml:space="preserve">
+    <value>Папки не выбраны</value>
+  </data>
 </root>

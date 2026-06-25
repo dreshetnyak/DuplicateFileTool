@@ -1,0 +1,128 @@
+<UserControl x:Class="DuplicateFileTool.Controls.FolderTree"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:DuplicateFileTool"
+             xmlns:resx="clr-namespace:DuplicateFileTool.Properties"
+             xmlns:controls="clr-namespace:DuplicateFileTool.Controls"
+             xmlns:converters="clr-namespace:DuplicateFileTool.Converters"
+             mc:Ignorable="d"
+             d:DesignHeight="450" d:DesignWidth="600">
+    <UserControl.Resources>
+        <converters:BooleanToVisibilityConverter x:Key="BoolVisibilityConverter" />
+        <controls:BytesLengthConverter x:Key="BytesLengthConverter" />
+        <controls:LevelToIndentConverter x:Key="LevelToIndentConverter" />
+
+        <!-- Child-generation template. This IMPLICIT (DataType-keyed, no x:Key) HierarchicalDataTemplate is what
+             tells the TreeListView that a FolderItem has children and where to find them; the TreeView only binds a
+             generated row's ItemsSource from the item's *implicit* template, never from a column CellTemplate. Without
+             it a sub-folder's expander toggled but no children appeared. It carries no visual tree of its own — every
+             row is drawn by the GridViewRowPresenter using the column cell templates below. Mirrors the results tree's
+             implicit DuplicateGroup template (MainWindow.xaml). -->
+        <HierarchicalDataTemplate DataType="{x:Type local:FolderItem}" ItemsSource="{Binding Children}" />
+
+        <!-- Row-background brushes. DuplicateAnywhere is a subtle steel-blue tint marking every row whose file was
+             detected as a duplicate in ANY group (current or other). CorrespondingGroupFile is a pale-yellow tint
+             marking the one current-group file this column's own folder directly contains (the file the column
+             corresponds to), so it stands out from the broader blue set. ZeroSurvivorDanger is a light-red danger tint
+             for rows whose deletion would leave no surviving copy. All three keep dark row text readable. -->
+        <SolidColorBrush x:Key="DuplicateAnywhereBrush" Color="#FFE3F0FF" />
+        <SolidColorBrush x:Key="CorrespondingGroupFileBrush" Color="#FFFFF6CF" />
+        <SolidColorBrush x:Key="ZeroSurvivorDangerBrush" Color="#FFFFD6D6" />
+
+        <!-- Local strikethrough/gray style for marked rows. The results tree's MarkedFileTextStyle lives in
+             MainWindow.xaml Window.Resources and is not visible here, so this is a self-contained equivalent
+             bound to FolderItem.IsMarkedForDeletion. -->
+        <Style x:Key="FolderItemMarkedTextStyle" TargetType="TextBlock">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsMarkedForDeletion, Mode=OneWay}" Value="True">
+                    <Setter Property="TextDecorations" Value="Strikethrough" />
+                    <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Mark cell: Delete.png when not marked, Undo.png when marked. The two buttons swap on
+             IsMarkedForDeletion; each Click toggles the row's FolderItem via the code-behind handler.
+             No two-way binding (a directory's getter only flips after its async scan commits). No
+             last-copy hiding (the folder control may mark anything). -->
+        <DataTemplate x:Key="FolderMarkCellTemplate" DataType="{x:Type local:FolderItem}">
+            <Grid Width="22" HorizontalAlignment="Center">
+                <Button Visibility="{Binding IsMarkedForDeletion, Mode=OneWay, Converter={StaticResource BoolVisibilityConverter}, ConverterParameter=Invert}"
+                        Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
+                        Click="OnToggleMark"
+                        ToolTip="{x:Static resx:Resources.Ui_ToolTip_Toggle_Mark_For_Deletion}" Margin="0,1,0,1">
+                    <Image Source="/Images/Delete.png" Width="10" Height="10" VerticalAlignment="Center" HorizontalAlignment="Left" RenderOptions.BitmapScalingMode="Fant" />
+                </Button>
+                <Button Visibility="{Binding IsMarkedForDeletion, Mode=OneWay, Converter={StaticResource BoolVisibilityConverter}}"
+                        Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
+                        Click="OnToggleMark"
+                        ToolTip="{x:Static resx:Resources.Ui_ToolTip_Toggle_Unmark_For_Deletion}" Margin="0,1,0,1">
+                    <Image Source="/Images/Undo.png" Width="10" Height="10" VerticalAlignment="Center" HorizontalAlignment="Left" RenderOptions.BitmapScalingMode="Fant" />
+                </Button>
+            </Grid>
+        </DataTemplate>
+
+        <!-- Name column cell: renders the expand toggle + icon + name. It does NOT drive the hierarchy — that comes
+             from the implicit FolderItem template above (a CellTemplate's ItemsSource is inert). The expander's
+             IsChecked is two-way bound to the row TreeViewItem.IsExpanded, mirroring the results tree's GroupNameCellTemplate. -->
+        <DataTemplate x:Key="FolderNameCellTemplate" DataType="{x:Type local:FolderItem}">
+            <StackPanel Orientation="Horizontal" Margin="{Binding Level, Mode=OneTime, Converter={StaticResource LevelToIndentConverter}}">
+                <ToggleButton Style="{StaticResource TreeListViewExpandCollapseToggleStyle}"
+                              ClickMode="Press"
+                              Visibility="{Binding CanExpand, Mode=OneTime, Converter={StaticResource BoolVisibilityConverter}, ConverterParameter=Hidden}"
+                              IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type TreeViewItem}}, Mode=TwoWay}" />
+                <Image Source="{Binding Icon, UpdateSourceTrigger=PropertyChanged}" Margin="2,1,6,1" VerticalAlignment="Center" />
+                <TextBlock Text="{Binding Name}" ToolTip="{Binding FullName}" VerticalAlignment="Center" Margin="0,1,5,1"
+                           Style="{StaticResource FolderItemMarkedTextStyle}" />
+            </StackPanel>
+        </DataTemplate>
+
+        <DataTemplate x:Key="FolderSizeCellTemplate" DataType="{x:Type local:FolderItem}">
+            <TextBlock Text="{Binding Size, Mode=OneWay, Converter={StaticResource BytesLengthConverter}}"
+                       TextAlignment="Right" VerticalAlignment="Center" Margin="0,0,6,0"
+                       Style="{StaticResource FolderItemMarkedTextStyle}" />
+        </DataTemplate>
+
+        <DataTemplate x:Key="FolderModifiedCellTemplate" DataType="{x:Type local:FolderItem}">
+            <TextBlock Text="{Binding LastModified, Mode=OneWay, StringFormat=g}"
+                       VerticalAlignment="Center" Margin="0,0,6,0"
+                       Style="{StaticResource FolderItemMarkedTextStyle}" />
+        </DataTemplate>
+
+        <!-- Item container style local to this control. Based on the global TreeListViewItem style so the folder
+             rows look like the results rows, but isolated so issue 015 can add row-background DataTriggers here
+             WITHOUT affecting the results tree (which uses its own container style off the same global base). -->
+        <Style x:Key="FolderTreeItemStyle" TargetType="{x:Type controls:TreeListViewItem}" BasedOn="{StaticResource {x:Type controls:TreeListViewItem}}">
+            <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+            <Style.Triggers>
+                <!-- Row-background states. All three flags are always false for directory rows, so directories stay
+                     untinted. The global TreeListViewItem template binds the row Border's Background to this item's
+                     Background and overrides it on IsSelected, so these tints show on UNSELECTED rows and selection
+                     still wins on the selected row. PRECEDENCE is by trigger order (last matching trigger wins):
+                     (1) any detected duplicate -> blue; (2) the column's corresponding group file -> pale yellow,
+                     overriding the blue so the column's own group file stands out; (3) zero-survivor -> red, overriding both. -->
+                <DataTrigger Binding="{Binding IsDuplicateAnywhere, Mode=OneWay}" Value="True">
+                    <Setter Property="Background" Value="{StaticResource DuplicateAnywhereBrush}" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding IsCorrespondingGroupFile, Mode=OneWay}" Value="True">
+                    <Setter Property="Background" Value="{StaticResource CorrespondingGroupFileBrush}" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding IsZeroSurvivor, Mode=OneWay}" Value="True">
+                    <Setter Property="Background" Value="{StaticResource ZeroSurvivorDangerBrush}" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+
+    <controls:TreeListView ItemsSource="{Binding ItemsSource, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                           ItemContainerStyle="{StaticResource FolderTreeItemStyle}">
+        <controls:TreeListView.Columns>
+            <GridViewColumn Width="28" CellTemplate="{StaticResource FolderMarkCellTemplate}" />
+            <GridViewColumn Header="{x:Static resx:Resources.Ui_Results_Column_Name}" CellTemplate="{StaticResource FolderNameCellTemplate}" />
+            <GridViewColumn Header="{x:Static resx:Resources.Ui_Results_Column_Size}" CellTemplate="{StaticResource FolderSizeCellTemplate}" />
+            <GridViewColumn Header="{x:Static resx:Resources.Ui_Results_Column_Last_Modified}" CellTemplate="{StaticResource FolderModifiedCellTemplate}" />
+        </controls:TreeListView.Columns>
+    </controls:TreeListView>
+</UserControl>

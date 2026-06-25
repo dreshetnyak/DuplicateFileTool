@@ -2159,5 +2159,68 @@ namespace DuplicateFileTool.Properties {
                 return ResourceManager.GetString("Warning_Encountered_a_group_with_all_files_selected", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Warning: deleting the marked items here will leave no other copy..
+        /// </summary>
+        public static string Ui_FolderComparison_ZeroSurvivor_Warning {
+            get {
+                return ResourceManager.GetString("Ui_FolderComparison_ZeroSurvivor_Warning", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Clear this folder&apos;s selection.
+        /// </summary>
+        public static string Ui_ToolTip_Clear_Folder_Selection {
+            get {
+                return ResourceManager.GetString("Ui_ToolTip_Clear_Folder_Selection", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Select a duplicate group to compare its folders..
+        /// </summary>
+        public static string Ui_FolderComparison_Placeholder {
+            get {
+                return ResourceManager.GetString("Ui_FolderComparison_Placeholder", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Show or hide the folder list.
+        /// </summary>
+        public static string Ui_ToolTip_FolderComparison_Rail_Toggle {
+            get {
+                return ResourceManager.GetString("Ui_ToolTip_FolderComparison_Rail_Toggle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Maximum number of folders selected.
+        /// </summary>
+        public static string Ui_FolderComparison_Rail_LimitReached {
+            get {
+                return ResourceManager.GetString("Ui_FolderComparison_Rail_LimitReached", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Selected Group Folders:.
+        /// </summary>
+        public static string Ui_FolderComparison_Rail_ListTitle {
+            get {
+                return ResourceManager.GetString("Ui_FolderComparison_Rail_ListTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to No folders selected.
+        /// </summary>
+        public static string Ui_FolderComparison_NoFoldersSelected {
+            get {
+                return ResourceManager.GetString("Ui_FolderComparison_NoFoldersSelected", resourceCulture);
+            }
+        }
     }
 }

@@ -215,6 +215,24 @@ internal static class FileSystem
         return new FileData(path, foundFileInfo);
     }
 
+    /// <summary>
+    /// Reads a single file's <see cref="FileData"/> (attributes, size, times) via <c>FindFirstFile</c> on the
+    /// long-path form, mirroring how <see cref="DirectoryEnumeration"/> builds its items. Used by the deletion
+    /// run's non-duplicate pass, which has only path→size in the set and needs the real attributes for readonly
+    /// handling, recycling and long-path deletion. Returns <see cref="FileData.Empty"/> when the file is gone or
+    /// inaccessible so the caller can skip it gracefully (a reparse-point FILE is a normal deletion target and is
+    /// returned like any other file).
+    /// </summary>
+    public static FileData GetFileData(string path)
+    {
+        var findHandle = Win32.FindFirstFile(MakeLongPath(path), out var findData);
+        if (findHandle.IsInvalidHandle())
+            return FileData.Empty;
+
+        Win32.FindClose(findHandle);
+        return new FileData(Path.GetDirectoryName(path) ?? path, findData);
+    }
+
     public enum RecycleCheck { Ok, PathTooLong, NoRecycleBin }
 
     private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, bool> RemoteRootCache = new(StringComparer.OrdinalIgnoreCase);
@@ -319,7 +337,10 @@ internal static class FileSystem
     {
         if (!DirectoryExists(path))
             return true;
-        try { return !new DirectoryEnumeration(path).Any(dirItem => !dirItem.Attributes.IsDirectory || !IsDirectoryTreeEmpty(dirItem.FullName)); }
+        // Junction safety (story 32, deletion side): a reparse point (junction/symlink) is checked FIRST so a tree
+        // that contains one is reported NON-empty and the reparse entry is never passed to the recursive call, so
+        // empty-dir detection never traverses behind a junction.
+        try { return !new DirectoryEnumeration(path).Any(dirItem => dirItem.Attributes.IsReparsePoint || !dirItem.Attributes.IsDirectory || !IsDirectoryTreeEmpty(dirItem.FullName)); }
         catch (Exception) { return false; }
     }
 
@@ -330,8 +351,11 @@ internal static class FileSystem
 
         try
         {
-            if (new DirectoryEnumeration(path).Any(dirItem => !dirItem.Attributes.IsDirectory || !DeleteEmptySubDirectories(dirItem.FullName, directoryToRemoveName, deletionError)))
-                return false; //Found a file or deletion failure
+            // Junction safety (story 32, deletion side): a reparse point (junction/symlink) is checked FIRST so a
+            // directory containing one is reported non-empty (returns false, not deleted) and the reparse entry is
+            // never passed to the recursive call, so deletion never traverses behind a junction.
+            if (new DirectoryEnumeration(path).Any(dirItem => dirItem.Attributes.IsReparsePoint || !dirItem.Attributes.IsDirectory || !DeleteEmptySubDirectories(dirItem.FullName, directoryToRemoveName, deletionError)))
+                return false; //Found a file, a reparse point, or a deletion failure
         }
         catch (Exception)
         {
