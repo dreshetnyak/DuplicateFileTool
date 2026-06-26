@@ -395,7 +395,7 @@
     <value>Удаление: {0}</value>
   </data>
   <data name="Log_Deleting_Name_Size" xml:space="preserve">
-    <value>Удаление: {0}; {1}</value>
+    <value>Удаление: {0}; Размер: {1:N0} байт</value>
   </data>
   <data name="Log_Deletion_Cancelled" xml:space="preserve">
     <value>Отменён. </value>

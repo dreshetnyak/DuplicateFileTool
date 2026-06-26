@@ -395,7 +395,7 @@
     <value>Borrando: {0}</value>
   </data>
   <data name="Log_Deleting_Name_Size" xml:space="preserve">
-    <value>Borrando: {0}; {1}</value>
+    <value>Borrando: {0}; Tamaño: {1:N0} bytes</value>
   </data>
   <data name="Log_Deletion_Cancelled" xml:space="preserve">
     <value>Cancelado. </value>

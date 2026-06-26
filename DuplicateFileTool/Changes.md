@@ -12,6 +12,10 @@
 
 ## Released
 
+### DuplicateFileTool 2.5.2: 2026-06-26
+
+- Improvement. During a deletion run the status line showed the current file's size as a bare, unlabeled trailing number. It is now labeled and thousands-separated.
+
 ### DuplicateFileTool 2.5.1: 2026-06-26
 
 - Bug. Collapsing the "Folders comparison" expander on the Results tab only hid its content while the panel kept its full height. It now collapses to just the header, returning the space to the duplicates list, and restores the previous height (including any splitter drag) on expand.
