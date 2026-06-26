@@ -679,6 +679,18 @@
   <data name="Ui_Settings_Tab_Header" xml:space="preserve">
     <value>Ajustes</value>
   </data>
+  <data name="Ui_Settings_Reset_Button" xml:space="preserve">
+    <value>Restablecer...</value>
+  </data>
+  <data name="Ui_ToolTip_Settings_Reset" xml:space="preserve">
+    <value>Restablece todos los ajustes de configuración a sus valores predeterminados.</value>
+  </data>
+  <data name="Ui_Settings_Reset_Confirm_Caption" xml:space="preserve">
+    <value>Restablecer ajustes</value>
+  </data>
+  <data name="Ui_Settings_Reset_Confirm_Text" xml:space="preserve">
+    <value>¿Restablecer todos los ajustes de configuración a sus valores predeterminados? Esta acción no se puede deshacer.</value>
+  </data>
   <data name="Ui_Size_GroupBox_Header" xml:space="preserve">
     <value>Tamaño</value>
   </data>
@@ -693,6 +705,9 @@
   </data>
   <data name="Ui_ToolTip_Clear_Search_Paths" xml:space="preserve">
     <value>Vaciar la lista de rutas</value>
+  </data>
+  <data name="Ui_ToolTip_Search_Path_Active" xml:space="preserve">
+    <value>Cuando está activada, esta ruta se incluye en la búsqueda; desactívela para omitirla.</value>
   </data>
   <data name="Ui_ToolTip_Config_Extensions" xml:space="preserve">
     <value>La configuración de los parámetros predeterminados de las Extensiones de búsqueda</value>
@@ -837,5 +852,8 @@
   </data>
   <data name="Ui_FolderComparison_NoFoldersSelected" xml:space="preserve">
     <value>No hay carpetas seleccionadas</value>
+  </data>
+  <data name="Ui_FolderComparison_Header" xml:space="preserve">
+    <value>Comparación de carpetas</value>
   </data>
 </root>

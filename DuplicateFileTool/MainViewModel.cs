@@ -17,6 +17,17 @@ internal sealed class SearchPath : NotifyPropertyChanged
 {
     private InclusionType _pathInclusionType;
     private string _path = "";
+    private bool _isActive = true;
+
+    public bool IsActive
+    {
+        get => _isActive;
+        set
+        {
+            _isActive = value;
+            OnPropertyChanged();
+        }
+    }
 
     public InclusionType PathInclusionType
     {
@@ -242,7 +253,9 @@ internal sealed class MainViewModel : NotifyPropertyChanged, IResultsFilter, IDi
     public RelayCommand ClearResults { get; }
     public RelayCommand ClearErrors { get; }
     public RelayCommand ClearSearchPaths { get; }
+    public RelayCommand ToggleSearchPathActive { get; }
     public RelayCommand RefreshFileTree { get; }
+    public RelayCommand ResetSettings { get; }
     public AddOrRemoveExtensionsCommand AddOrRemoveExtensions { get; }
     public RelayCommand ClearExtensions { get; }
     public RelayCommand Navigate { get; }
@@ -300,7 +313,7 @@ internal sealed class MainViewModel : NotifyPropertyChanged, IResultsFilter, IDi
         ResetSelection = new ResetSelectionCommand(Duplicates.DeletionSelection);
 
         DeleteMarkedFiles = new DeleteMarkedFilesCommand(Duplicates, Config.ResultsConfig);
-        DeleteMarkedFiles.Started += (_, _) => { Ui.Entry.Enabled = false; DuplicateGroupsProxyView.LoadFirstPage(); };
+        DeleteMarkedFiles.Started += (_, _) => { Ui.Entry.Enabled = false; DuplicateGroupsProxyView.BeginBulkRemoval(); };
         DeleteMarkedFiles.Finished += OnDeleteMarkedFilesFinished;
 
         AddPath = new AddPathCommand(SearchPaths, () => SelectedFileTreeItem);
@@ -311,7 +324,9 @@ internal sealed class MainViewModel : NotifyPropertyChanged, IResultsFilter, IDi
         ClearResults = new RelayCommand(_ => Duplicates.Clear());
         ClearErrors = new RelayCommand(_ => Duplicates.Errors.Clear());
         ClearSearchPaths = new RelayCommand(_ => SearchPaths.Clear());
+        ToggleSearchPathActive = new RelayCommand(param => { if (param is SearchPath searchPath) searchPath.IsActive = !searchPath.IsActive; });
         RefreshFileTree = new RelayCommand(_ => RefreshExpandedFileTreeItems());
+        ResetSettings = new RelayCommand(_ => ResetConfigurationToDefaults());
 
         ClearExtensions = new RelayCommand(_ => SearchConfig.Extensions.Clear());
         AddOrRemoveExtensions = new AddOrRemoveExtensionsCommand(SearchConfig.Extensions, Config.ExtensionsConfig);
@@ -346,18 +361,35 @@ internal sealed class MainViewModel : NotifyPropertyChanged, IResultsFilter, IDi
         var findDuplicatesEnabled = FindDuplicates.Enabled;
         Ui.Entry.Enabled = findDuplicatesEnabled;
         Ui.EntryReadOnly.Enabled = !findDuplicatesEnabled;
-        Ui.Search.Enabled = SearchPaths.Count != 0 && findDuplicatesEnabled;
+        UpdateSearchEnabled();
         OnUpdateAddPathEnabled();
     }
 
-    private void OnFindDuplicatesCanCancelChanged(object? sender, EventArgs eventArgs) => 
+    private void OnFindDuplicatesCanCancelChanged(object? sender, EventArgs eventArgs) =>
         Ui.CancelSearch.Enabled = FindDuplicates.CanCancel;
 
     private void OnSearchPathsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs eventArgs)
     {
-        Ui.Search.Enabled = SearchPaths.Count != 0 && FindDuplicates.Enabled;
+        if (eventArgs.OldItems != null)
+            foreach (SearchPath searchPath in eventArgs.OldItems)
+                searchPath.PropertyChanged -= OnSearchPathPropertyChanged;
+        if (eventArgs.NewItems != null)
+            foreach (SearchPath searchPath in eventArgs.NewItems)
+                searchPath.PropertyChanged += OnSearchPathPropertyChanged;
+
+        UpdateSearchEnabled();
         OnUpdateAddPathEnabled();
     }
+
+    private void OnSearchPathPropertyChanged(object? sender, PropertyChangedEventArgs eventArgs)
+    {
+        if (eventArgs.PropertyName == nameof(SearchPath.IsActive))
+            UpdateSearchEnabled();
+    }
+
+    // The search has nothing to scan unless at least one path is present and enabled (toggled on).
+    private void UpdateSearchEnabled() =>
+        Ui.Search.Enabled = FindDuplicates.Enabled && SearchPaths.Any(searchPath => searchPath.IsActive);
 
     private void OnDuplicateGroupsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) => 
         ClearResults.Enabled = Duplicates.DuplicateGroups.Count != 0;
@@ -462,6 +494,9 @@ internal sealed class MainViewModel : NotifyPropertyChanged, IResultsFilter, IDi
     private void OnDeleteMarkedFilesFinished(object? sender, EventArgs eventArgs)
     {
         Ui.Entry.Enabled = true;
+        // The run removed groups across pages with the page reload deferred; now that it has fully finished, snap the
+        // results list to the page holding the first group from the old current page that survived (or the last page).
+        DuplicateGroupsProxyView.EndBulkRemoval();
         RefreshExpandedFileTreeItems();
 
         var group = Duplicates.CurrentComparisonGroup;
@@ -534,6 +569,19 @@ internal sealed class MainViewModel : NotifyPropertyChanged, IResultsFilter, IDi
             Ui.ClearResults.Enabled = true;
         else if (Ui.ClearResults.Enabled)
             Ui.ClearResults.Enabled = false;
+    }
+
+    private void ResetConfigurationToDefaults()
+    {
+        var owner = System.Windows.Application.Current?.MainWindow;
+        var confirmation = owner != null
+            ? System.Windows.MessageBox.Show(owner, Resources.Ui_Settings_Reset_Confirm_Text, Resources.Ui_Settings_Reset_Confirm_Caption, System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Warning)
+            : System.Windows.MessageBox.Show(Resources.Ui_Settings_Reset_Confirm_Text, Resources.Ui_Settings_Reset_Confirm_Caption, System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Warning);
+        if (confirmation != System.Windows.MessageBoxResult.Yes)
+            return;
+
+        Config.ResetToDefaults();
+        SelectedFileComparer = FileComparers.FirstOrDefault(comparer => comparer.Guid == Config.SearchConfig.SelectedFileComparerGuid.Value) ?? FileComparers.First();
     }
 
     private static IFileComparer? GetInitialSelectedFileComparer(Configuration.Configuration config, IReadOnlyCollection<IFileComparer> fileComparers)

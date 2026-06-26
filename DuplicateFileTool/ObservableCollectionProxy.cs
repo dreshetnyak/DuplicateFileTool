@@ -16,6 +16,8 @@ internal sealed class ObservableCollectionProxy<T> : Collection<T>, INotifyColle
     private int _currentPage;
     private int _totalPages;
     private T? _selectedItem;
+    private bool _deferPageReload;
+    private IReadOnlyList<T>? _pendingRemovalAnchors;
 
     private ObservableCollection<T> SourceCollection { get; }
     private List<T> FilteredItems { get; }
@@ -131,6 +133,53 @@ internal sealed class ObservableCollectionProxy<T> : Collection<T>, INotifyColle
     {
         if (CurrentPage != TotalPages)
             LoadPage(TotalPages);
+    }
+
+    // A bulk source removal (a deletion run) removes many groups across pages. Begin/End wrap it so the page is chosen
+    // once, when the run has fully finished, instead of reshuffling on every per-item removal. BeginBulkRemoval
+    // snapshots the survivor-priority anchors (the filtered items from the current page's first slot to the end) and
+    // tells OnSourceItemRemoved to skip the back-fill reload that would otherwise scramble the visible page.
+    public void BeginBulkRemoval()
+    {
+        _pendingRemovalAnchors = CapturePageAnchors();
+        _deferPageReload = true;
+    }
+
+    // Ends the bulk removal started by BeginBulkRemoval: re-enables page reloads and navigates to the page holding the
+    // first anchor that survived the run; if none survived, the survivors all precede the old current page, so the last
+    // page is shown. Safe to call even when BeginBulkRemoval captured nothing.
+    public void EndBulkRemoval()
+    {
+        _deferPageReload = false;
+        var anchors = _pendingRemovalAnchors;
+        _pendingRemovalAnchors = null;
+        if (anchors != null)
+            RestorePage(anchors);
+    }
+
+    private IReadOnlyList<T> CapturePageAnchors()
+    {
+        var startIndex = ItemsPerPage * (CurrentPage - 1);
+        if (startIndex < 0 || startIndex >= FilteredItems.Count)
+            return [];
+        return FilteredItems.GetRange(startIndex, FilteredItems.Count - startIndex);
+    }
+
+    private void RestorePage(IReadOnlyList<T> anchors)
+    {
+        if (TotalPages == 0)
+            return; //Nothing left to show; the source-reset path already cleared the view.
+
+        foreach (var anchor in anchors)
+        {
+            var index = FilteredItems.IndexOf(anchor);
+            if (index == -1)
+                continue; //This anchor was removed by the run; try the next one in priority order.
+            LoadPage(GetItemPage(ItemsPerPage, index));
+            return;
+        }
+
+        LoadPage(TotalPages); //No anchor survived: every survivor precedes the old current page.
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -398,8 +447,10 @@ internal sealed class ObservableCollectionProxy<T> : Collection<T>, INotifyColle
             else
                 selectedItemWasRemoved = false;
 
+            // During a bulk removal (deletion run) keep FilteredItems/TotalPages and the visible list trimmed for live
+            // feedback, but skip the back-fill reload that would reshuffle the page; EndBulkRemoval picks the page once.
             var itemPage = GetItemPage(ItemsPerPage, filteredItemIndex);
-            if (itemPage <= CurrentPage)
+            if (!_deferPageReload && itemPage <= CurrentPage)
                 LoadPage(CurrentPage > TotalPages ? TotalPages : CurrentPage);
 
             var itemsCount = Items.Count;

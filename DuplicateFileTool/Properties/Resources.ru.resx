@@ -679,6 +679,18 @@
   <data name="Ui_Settings_Tab_Header" xml:space="preserve">
     <value>Настройки</value>
   </data>
+  <data name="Ui_Settings_Reset_Button" xml:space="preserve">
+    <value>Сбросить...</value>
+  </data>
+  <data name="Ui_ToolTip_Settings_Reset" xml:space="preserve">
+    <value>Сбросить все параметры конфигурации к значениям по умолчанию.</value>
+  </data>
+  <data name="Ui_Settings_Reset_Confirm_Caption" xml:space="preserve">
+    <value>Сброс настроек</value>
+  </data>
+  <data name="Ui_Settings_Reset_Confirm_Text" xml:space="preserve">
+    <value>Сбросить все параметры конфигурации к значениям по умолчанию? Это действие нельзя отменить.</value>
+  </data>
   <data name="Ui_Size_GroupBox_Header" xml:space="preserve">
     <value>Размер</value>
   </data>
@@ -693,6 +705,9 @@
   </data>
   <data name="Ui_ToolTip_Clear_Search_Paths" xml:space="preserve">
     <value>Очистить список путей поиска</value>
+  </data>
+  <data name="Ui_ToolTip_Search_Path_Active" xml:space="preserve">
+    <value>Когда включено, этот путь участвует в поиске; выключите, чтобы пропустить его.</value>
   </data>
   <data name="Ui_ToolTip_Config_Extensions" xml:space="preserve">
     <value>Параметры по умолчанию расширений файлов используемых для поиска дубликатов</value>
@@ -837,5 +852,8 @@
   </data>
   <data name="Ui_FolderComparison_NoFoldersSelected" xml:space="preserve">
     <value>Папки не выбраны</value>
+  </data>
+  <data name="Ui_FolderComparison_Header" xml:space="preserve">
+    <value>Сравнение папок</value>
   </data>
 </root>

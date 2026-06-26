@@ -296,12 +296,57 @@
                                     </Setter>
                                 </Style>
 
+                                <Style x:Key="InactiveText" TargetType="{x:Type TextBlock}">
+                                    <Style.Triggers>
+                                        <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
+                                        <DataTrigger Binding="{Binding IsActive}" Value="False">
+                                            <Setter Property="Foreground" Value="Gray" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+
+                                <Style x:Key="InactivePathText" TargetType="{x:Type TextBlock}" BasedOn="{StaticResource InactiveText}">
+                                    <Setter Property="Padding" Value="4,0,0,0" />
+                                </Style>
+
+                                <DataTemplate x:Key="PathActiveToggleTemplate" DataType="{x:Type local:SearchPath}">
+                                    <Button Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.ToggleSearchPathActive}"
+                                            CommandParameter="{Binding}"
+                                            IsEnabled="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.Ui.Entry.Enabled}"
+                                            Cursor="Hand"
+                                            Background="Transparent"
+                                            BorderThickness="0"
+                                            HorizontalAlignment="Center"
+                                            Style="{StaticResource ImageButton}"
+                                            ToolTip="{x:Static resx:Resources.Ui_ToolTip_Search_Path_Active}">
+                                        <Image RenderOptions.BitmapScalingMode="Fant" Height="16" Margin="4,0,4,0">
+                                            <Image.Style>
+                                                <Style TargetType="{x:Type Image}">
+                                                    <Setter Property="Source" Value="Images/ToggleOn.png" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsActive}" Value="False">
+                                                            <Setter Property="Source" Value="Images/ToggleOff.png" />
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.Ui.Entry.Enabled}" Value="False">
+                                                            <Setter Property="Opacity" Value="0.5" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Image.Style>
+                                        </Image>
+                                    </Button>
+                                </DataTemplate>
+
                                 <Style x:Key="InclusionImage" TargetType="{x:Type Image}">
                                     <Setter Property="Source" Value="Images/Include.png" />
                                     <Style.Triggers>
                                         <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
                                         <DataTrigger Binding="{Binding PathInclusionType}" Value="Exclude">
                                             <Setter Property="Source" Value="Images/Exclude.png" />
+                                        </DataTrigger>
+                                        <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
+                                        <DataTrigger Binding="{Binding IsActive}" Value="False">
+                                            <Setter Property="Opacity" Value="0.5" />
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
@@ -313,7 +358,7 @@
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
                                         <Image Grid.Column="0"  Style="{StaticResource InclusionImage}" RenderOptions.BitmapScalingMode="Fant" Height="16" Margin="3,0,1,0" />
-                                        <TextBlock Grid.Column="1" VerticalAlignment="Center" Margin="3,0,4,0" Text="{Binding PathInclusionTypeName}" />
+                                        <TextBlock Grid.Column="1" VerticalAlignment="Center" Margin="3,0,4,0" Text="{Binding PathInclusionTypeName}" Style="{StaticResource InactiveText}" />
                                     </Grid>
                                 </DataTemplate>
                                 <DataTemplate x:Key="EditingSuccessConditionTemplate" DataType="{x:Type local:SearchPath}">
@@ -333,14 +378,22 @@
 
                             </DataGrid.Resources>
                             <DataGrid.Columns>
-                                <DataGridTemplateColumn Header="{x:Static resx:Resources.Ui_Search_Paths_Header_Inclusion}" 
-                                                        CellTemplate="{StaticResource InclusionSelectionTemplate}" 
+                                <DataGridTemplateColumn Width="Auto"
+                                                        IsReadOnly="True"
+                                                        CanUserResize="False"
+                                                        CanUserReorder="False"
+                                                        CanUserSort="False"
+                                                        CellTemplate="{StaticResource PathActiveToggleTemplate}" />
+
+                                <DataGridTemplateColumn Header="{x:Static resx:Resources.Ui_Search_Paths_Header_Inclusion}"
+                                                        CellTemplate="{StaticResource InclusionSelectionTemplate}"
                                                         CellEditingTemplate="{StaticResource EditingSuccessConditionTemplate}" />
 
-                                <DataGridTextColumn Header="{x:Static resx:Resources.Ui_Search_Paths_Header_Path}" 
-                                                    Width="300" 
-                                                    IsReadOnly="True" 
-                                                    Binding="{Binding Path, Mode=OneTime}" 
+                                <DataGridTextColumn Header="{x:Static resx:Resources.Ui_Search_Paths_Header_Path}"
+                                                    Width="300"
+                                                    IsReadOnly="True"
+                                                    Binding="{Binding Path, Mode=OneTime}"
+                                                    ElementStyle="{StaticResource InactivePathText}"
                                                     CellStyle="{StaticResource TextBoxStyle}" />
 
                             </DataGrid.Columns>
@@ -1017,7 +1070,16 @@
                                   Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}"
                                   ResizeBehavior="PreviousAndNext" ResizeDirection="Rows" />
 
-                    <controls:FolderComparison Grid.Row="2" Engine="{Binding Duplicates}" />
+                    <Border Grid.Row="2"
+                            BorderBrush="LightGray"
+                            BorderThickness="1"
+                            CornerRadius="10,10,10,10"
+                            Margin="0,3,0,0"
+                            Background="Transparent">
+                        <Expander Header="{x:Static resx:Resources.Ui_FolderComparison_Header}" IsExpanded="True">
+                            <controls:FolderComparison Engine="{Binding Duplicates}" Margin="2" />
+                        </Expander>
+                    </Border>
                 </Grid>
             </TabItem>
 
@@ -1114,28 +1176,59 @@
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
-                                <GroupBox Grid.Column="0" Header="{x:Static resx:Resources.Config_Selected_Language}" Width="140">
-                                    <StackPanel Margin="0,3,0,0">
-                                        <ComboBox ItemsSource="{Binding Config.SupportedLanguages}"
-                                                  SelectedItem="{Binding Config.SelectedLanguageData}">
-                                            <ComboBox.Resources>
-                                                <DataTemplate DataType="{x:Type configuration:LanguageData}">
-                                                    <Grid>
-                                                        <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition Width="Auto"/>
-                                                            <ColumnDefinition Width="*"/>
-                                                        </Grid.ColumnDefinitions>
-                                                        <Image Grid.Column="0" Source="{Binding LanguageCountryFlag}" RenderOptions.BitmapScalingMode="Fant" Height="12" Margin="3,0,1,0" />
-                                                        <TextBlock Grid.Column="1" VerticalAlignment="Center" Margin="5,0,4,0" Text="{Binding LanguageName}" />
-                                                    </Grid>
-                                                </DataTemplate>
-                                            </ComboBox.Resources>
-                                        </ComboBox>
-                                        <TextBlock Text="{x:Static resx:Resources.Config_Language_Restart_To_Change}" 
-                                                   FontWeight="Bold" TextWrapping="Wrap" TextAlignment="Justify" Foreground="DarkRed" Margin="2" 
-                                                   Visibility="{Binding Config.SelectedCultureChanged, Mode=OneWay, Converter={StaticResource BoolVisibilityConverter}, ConverterParameter=Collapse}" />
-                                    </StackPanel>
-                                </GroupBox>
+                                <Grid Grid.Column="0" Width="140">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <GroupBox Grid.Row="0" Header="{x:Static resx:Resources.Config_Selected_Language}">
+                                        <StackPanel Margin="0,3,0,0">
+                                            <ComboBox ItemsSource="{Binding Config.SupportedLanguages}"
+                                                      SelectedItem="{Binding Config.SelectedLanguageData}">
+                                                <ComboBox.Resources>
+                                                    <DataTemplate DataType="{x:Type configuration:LanguageData}">
+                                                        <Grid>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="Auto"/>
+                                                                <ColumnDefinition Width="*"/>
+                                                            </Grid.ColumnDefinitions>
+                                                            <Image Grid.Column="0" Source="{Binding LanguageCountryFlag}" RenderOptions.BitmapScalingMode="Fant" Height="12" Margin="3,0,1,0" />
+                                                            <TextBlock Grid.Column="1" VerticalAlignment="Center" Margin="5,0,4,0" Text="{Binding LanguageName}" />
+                                                        </Grid>
+                                                    </DataTemplate>
+                                                </ComboBox.Resources>
+                                            </ComboBox>
+                                            <TextBlock Text="{x:Static resx:Resources.Config_Language_Restart_To_Change}"
+                                                       FontWeight="Bold" TextWrapping="Wrap" TextAlignment="Justify" Foreground="DarkRed" Margin="2"
+                                                       Visibility="{Binding Config.SelectedCultureChanged, Mode=OneWay, Converter={StaticResource BoolVisibilityConverter}, ConverterParameter=Collapse}" />
+                                        </StackPanel>
+                                    </GroupBox>
+                                    <GroupBox Grid.Row="1" Header="{x:Static resx:Resources.Ui_Settings_Tab_Header}" Margin="0,3,0,0">
+                                        <Button Command="{Binding ResetSettings}"
+                                                ToolTip="{x:Static resx:Resources.Ui_ToolTip_Settings_Reset}"
+                                                HorizontalAlignment="Center"
+                                                HorizontalContentAlignment="Left"
+                                                Height="28"
+                                                Width="86"
+                                                Margin="0,5,0,2">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Image Margin="5,3,5,3" RenderOptions.BitmapScalingMode="Fant">
+                                                    <Image.Style>
+                                                        <Style TargetType="{x:Type Image}">
+                                                            <Setter Property="Source" Value="Images/Reset.png" />
+                                                            <Style.Triggers>
+                                                                <Trigger Property="IsEnabled" Value="False">
+                                                                    <Setter Property="Source" Value="Images/ResetGray.png" />
+                                                                </Trigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Image.Style>
+                                                </Image>
+                                                <TextBlock Text="{x:Static resx:Resources.Ui_Settings_Reset_Button}" VerticalAlignment="Center" Margin="0,0,5,0" />
+                                            </StackPanel>
+                                        </Button>
+                                    </GroupBox>
+                                </Grid>
                                 <GroupBox Grid.Column="1" Header="{x:Static resx:Resources.Config_Selected_File_Comparer_Header}">
                                     <Grid>
                                         <Grid.RowDefinitions>

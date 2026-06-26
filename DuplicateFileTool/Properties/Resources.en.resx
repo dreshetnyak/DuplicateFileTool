@@ -679,6 +679,18 @@
   <data name="Ui_Settings_Tab_Header" xml:space="preserve">
     <value>Settings</value>
   </data>
+  <data name="Ui_Settings_Reset_Button" xml:space="preserve">
+    <value>Reset...</value>
+  </data>
+  <data name="Ui_ToolTip_Settings_Reset" xml:space="preserve">
+    <value>Reset all configuration settings to their default values.</value>
+  </data>
+  <data name="Ui_Settings_Reset_Confirm_Caption" xml:space="preserve">
+    <value>Reset Settings</value>
+  </data>
+  <data name="Ui_Settings_Reset_Confirm_Text" xml:space="preserve">
+    <value>Reset all configuration settings to their default values? This cannot be undone.</value>
+  </data>
   <data name="Ui_Size_GroupBox_Header" xml:space="preserve">
     <value>Size</value>
   </data>
@@ -693,6 +705,9 @@
   </data>
   <data name="Ui_ToolTip_Clear_Search_Paths" xml:space="preserve">
     <value>Clear search paths</value>
+  </data>
+  <data name="Ui_ToolTip_Search_Path_Active" xml:space="preserve">
+    <value>When on, this path is included in the search; toggle off to skip it.</value>
   </data>
   <data name="Ui_ToolTip_Config_Extensions" xml:space="preserve">
     <value>Search extensions default parameters configuration</value>
@@ -837,5 +852,8 @@
   </data>
   <data name="Ui_FolderComparison_NoFoldersSelected" xml:space="preserve">
     <value>No folders selected</value>
+  </data>
+  <data name="Ui_FolderComparison_Header" xml:space="preserve">
+    <value>Folders comparison</value>
   </data>
 </root>

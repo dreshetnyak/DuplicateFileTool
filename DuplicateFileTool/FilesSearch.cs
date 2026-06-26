@@ -77,7 +77,7 @@ internal sealed class FilesSearch
     private static List<string> GetPaths(IEnumerable<SearchPath> searchPaths, InclusionType inclusionType)
     {
         var paths = searchPaths
-            .Where(searchPath => searchPath.PathInclusionType == inclusionType)
+            .Where(searchPath => searchPath.IsActive && searchPath.PathInclusionType == inclusionType)
             .Select(searchPath => searchPath.Path)
             .ToList();
 

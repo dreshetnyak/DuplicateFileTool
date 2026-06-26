@@ -2,26 +2,29 @@
 
 ## Backlog
 
-- New. Add reset configuration to defaults button.
-- New. Search paths list add switches that allow to turn off or no the path for the current search.
 - New. Add quick filter for the file tree.
-- New. Show folders of duplicated groups with folders comparing, should appear below the list of results.
 - New. Add selected file preview. Characteristics of images.
-- New. If a duplicate file is found in a folder add all files from that folder to the search. That should be an optional behavior.
-
-- Move clear all results button to the right panel, or should we put it to the toolbar?
-- Can we add columns to the files list, to indicate mod. date, size, etc?
 - Under the files tree add a panel where we can see free space on the disks.
 
 ## Work in Progress
 
 ## Unreleased
 
+## Released
+
+### DuplicateFileTool 2.5.0: 2026-06-26
+
+- New. The Settings tab gained a "Settings" box (under "Application Language") with a "Reset..." button that, after a confirmation prompt, restores every configuration setting to its default value. It cannot be used while a search is running.
+- New. Each row in the search paths list now starts with a toggle button (on by default). Toggling a path off excludes it from the next search (it stays in the list but is skipped, and its Inclusion and Path cells are grayed out). The toggles cannot be changed while a search is running. When every path is toggled off the Search button is disabled, since there is nothing to scan.
+- Improvement. The folder-comparison panel under the Results list is now wrapped in a rounded "Folders comparison" expander (expanded by default) matching the Settings page expanders, so the area no longer reads as blank empty space when nothing is selected.
+- Improvement. In the folder-comparison panel, the narrow column that holds each row's mark-for-deletion button is now fixed width and can no longer be resized by dragging its header edge.
+- Improvement. After a deletion run the Results list no longer jumps back to the first page. While the run removes groups across pages the page is held steady (rows just disappear as their groups collapse); once the run has fully finished the list moves to the page that holds the first group from the page you were on that survived the deletion, or, if none of them survived, the first surviving group after that page (falling back to the last page when everything from that page onward was deleted).
+
+### DuplicateFileTool 2.4.0: 2026-06-25
+
 - New. The Results tab shows a folder-comparison panel below the duplicates list. Selecting a duplicate group, or any file in it, lists every distinct folder that holds the group's files side by side, each with a full, expandable file tree (file-type icon, name, size and last-modified) that scrolls and whose columns can be resized with splitters. You can mark any file for deletion, duplicate or not, or a whole folder, which marks its entire subtree (scanned in the background with a busy indicator); all marks are one selection shared with the results list, the deletion counts and the freed-size total. The folder column matching the selected results row is highlighted, the duplicates the current group owns in each folder are highlighted, and any marked file that would leave no surviving copy is shown with a red row and a warning under its tree. Each folder has a clear button, the global Reset clears everything, directory junctions are shown but never entered, and a deletion run removes the marked files plus the now-empty selected folders, with the panel refreshing afterwards. (Temporary placement under the results list; the Results page will be redesigned later.)
 - Bug. The "Auto Select by Path" command opened the modern Explorer-style folder browser instead of the folder tree it used to show — a side effect of moving to modern .NET, where WinForms upgrades the classic picker to the Vista dialog by default. It again shows the classic folder tree.
 - Improvement. The "Auto Select by Path" folder picker now opens centered over the application window and pre-selects the folder of the currently selected file.
-
-## Released
 
 ### DuplicateFileTool 2.3.0: 2026-06-24
 

@@ -162,6 +162,19 @@ internal sealed class Configuration : NotifyPropertyChanged, IDisposable
         FileComparers = GetFileComparers().ToArray();
     }
 
+    public void ResetToDefaults()
+    {
+        ProgramConfig.ResetToDefaults();
+        SearchConfig.ResetToDefaults();
+        ResultsConfig.ResetToDefaults();
+        ExtensionsConfig.ResetToDefaults();
+
+        SearchConfig.Extensions.Clear();
+
+        var culture = ProgramConfig.SelectedCulture.Value ?? "en";
+        SelectedLanguageData = Array.Find(SupportedLanguages, lang => lang.CultureName == culture) ?? SupportedLanguages[0];
+    }
+
     private static bool IsParameterIncluded(object? parameter)
     {
         if (parameter == null)

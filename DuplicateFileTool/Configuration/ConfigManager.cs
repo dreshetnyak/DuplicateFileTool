@@ -44,6 +44,19 @@ internal static class ConfigManager
         FileAppConfig.Save();
     }
 
+    public static void ResetToDefaults(this object? configObject)
+    {
+        if (ReferenceEquals(configObject, null))
+            return;
+
+        foreach (var property in configObject.GetGenericPropertiesObjects(typeof(IConfigurationProperty<>)))
+        {
+            var propertyType = property.GetType();
+            var defaultValue = propertyType.GetProperty(nameof(IConfigurationProperty<int>.DefaultValue))?.GetValue(property);
+            propertyType.GetProperty(nameof(IConfigurationProperty<int>.Value))?.SetValue(property, defaultValue);
+        }
+    }
+
     public static string GetAppName()
     {
         var assembly = Assembly.GetExecutingAssembly();

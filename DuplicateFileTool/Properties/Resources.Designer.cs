@@ -1844,7 +1844,43 @@ namespace DuplicateFileTool.Properties {
                 return ResourceManager.GetString("Ui_Settings_Tab_Header", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Reset....
+        /// </summary>
+        public static string Ui_Settings_Reset_Button {
+            get {
+                return ResourceManager.GetString("Ui_Settings_Reset_Button", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Reset all configuration settings to their default values..
+        /// </summary>
+        public static string Ui_ToolTip_Settings_Reset {
+            get {
+                return ResourceManager.GetString("Ui_ToolTip_Settings_Reset", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Reset Settings.
+        /// </summary>
+        public static string Ui_Settings_Reset_Confirm_Caption {
+            get {
+                return ResourceManager.GetString("Ui_Settings_Reset_Confirm_Caption", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Reset all configuration settings to their default values? This cannot be undone..
+        /// </summary>
+        public static string Ui_Settings_Reset_Confirm_Text {
+            get {
+                return ResourceManager.GetString("Ui_Settings_Reset_Confirm_Text", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Size.
         /// </summary>
@@ -1889,7 +1925,16 @@ namespace DuplicateFileTool.Properties {
                 return ResourceManager.GetString("Ui_ToolTip_Clear_Search_Paths", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to When on, this path is included in the search; toggle off to skip it..
+        /// </summary>
+        public static string Ui_ToolTip_Search_Path_Active {
+            get {
+                return ResourceManager.GetString("Ui_ToolTip_Search_Path_Active", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Search extensions default parameters configuration.
         /// </summary>
@@ -2220,6 +2265,15 @@ namespace DuplicateFileTool.Properties {
         public static string Ui_FolderComparison_NoFoldersSelected {
             get {
                 return ResourceManager.GetString("Ui_FolderComparison_NoFoldersSelected", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Folders comparison.
+        /// </summary>
+        public static string Ui_FolderComparison_Header {
+            get {
+                return ResourceManager.GetString("Ui_FolderComparison_Header", resourceCulture);
             }
         }
     }
