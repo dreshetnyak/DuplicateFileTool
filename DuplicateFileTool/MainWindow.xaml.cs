@@ -73,6 +73,33 @@ public partial class MainWindow : Window
             MinWidth = neededWidth;
     }
 
+    // The folder-comparison row holds a star (resizable) height while the expander is open. Collapsing the
+    // expander must shrink the row to the header instead of leaving the star space reserved, so we swap the row
+    // to Auto on collapse and restore the previous height (including any GridSplitter drag) on expand. A Style
+    // trigger cannot do this because the GridSplitter writes a local Height value that outranks Style setters.
+    private GridLength _folderComparisonExpandedHeight = new(1, GridUnitType.Star);
+    private double _folderComparisonExpandedMinHeight = 120;
+
+    private void OnFolderComparisonCollapsed(object sender, RoutedEventArgs eventArgs)
+    {
+        if (!IsInitialized)
+            return;
+        _folderComparisonExpandedHeight = FolderComparisonRow.Height;
+        _folderComparisonExpandedMinHeight = FolderComparisonRow.MinHeight;
+        FolderComparisonRow.MinHeight = 0;
+        FolderComparisonRow.Height = GridLength.Auto;
+        FolderComparisonSplitter.Visibility = Visibility.Collapsed;
+    }
+
+    private void OnFolderComparisonExpanded(object sender, RoutedEventArgs eventArgs)
+    {
+        if (!IsInitialized)
+            return;
+        FolderComparisonRow.MinHeight = _folderComparisonExpandedMinHeight;
+        FolderComparisonRow.Height = _folderComparisonExpandedHeight;
+        FolderComparisonSplitter.Visibility = Visibility.Visible;
+    }
+
 #pragma warning disable S2325
     private void OnOpenWithDefaultApp(object? sender, System.Windows.Input.MouseButtonEventArgs eventArgs)
 #pragma warning restore S2325

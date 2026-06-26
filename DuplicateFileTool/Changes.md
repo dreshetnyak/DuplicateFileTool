@@ -12,6 +12,10 @@
 
 ## Released
 
+### DuplicateFileTool 2.5.1: 2026-06-26
+
+- Bug. Collapsing the "Folders comparison" expander on the Results tab only hid its content while the panel kept its full height. It now collapses to just the header, returning the space to the duplicates list, and restores the previous height (including any splitter drag) on expand.
+
 ### DuplicateFileTool 2.5.0: 2026-06-26
 
 - New. The Settings tab gained a "Settings" box (under "Application Language") with a "Reset..." button that, after a confirmation prompt, restores every configuration setting to its default value. It cannot be used while a search is running.

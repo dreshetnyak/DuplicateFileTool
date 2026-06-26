@@ -7,7 +7,7 @@ Duplicate File Tool scans the folders you choose, compares file contents, and gr
 ![Platform](https://img.shields.io/badge/platform-Windows-blue)
 ![.NET](https://img.shields.io/badge/.NET-10-512BD4)
 ![License](https://img.shields.io/badge/license-GPLv3-green)
-![Version](https://img.shields.io/badge/version-2.5.0-informational)
+![Version](https://img.shields.io/badge/version-2.5.1-informational)
 
 ## What it does
 
