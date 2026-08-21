@@ -12,6 +12,10 @@
 
 ## Released
 
+### DuplicateFileTool 2.5.3: 2026-08-21
+
+- Bug. Collapsing "Selected group folders" no longer hides the folder-comparison splitter or changes the outer panel height.
+
 ### DuplicateFileTool 2.5.2: 2026-06-26
 
 - Improvement. During a deletion run the status line showed the current file's size as a bare, unlabeled trailing number. It is now labeled and thousands-separated.

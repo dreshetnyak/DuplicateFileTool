@@ -100,3 +100,4 @@ Three cultures: `en` (default), `es`, `ru` via satellite assemblies. Culture is 
 - **`ConfigurationProperty<T>`** — every persisted setting is wrapped in this type; gives uniform validation, binding, and serialization without boilerplate.
 - **`FileData`** is an immutable record populated from Win32 data at enumeration time; it is never mutated after creation.
 - `DuplicateGroup` and `DuplicateFile` are the UI-facing wrappers around search results, adding `IsMarkedForDeletion`, `IsSelected`, and computed size properties consumed by the Results view.
+- The outer folder-comparison `Expander` changes its grid row height in `MainWindow.xaml.cs`. Its handlers must filter on `RoutedEventArgs.OriginalSource` because the nested folder-selection rail is also an `Expander`, and `Expanded`/`Collapsed` events bubble.

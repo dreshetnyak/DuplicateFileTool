@@ -82,7 +82,7 @@ public partial class MainWindow : Window
 
     private void OnFolderComparisonCollapsed(object sender, RoutedEventArgs eventArgs)
     {
-        if (!IsInitialized)
+        if (!IsInitialized || !ReferenceEquals(eventArgs.OriginalSource, FolderComparisonExpander))
             return;
         _folderComparisonExpandedHeight = FolderComparisonRow.Height;
         _folderComparisonExpandedMinHeight = FolderComparisonRow.MinHeight;
@@ -93,7 +93,7 @@ public partial class MainWindow : Window
 
     private void OnFolderComparisonExpanded(object sender, RoutedEventArgs eventArgs)
     {
-        if (!IsInitialized)
+        if (!IsInitialized || !ReferenceEquals(eventArgs.OriginalSource, FolderComparisonExpander))
             return;
         FolderComparisonRow.MinHeight = _folderComparisonExpandedMinHeight;
         FolderComparisonRow.Height = _folderComparisonExpandedHeight;
