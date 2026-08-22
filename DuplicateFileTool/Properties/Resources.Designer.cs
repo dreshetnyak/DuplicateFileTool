@@ -798,6 +798,15 @@ namespace DuplicateFileTool.Properties {
                 return ResourceManager.GetString("Error_The_value_is_not_a_valid_number", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The extension catalog format is invalid.
+        /// </summary>
+        public static string Error_Invalid_extension_catalog {
+            get {
+                return ResourceManager.GetString("Error_Invalid_extension_catalog", resourceCulture);
+            }
+        }
         
         /// <summary>
         ///   Looks up a localized string similar to Unable to convert the size to bytes, unknown SizeUnits parameter.
@@ -1772,6 +1781,24 @@ namespace DuplicateFileTool.Properties {
                 return ResourceManager.GetString("Ui_Search_Extensions_Include", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0:N0} files exceeded the supported size for the configured hash chunk size and were skipped. Increase the hash chunk size in the configuration to at least {1:N0} bytes to process them..
+        /// </summary>
+        public static string Ui_Search_Oversized_Files_Skipped {
+            get {
+                return ResourceManager.GetString("Ui_Search_Oversized_Files_Skipped", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0:N0} files exceeded the supported size for the configured hash chunk size and were skipped. No supported hash chunk size can process the largest skipped file..
+        /// </summary>
+        public static string Ui_Search_Oversized_Files_Skipped_Unsupported_Chunk_Size {
+            get {
+                return ResourceManager.GetString("Ui_Search_Oversized_Files_Skipped_Unsupported_Chunk_Size", resourceCulture);
+            }
+        }
         
         /// <summary>
         ///   Looks up a localized string similar to Exclude.
@@ -1842,6 +1869,69 @@ namespace DuplicateFileTool.Properties {
         public static string Ui_Settings_Tab_Header {
             get {
                 return ResourceManager.GetString("Ui_Settings_Tab_Header", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Settings could not be loaded. Default settings will be used.
+        /// </summary>
+        public static string Ui_Settings_Load_Failed {
+            get {
+                return ResourceManager.GetString("Ui_Settings_Load_Failed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to One or more invalid settings were reset to their defaults. Other settings were preserved.
+        /// </summary>
+        public static string Ui_Settings_Invalid_Values_Reset {
+            get {
+                return ResourceManager.GetString("Ui_Settings_Invalid_Values_Reset", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Settings could not be loaded. Default settings will be used. The invalid file was moved aside.
+        /// </summary>
+        public static string Ui_Settings_Load_Failed_Quarantined {
+            get {
+                return ResourceManager.GetString("Ui_Settings_Load_Failed_Quarantined", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Settings could not be saved. Changes made during this session will be lost.
+        /// </summary>
+        public static string Ui_Settings_Save_Failed {
+            get {
+                return ResourceManager.GetString("Ui_Settings_Save_Failed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The invalid settings file could not be moved aside and remains unchanged.
+        /// </summary>
+        public static string Ui_Settings_Quarantine_Failed {
+            get {
+                return ResourceManager.GetString("Ui_Settings_Quarantine_Failed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The existing settings file could not be read safely, so it was left unchanged.
+        /// </summary>
+        public static string Ui_Settings_Save_Blocked {
+            get {
+                return ResourceManager.GetString("Ui_Settings_Save_Blocked", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This settings file uses an unsupported schema version and was left unchanged.
+        /// </summary>
+        public static string Ui_Settings_Unsupported_Version {
+            get {
+                return ResourceManager.GetString("Ui_Settings_Unsupported_Version", resourceCulture);
             }
         }
 

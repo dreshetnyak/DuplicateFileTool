@@ -332,6 +332,9 @@ internal sealed class DuplicatesEngine : NotifyPropertyChanged
         }
     }
 
+    public int OversizedFilesSkippedCount { get; private set; }
+    public long MinimumRequiredChunkSize { get; private set; }
+
     public int DuplicateGroupsCount
     {
         get => _duplicateGroupsCount;
@@ -669,10 +672,15 @@ internal sealed class DuplicatesEngine : NotifyPropertyChanged
         {
             //var startFindFiles = DateTime.UtcNow;
             var files = await Files.Find(searchPaths, inclusionPredicate, cancellationToken);
+            var fileSizeFilterResult = await Task.Run(
+                () => ExcludeUnsupportedFiles(files, comparableFileFactory, cancellationToken),
+                cancellationToken);
+            OversizedFilesSkippedCount = fileSizeFilterResult.SkippedCount;
+            MinimumRequiredChunkSize = fileSizeFilterResult.MinimumRequiredChunkSize;
             //var endFindFiles = DateTime.UtcNow;
 
             //var startCandidates = DateTime.UtcNow;
-            duplicateCandidates = await Candidates.Find(files, duplicateCandidatePredicate, comparableFileFactory, cancellationToken);
+            duplicateCandidates = await Candidates.Find(fileSizeFilterResult.SupportedFiles, duplicateCandidatePredicate, comparableFileFactory, cancellationToken);
             //var endCandidates = DateTime.UtcNow;
 
             //var startSearch = DateTime.UtcNow;
@@ -728,6 +736,8 @@ internal sealed class DuplicatesEngine : NotifyPropertyChanged
         CandidateGroupsCount = 0;
         CandidateFilesCount = 0;
         CandidatesTotalSize = 0;
+        OversizedFilesSkippedCount = 0;
+        MinimumRequiredChunkSize = 0;
         DuplicateGroupsCount = 0;
         DuplicateFilesCount = 0;
         DuplicatedTotalSize = 0;
@@ -743,6 +753,40 @@ internal sealed class DuplicatesEngine : NotifyPropertyChanged
         _lastDeletionMessage = "";
         GC.Collect();
     }
+
+    private static FileSizeFilterResult ExcludeUnsupportedFiles(
+        IReadOnlyCollection<FileData> files,
+        IComparableFileFactory comparableFileFactory,
+        CancellationToken cancellationToken)
+    {
+        if (comparableFileFactory is not IFileSizeLimitedComparableFileFactory fileSizeLimitedFactory)
+            return new FileSizeFilterResult(files, 0, 0);
+
+        var supportedFiles = new List<FileData>(files.Count);
+        var skippedCount = 0;
+        var minimumRequiredChunkSize = 0L;
+        foreach (var file in files)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            if (fileSizeLimitedFactory.IsFileSizeSupported(file.Size))
+            {
+                supportedFiles.Add(file);
+                continue;
+            }
+
+            skippedCount++;
+            minimumRequiredChunkSize = Math.Max(
+                minimumRequiredChunkSize,
+                fileSizeLimitedFactory.GetMinimumRequiredChunkSize(file.Size));
+        }
+
+        return new FileSizeFilterResult(supportedFiles, skippedCount, minimumRequiredChunkSize);
+    }
+
+    private readonly record struct FileSizeFilterResult(
+        IReadOnlyCollection<FileData> SupportedFiles,
+        int SkippedCount,
+        long MinimumRequiredChunkSize);
 
     private static void DisposeComparableFiles(IEnumerable<IComparableFile[]> fileGroups)
     {

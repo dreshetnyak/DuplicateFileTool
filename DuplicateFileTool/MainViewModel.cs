@@ -90,6 +90,8 @@ internal sealed class MainViewModel : NotifyPropertyChanged, IResultsFilter, IDi
     private bool _isFilterCaseSensitive;
     private bool _isIncludeFilter = true;
     private bool _isExcludeFilter;
+    private bool _hasActiveIncludePath;
+    private bool _hasSearchPaths;
 
     #endregion
 
@@ -338,8 +340,9 @@ internal sealed class MainViewModel : NotifyPropertyChanged, IResultsFilter, IDi
         UpdateFileTree();
     }
 
-    public void Dispose() => 
-        Config.Dispose();
+    public void SaveSettings() => Config.SaveChanges();
+
+    public void Dispose() => Config.Dispose();
 
     private void OnFindDuplicatesStarting(object? sender, EventArgs e)
     {
@@ -354,6 +357,18 @@ internal sealed class MainViewModel : NotifyPropertyChanged, IResultsFilter, IDi
             SelectedTabIndex = 1;
         DuplicateGroupsProxyView.SortingEnabled = true;
         DuplicateGroupsProxyView.SelectNewItem = true;
+
+        if (Duplicates.OversizedFilesSkippedCount == 0)
+            return;
+
+        var warningText = Duplicates.MinimumRequiredChunkSize <= int.MaxValue
+            ? string.Format(Resources.Ui_Search_Oversized_Files_Skipped, Duplicates.OversizedFilesSkippedCount, Duplicates.MinimumRequiredChunkSize)
+            : string.Format(Resources.Ui_Search_Oversized_Files_Skipped_Unsupported_Chunk_Size, Duplicates.OversizedFilesSkippedCount);
+        var owner = System.Windows.Application.Current?.MainWindow;
+        if (owner != null)
+            System.Windows.MessageBox.Show(owner, warningText, Resources.Ui_Errors_Type_Warning, System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+        else
+            System.Windows.MessageBox.Show(warningText, Resources.Ui_Errors_Type_Warning, System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
     }
 
     private void OnFindDuplicatesCanExecuteChanged(object? sender, EventArgs eventArgs)
@@ -361,7 +376,6 @@ internal sealed class MainViewModel : NotifyPropertyChanged, IResultsFilter, IDi
         var findDuplicatesEnabled = FindDuplicates.Enabled;
         Ui.Entry.Enabled = findDuplicatesEnabled;
         Ui.EntryReadOnly.Enabled = !findDuplicatesEnabled;
-        UpdateSearchEnabled();
         OnUpdateAddPathEnabled();
     }
 
@@ -378,18 +392,38 @@ internal sealed class MainViewModel : NotifyPropertyChanged, IResultsFilter, IDi
                 searchPath.PropertyChanged += OnSearchPathPropertyChanged;
 
         UpdateSearchEnabled();
+        UpdateClearSearchPathsEnabled();
         OnUpdateAddPathEnabled();
     }
 
     private void OnSearchPathPropertyChanged(object? sender, PropertyChangedEventArgs eventArgs)
     {
-        if (eventArgs.PropertyName == nameof(SearchPath.IsActive))
+        if (eventArgs.PropertyName is nameof(SearchPath.IsActive) or nameof(SearchPath.PathInclusionType))
             UpdateSearchEnabled();
     }
 
-    // The search has nothing to scan unless at least one path is present and enabled (toggled on).
-    private void UpdateSearchEnabled() =>
-        Ui.Search.Enabled = FindDuplicates.Enabled && SearchPaths.Any(searchPath => searchPath.IsActive);
+    // Entry, the parent UI switch, handles busy-state disabling. This switch represents path eligibility only.
+    // Assign only on transitions because EnabledElement balances disable/enable requests with a counter.
+    private void UpdateSearchEnabled()
+    {
+        var hasActiveIncludePath = SearchPaths.Any(searchPath =>
+            searchPath.IsActive && searchPath.PathInclusionType == InclusionType.Include);
+        if (_hasActiveIncludePath == hasActiveIncludePath)
+            return;
+
+        _hasActiveIncludePath = hasActiveIncludePath;
+        Ui.Search.Enabled = hasActiveIncludePath;
+    }
+
+    private void UpdateClearSearchPathsEnabled()
+    {
+        var hasSearchPaths = SearchPaths.Count != 0;
+        if (_hasSearchPaths == hasSearchPaths)
+            return;
+
+        _hasSearchPaths = hasSearchPaths;
+        Ui.ClearSearchPaths.Enabled = hasSearchPaths;
+    }
 
     private void OnDuplicateGroupsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) => 
         ClearResults.Enabled = Duplicates.DuplicateGroups.Count != 0;

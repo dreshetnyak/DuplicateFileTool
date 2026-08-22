@@ -5,7 +5,7 @@
   <Package
     Name="Duplicate File Tool"
     Manufacturer="Dennis Reshetnyak"
-    Version="2.5.3"
+    Version="2.5.4"
     UpgradeCode="F5EAE4DE-2E5B-4E48-A282-1208C1345D14"
     InstallerVersion="405"
     Scope="perMachine">
@@ -34,13 +34,11 @@
              empty folder. Result: the old install is gone completely,
              config included, and everything is fresh in the new path.
 
-         FUTURE upgrades (this x64 product -> a newer x64 build) keep the
-         SAME path "Program Files\DuplicateFileTool" and the SAME
-         UpgradeCode. The config is unversioned, written by the app after
-         install, and is NOT shipped as a component, so MSI preserves it in
-         place across those upgrades automatically. To keep that working,
-         a future version must NOT change the install path, must NOT add a
-         config component, and must NOT change the UpgradeCode.
+         Mutable settings are stored per user under Local AppData and are
+         intentionally outside MSI ownership. A legacy config beside the
+         x64 executable is not installed as a component; if present, the
+         application reads it once and migrates its known values to the
+         per-user settings file.
          ============================================================ -->
     <MajorUpgrade
       Schedule="afterInstallInitialize"

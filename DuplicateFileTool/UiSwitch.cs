@@ -90,6 +90,7 @@ internal sealed class UiSwitch : NotifyPropertyChanged
     public EnabledElement Entry { get; }
     public EnabledElement EntryReadOnly { get; }
     public EnabledElement Search { get; }
+    public EnabledElement ClearSearchPaths { get; }
     public EnabledElement CancelSearch { get; }
     public EnabledElement ClearResults { get; }
     public bool ErrorTabImageEnabled
@@ -107,6 +108,7 @@ internal sealed class UiSwitch : NotifyPropertyChanged
         Entry = new EnabledElement(nameof(Entry));
         EntryReadOnly = new EnabledElement(nameof(EntryReadOnly), Entry, false, true);
         Search = new EnabledElement(nameof(Search), Entry, false);
+        ClearSearchPaths = new EnabledElement(nameof(ClearSearchPaths), Entry, false);
         CancelSearch = new EnabledElement(nameof(CancelSearch), false);
         ClearResults = new EnabledElement(nameof(ClearResults), Entry, false);
     }

@@ -29,6 +29,9 @@ internal sealed class ObservableCollectionProxy<T> : Collection<T>, INotifyColle
         get => _itemsPerPage;
         set
         {
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(value);
+            if (_itemsPerPage == value)
+                return;
             _itemsPerPage = value; 
             OnPropertyChanged();
         }
@@ -91,11 +94,9 @@ internal sealed class ObservableCollectionProxy<T> : Collection<T>, INotifyColle
 
     public void Filter()
     {
-        FilteredItems.Clear();
-        FilteredItems.AddRange(SourceCollection.AsParallel().Where(InclusionPredicate.IsIncluded));
-        TotalPages = GetTotalPages(FilteredItems.Count, ItemsPerPage);
+        RebuildFilteredItems();
         if (TotalPages != 0)
-            Sort();
+            LoadPage(1);
         else
         {
             ResetTarget();
@@ -154,7 +155,21 @@ internal sealed class ObservableCollectionProxy<T> : Collection<T>, INotifyColle
         var anchors = _pendingRemovalAnchors;
         _pendingRemovalAnchors = null;
         if (anchors != null)
+        {
+            RebuildFilteredItems();
             RestorePage(anchors);
+        }
+    }
+
+    private void RebuildFilteredItems()
+    {
+        FilteredItems.Clear();
+        FilteredItems.AddRange(SourceCollection.AsParallel().Where(InclusionPredicate.IsIncluded));
+        FilteredItems.Sort(Comparer);
+        TotalPages = GetTotalPages(FilteredItems.Count, ItemsPerPage);
+
+        if (SelectedItem != null && !FilteredItems.Contains(SelectedItem))
+            SelectedItem = default;
     }
 
     private IReadOnlyList<T> CapturePageAnchors()
@@ -168,7 +183,10 @@ internal sealed class ObservableCollectionProxy<T> : Collection<T>, INotifyColle
     private void RestorePage(IReadOnlyList<T> anchors)
     {
         if (TotalPages == 0)
-            return; //Nothing left to show; the source-reset path already cleared the view.
+        {
+            OnSourceCollectionReset();
+            return;
+        }
 
         foreach (var anchor in anchors)
         {
@@ -216,6 +234,8 @@ internal sealed class ObservableCollectionProxy<T> : Collection<T>, INotifyColle
     {
         var pageChanged = CurrentPage != page;
         CurrentPage = page;
+        if (page == 0)
+            SelectedItem = default;
         var pageItems = GetPageItems(page);
 
         var existingItemsCount = Items.Count;
@@ -425,9 +445,6 @@ internal sealed class ObservableCollectionProxy<T> : Collection<T>, INotifyColle
     {
         foreach (T removedSourceItem in removedSourceItems)
         {
-            if (!InclusionPredicate.IsIncluded(removedSourceItem))
-                continue;
-
             var filteredItemIndex = FilteredItems.IndexOf(removedSourceItem);
             if (filteredItemIndex == -1)
                 continue;

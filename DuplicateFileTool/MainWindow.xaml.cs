@@ -3,6 +3,7 @@ using System.Windows;
 using System.Diagnostics;
 using System.Windows.Controls;
 using System.IO;
+using AppResources = DuplicateFileTool.Properties.Resources;
 
 namespace DuplicateFileTool;
 
@@ -18,6 +19,7 @@ public partial class MainWindow : Window
         var viewModel = new MainViewModel(ResultsTreeView);
         DataContext = viewModel;
         LoadResultsColumnWidths(viewModel.Config.ResultsConfig);
+        Closing += OnWindowClosing;
         Closed += OnWindowClosed;
         Activated += OnWindowActivated;
     }
@@ -39,8 +41,7 @@ public partial class MainWindow : Window
     private static void SaveColumnWidth(GridViewColumn column, ConfigurationProperty<double> configProperty)
     {
         var width = double.IsNaN(column.Width) ? column.ActualWidth : column.Width;
-        // Whole pixels round-trip through the config file the same way under every culture,
-        // unlike fractional values whose decimal separator is culture-specific.
+        // Whole pixels keep the settings stable and avoid meaningless fractional layout changes.
         width = Math.Round(width);
         if (width > 0)
             configProperty.Value = width;
@@ -52,14 +53,34 @@ public partial class MainWindow : Window
             viewModel.RefreshExpandedFileTreeItems();
     }
 
+    private void OnWindowClosing(object? sender, CancelEventArgs e)
+    {
+        if (DataContext is not MainViewModel viewModel)
+            return;
+
+        try
+        {
+            SaveResultsColumnWidths(viewModel.Config.ResultsConfig);
+            viewModel.SaveSettings();
+        }
+        catch (Exception ex)
+        {
+            System.Windows.MessageBox.Show(
+                this,
+                string.Format(AppResources.Ui_Settings_Save_Failed, App.GetSettingsErrorDetails(ex)),
+                AppResources.Ui_Errors_Type_Error,
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+        }
+    }
+
     private void OnWindowClosed(object? sender, EventArgs e)
     {
         if (DataContext is not MainViewModel viewModel)
             return;
-        try { SaveResultsColumnWidths(viewModel.Config.ResultsConfig); }
-        catch { /* ignore */ }
+
         try { viewModel.Dispose(); }
-        catch { /* ignore */ }
+        catch { /* Window teardown cannot be recovered at this point. */ }
     }
 
     // Keeps the window wide enough that the Results toolbar (sort, filter, paging) is never clipped.

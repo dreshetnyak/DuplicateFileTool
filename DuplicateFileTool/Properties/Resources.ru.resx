@@ -363,6 +363,9 @@
   <data name="Error_The_value_is_not_a_valid_number" xml:space="preserve">
     <value>Значение не является числом</value>
   </data>
+  <data name="Error_Invalid_extension_catalog" xml:space="preserve">
+    <value>Недопустимый формат каталога расширений</value>
+  </data>
   <data name="Error_Unable_to_convert_the_size_to_bytes_unknown_SizeUnits" xml:space="preserve">
     <value>Ошибка вычисления размера файла в байтах, значение параметра SizeUnits неизвестно</value>
   </data>
@@ -655,6 +658,12 @@
   <data name="Ui_Search_Extensions_Include" xml:space="preserve">
     <value>Включить</value>
   </data>
+  <data name="Ui_Search_Oversized_Files_Skipped" xml:space="preserve">
+    <value>Файлы ({0:N0}) превысили поддерживаемый размер для настроенного размера хеш-фрагмента и были пропущены. Чтобы обработать их, увеличьте размер хеш-фрагмента в конфигурации как минимум до {1:N0} байт.</value>
+  </data>
+  <data name="Ui_Search_Oversized_Files_Skipped_Unsupported_Chunk_Size" xml:space="preserve">
+    <value>Файлы ({0:N0}) превысили поддерживаемый размер для настроенного размера хеш-фрагмента и были пропущены. Самый большой пропущенный файл невозможно обработать ни с одним поддерживаемым размером хеш-фрагмента.</value>
+  </data>
   <data name="Ui_Search_Paths_Header_Inclusion" xml:space="preserve">
     <value>Включение</value>
   </data>
@@ -855,5 +864,26 @@
   </data>
   <data name="Ui_FolderComparison_Header" xml:space="preserve">
     <value>Сравнение папок</value>
+  </data>
+  <data name="Ui_Settings_Save_Failed" xml:space="preserve">
+    <value>Не удалось сохранить настройки. Изменения, сделанные в этом сеансе, будут потеряны.&#xA;&#xA;{0}</value>
+  </data>
+  <data name="Ui_Settings_Load_Failed" xml:space="preserve">
+    <value>Не удалось загрузить настройки. Будут использованы настройки по умолчанию.&#xA;&#xA;{0}</value>
+  </data>
+  <data name="Ui_Settings_Invalid_Values_Reset" xml:space="preserve">
+    <value>Один или несколько недопустимых параметров были сброшены до значений по умолчанию. Остальные параметры сохранены. Исправленные параметры будут записаны при закрытии приложения.</value>
+  </data>
+  <data name="Ui_Settings_Load_Failed_Quarantined" xml:space="preserve">
+    <value>Не удалось загрузить настройки. Будут использованы настройки по умолчанию. Некорректный файл перемещён в:&#xA;{0}&#xA;&#xA;{1}</value>
+  </data>
+  <data name="Ui_Settings_Quarantine_Failed" xml:space="preserve">
+    <value>Не удалось переместить некорректный файл настроек; он оставлен без изменений.&#xA;&#xA;{0}</value>
+  </data>
+  <data name="Ui_Settings_Save_Blocked" xml:space="preserve">
+    <value>Не удалось безопасно прочитать существующий файл настроек, поэтому он оставлен без изменений.</value>
+  </data>
+  <data name="Ui_Settings_Unsupported_Version" xml:space="preserve">
+    <value>Файл настроек использует неподдерживаемую версию схемы {0} и оставлен без изменений.</value>
   </data>
 </root>

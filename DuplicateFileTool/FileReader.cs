@@ -12,47 +12,84 @@ namespace DuplicateFileTool;
 internal sealed class FileReader(string fileFullName) : IDisposable
 {
     public static int MaxFileHandlesCount { get; set; } = 255; //512 is the limit set by Windows
-    private static ReaderWriterLockSlim OpenFilesCacheLock { get; } = new();
+    private static object OpenFilesCacheLock { get; } = new();
     private static List<FileHandle> OpenFilesCache { get; } = [];
+    private static HashSet<FileHandle> OpenFilesInUse { get; } = [];
 
+    private object OperationLock { get; } = new();
     private FileHandle File { get; } = new(fileFullName);
     private long Offset { get; set; }
+    private bool IsDisposed { get; set; }
 
     public void Dispose()
     {
-        try
+        lock (OperationLock)
         {
-            OpenFilesCacheLock.EnterWriteLock();
+            if (IsDisposed)
+                return;
 
-            var fileCacheIndex = OpenFilesCache.IndexOf(File);
-            if (fileCacheIndex != -1)
-                OpenFilesCache.RemoveAt(fileCacheIndex);
+            lock (OpenFilesCacheLock)
+            {
+                OpenFilesCache.Remove(File);
+                File.Dispose();
+                IsDisposed = true;
 
-            File.Dispose();
-        }
-        finally
-        {
-            OpenFilesCacheLock.ExitWriteLock();
+                Monitor.PulseAll(OpenFilesCacheLock);
+            }
         }
     }
 
     public int ReadNext(byte[] bufferToReceiveData)
     {
-        try
+        lock (OperationLock)
         {
-            OpenFilesCacheLock.EnterUpgradeableReadLock();
+            ObjectDisposedException.ThrowIf(IsDisposed, this);
+            AcquireFileHandle();
 
-            if (!OpenFilesCache.Contains(File))
-                OpenFileHandle(File, Offset);
-
-            var bytesRead = FileSystem.ReadFile(File, bufferToReceiveData);
-            if (bytesRead > 0)
-                Offset += bytesRead;
-            return bytesRead;
+            try
+            {
+                var bytesRead = FileSystem.ReadFile(File, bufferToReceiveData);
+                if (bytesRead > 0)
+                    Offset += bytesRead;
+                return bytesRead;
+            }
+            finally
+            {
+                ReleaseFileHandle();
+            }
         }
-        finally
+    }
+
+    private void AcquireFileHandle()
+    {
+        lock (OpenFilesCacheLock)
         {
-            OpenFilesCacheLock.ExitUpgradeableReadLock();
+            while (!OpenFilesCache.Contains(File))
+            {
+                if (OpenFilesCache.Count < Math.Max(1, MaxFileHandlesCount))
+                {
+                    OpenFileHandle(File, Offset);
+                    break;
+                }
+
+                if (!FreeOneHandle())
+                {
+                    // Every cached handle is currently reading. Wait for one to become evictable
+                    // instead of exceeding the configured handle limit or closing an active handle.
+                    Monitor.Wait(OpenFilesCacheLock);
+                }
+            }
+
+            OpenFilesInUse.Add(File);
+        }
+    }
+
+    private void ReleaseFileHandle()
+    {
+        lock (OpenFilesCacheLock)
+        {
+            OpenFilesInUse.Remove(File);
+            Monitor.PulseAll(OpenFilesCacheLock);
         }
     }
 
@@ -60,23 +97,19 @@ internal sealed class FileReader(string fileFullName) : IDisposable
     {
         try
         {
-            OpenFilesCacheLock.EnterWriteLock();
-
-            if (OpenFilesCache.Count >= MaxFileHandlesCount)
-                FreeOneHandle();
-
-            OpenFilesCache.Add(file);
-
             if (!FileSystem.SetFilePointer(file, offset))
                 throw new FileSystemException(file.FileFullName, Resources.Error_Unable_to_set_the_file_offset);
+
+            OpenFilesCache.Add(file);
         }
-        finally
+        catch
         {
-            OpenFilesCacheLock.ExitWriteLock();
+            file.Dispose();
+            throw;
         }
     }
 
-    private static void FreeOneHandle()
+    private static bool FreeOneHandle()
     {
         var indexToRemove = -1;
         var oldestDate = DateTime.MaxValue;
@@ -85,6 +118,9 @@ internal sealed class FileReader(string fileFullName) : IDisposable
         for (var index = 0; index < OpenFilesCache.Count; index++)
         {
             var file = OpenFilesCache[index];
+            if (OpenFilesInUse.Contains(file))
+                continue;
+
             var lastAccessTime = file.LastAccessTime;
             if (lastAccessTime >= oldestDate)
                 continue;
@@ -95,17 +131,31 @@ internal sealed class FileReader(string fileFullName) : IDisposable
         }
 
         if (indexToRemove == -1)
-            return;
+            return false;
 
 #pragma warning disable S2589
         oldestFileHandle?.Dispose();
 #pragma warning restore S2589
         OpenFilesCache.RemoveAt(indexToRemove);
+        return true;
     }
 
     public bool SetFilePointer(long offset)
     {
-        Offset = offset;
-        return FileSystem.SetFilePointer(File, offset);
+        lock (OperationLock)
+        {
+            ObjectDisposedException.ThrowIf(IsDisposed, this);
+            AcquireFileHandle();
+
+            try
+            {
+                Offset = offset;
+                return FileSystem.SetFilePointer(File, offset);
+            }
+            finally
+            {
+                ReleaseFileHandle();
+            }
+        }
     }
 }

@@ -60,6 +60,13 @@ internal interface IComparableFileFactory
     public IComparableFile Create(FileData file);
 }
 
+internal interface IFileSizeLimitedComparableFileFactory
+{
+    public bool IsFileSizeSupported(long fileSize);
+
+    public long GetMinimumRequiredChunkSize(long fileSize);
+}
+
 #endregion
 
 #region File Comparer Base

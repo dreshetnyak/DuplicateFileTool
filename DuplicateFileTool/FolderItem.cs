@@ -282,6 +282,8 @@ internal sealed class FolderItem : NotifyPropertyChanged
             EndScan();
         }
 
+        // Observe cancellation inside the delegate. A scheduling token could cancel the task before this delegate
+        // starts, skipping its finally and leaving the busy count elevated.
         _ = Task.Run(() =>
         {
             try
@@ -321,7 +323,7 @@ internal sealed class FolderItem : NotifyPropertyChanged
                 Interlocked.CompareExchange(ref _scanCts, null, cts);
                 cts.Dispose();
             }
-        }, token);
+        });
     }
 
     /// <summary>

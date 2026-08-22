@@ -78,10 +78,11 @@ internal sealed class DuplicatesRemover
             await Task.Run(() =>
             {
                 // Pass 1: duplicates, walked through the groups so the group/file collections update and emptied
-                // groups collapse. Pass 2: every remaining set path that is not a duplicate (non-duplicates have
-                // no group to update).
-                DeleteSelectedFilesInGroupsCollection(duplicateFiles, deletionState, selection, removeEmptyDirs, deleteToRecycleBin, promptRecycleFailure, cancellationToken);
-                DeleteNonDuplicateSetFiles(deletionState, selection, isDuplicate, removeEmptyDirs, deleteToRecycleBin, promptRecycleFailure, cancellationToken);
+                // groups collapse. Pass 2: every remaining set path that was not visited in pass 1 and is not a
+                // duplicate (non-duplicates have no group to update).
+                var duplicatePathsAttemptedInPassOne = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                DeleteSelectedFilesInGroupsCollection(duplicateFiles, deletionState, selection, duplicatePathsAttemptedInPassOne, removeEmptyDirs, deleteToRecycleBin, promptRecycleFailure, cancellationToken);
+                DeleteNonDuplicateSetFiles(deletionState, selection, isDuplicate, duplicatePathsAttemptedInPassOne, removeEmptyDirs, deleteToRecycleBin, promptRecycleFailure, cancellationToken);
                 // After both file passes, force-remove the folders the user explicitly selected as a whole. This is
                 // UNCONDITIONAL (not gated on removeEmptyDirs): an explicitly-selected folder is removed even when the
                 // setting is off. The per-file dup-only empty-dir cleanup above stays governed by the setting.
@@ -95,7 +96,7 @@ internal sealed class DuplicatesRemover
         }
     }
 
-    private void DeleteSelectedFilesInGroupsCollection(ObservableCollection<DuplicateGroup> duplicateGroups, DeletionState deletionState, DeletionSelection selection, bool removeEmptyDirs, bool deleteToRecycleBin, RecycleFailurePromptHandler promptRecycleFailure, CancellationToken cancellationToken)
+    private void DeleteSelectedFilesInGroupsCollection(ObservableCollection<DuplicateGroup> duplicateGroups, DeletionState deletionState, DeletionSelection selection, HashSet<string> duplicatePathsAttemptedInPassOne, bool removeEmptyDirs, bool deleteToRecycleBin, RecycleFailurePromptHandler promptRecycleFailure, CancellationToken cancellationToken)
     {
         var duplicateGroupsCount = duplicateGroups.Count;
         for (var index = 0; index < duplicateGroupsCount; index++)
@@ -103,7 +104,7 @@ internal sealed class DuplicatesRemover
             var duplicateFileGroup = duplicateGroups[index];
             var duplicateFiles = duplicateFileGroup.DuplicateFiles;
 
-            DeleteSelectedFilesInGroup(duplicateFileGroup, deletionState, selection, removeEmptyDirs, deleteToRecycleBin, promptRecycleFailure, cancellationToken);
+            DeleteSelectedFilesInGroup(duplicateFileGroup, deletionState, selection, duplicatePathsAttemptedInPassOne, removeEmptyDirs, deleteToRecycleBin, promptRecycleFailure, cancellationToken);
 
             if (duplicateFiles.Count > 1)
                 continue;
@@ -117,7 +118,7 @@ internal sealed class DuplicatesRemover
         }
     }
 
-    private void DeleteSelectedFilesInGroup(DuplicateGroup duplicateFileGroup, DeletionState deletionStatus, DeletionSelection selection, bool removeEmptyDirs, bool deleteToRecycleBin, RecycleFailurePromptHandler promptRecycleFailure, CancellationToken cancellationToken)
+    private void DeleteSelectedFilesInGroup(DuplicateGroup duplicateFileGroup, DeletionState deletionStatus, DeletionSelection selection, HashSet<string> duplicatePathsAttemptedInPassOne, bool removeEmptyDirs, bool deleteToRecycleBin, RecycleFailurePromptHandler promptRecycleFailure, CancellationToken cancellationToken)
     {
         var duplicateFiles = duplicateFileGroup.DuplicateFiles;
         var duplicateFilesCount = duplicateFiles.Count;
@@ -129,8 +130,11 @@ internal sealed class DuplicatesRemover
             if (!duplicatedFile.IsMarkedForDeletion)
                 continue;
 
+            // A failed/ignored last member can make its collapsed group disappear. Remember that pass 1 already
+            // handled the path so pass 2 cannot misclassify it as a newly selected non-duplicate and retry it.
+            duplicatePathsAttemptedInPassOne.Add(DeletionSelection.Normalize(duplicatedFile.FileData.FullName));
             if (!TryDeleteFile(duplicatedFile.FileData, deletionStatus, selection, removeEmptyDirs, deleteToRecycleBin, promptRecycleFailure, cancellationToken))
-                continue; //Skipped/ignored: the file stays in its group and in the set; pass 2 excludes it (still a duplicate).
+                continue;
 
             var indexClosure = index;
             Application.Current.Dispatcher.Invoke(() => duplicateFiles.RemoveAt(indexClosure));
@@ -139,14 +143,14 @@ internal sealed class DuplicatesRemover
         }
     }
 
-    private void DeleteNonDuplicateSetFiles(DeletionState deletionState, DeletionSelection selection, Func<string, bool> isDuplicate, bool removeEmptyDirs, bool deleteToRecycleBin, RecycleFailurePromptHandler promptRecycleFailure, CancellationToken cancellationToken)
+    private void DeleteNonDuplicateSetFiles(DeletionState deletionState, DeletionSelection selection, Func<string, bool> isDuplicate, HashSet<string> duplicatePathsAttemptedInPassOne, bool removeEmptyDirs, bool deleteToRecycleBin, RecycleFailurePromptHandler promptRecycleFailure, CancellationToken cancellationToken)
     {
         foreach (var path in selection.GetFilePaths())
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (isDuplicate(path))
-                continue; //A duplicate (or a duplicate skipped in pass 1): handled by pass 1, never deleted here.
+            if (duplicatePathsAttemptedInPassOne.Contains(DeletionSelection.Normalize(path)) || isDuplicate(path))
+                continue; //Handled by pass 1, or still a duplicate; never retry it as a non-duplicate.
 
             var fileData = FileSystem.GetFileData(path);
             if (fileData.IsEmpty) //Gone or inaccessible: log and skip without disturbing the set/totals.

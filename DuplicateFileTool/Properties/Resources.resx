@@ -363,6 +363,9 @@
   <data name="Error_The_value_is_not_a_valid_number" xml:space="preserve">
     <value>The value is not a valid number</value>
   </data>
+  <data name="Error_Invalid_extension_catalog" xml:space="preserve">
+    <value>The extension catalog format is invalid</value>
+  </data>
   <data name="Error_Unable_to_convert_the_size_to_bytes_unknown_SizeUnits" xml:space="preserve">
     <value>Unable to convert the size to bytes, unknown SizeUnits parameter</value>
   </data>
@@ -655,6 +658,12 @@
   <data name="Ui_Search_Extensions_Include" xml:space="preserve">
     <value>Include</value>
   </data>
+  <data name="Ui_Search_Oversized_Files_Skipped" xml:space="preserve">
+    <value>{0:N0} files exceeded the supported size for the configured hash chunk size and were skipped. Increase the hash chunk size in the configuration to at least {1:N0} bytes to process them.</value>
+  </data>
+  <data name="Ui_Search_Oversized_Files_Skipped_Unsupported_Chunk_Size" xml:space="preserve">
+    <value>{0:N0} files exceeded the supported size for the configured hash chunk size and were skipped. No supported hash chunk size can process the largest skipped file.</value>
+  </data>
   <data name="Ui_Search_Paths_Header_Inclusion" xml:space="preserve">
     <value>Inclusion</value>
   </data>
@@ -855,5 +864,26 @@
   </data>
   <data name="Ui_FolderComparison_Header" xml:space="preserve">
     <value>Folders comparison</value>
+  </data>
+  <data name="Ui_Settings_Save_Failed" xml:space="preserve">
+    <value>Settings could not be saved. Changes made during this session will be lost.&#xA;&#xA;{0}</value>
+  </data>
+  <data name="Ui_Settings_Load_Failed" xml:space="preserve">
+    <value>Settings could not be loaded. Default settings will be used.&#xA;&#xA;{0}</value>
+  </data>
+  <data name="Ui_Settings_Invalid_Values_Reset" xml:space="preserve">
+    <value>One or more invalid settings were reset to their defaults. Other settings were preserved. The corrected settings will be saved when the application closes.</value>
+  </data>
+  <data name="Ui_Settings_Load_Failed_Quarantined" xml:space="preserve">
+    <value>Settings could not be loaded. Default settings will be used. The invalid file was moved to:&#xA;{0}&#xA;&#xA;{1}</value>
+  </data>
+  <data name="Ui_Settings_Quarantine_Failed" xml:space="preserve">
+    <value>The invalid settings file could not be moved aside and remains unchanged.&#xA;&#xA;{0}</value>
+  </data>
+  <data name="Ui_Settings_Save_Blocked" xml:space="preserve">
+    <value>The existing settings file could not be read safely, so it was left unchanged.</value>
+  </data>
+  <data name="Ui_Settings_Unsupported_Version" xml:space="preserve">
+    <value>This settings file uses unsupported schema version {0}. It was left unchanged.</value>
   </data>
 </root>

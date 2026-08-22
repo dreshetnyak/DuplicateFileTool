@@ -258,17 +258,24 @@ internal static class FileSystem
 
     public static void DeleteFile(FileData fileData, bool deleteToRecycleBin = false)
     {
-        if (fileData.Attributes.IsReadonly)
-            RemoveFileReadonlyAttribute(fileData);
-
-        if (deleteToRecycleBin)
+        var readonlyRemoved = fileData.Attributes.IsReadonly && RemoveFileReadonlyAttribute(fileData);
+        try
         {
-            DeleteFileToRecycleBin(fileData.FullName);
-            return;
-        }
+            if (deleteToRecycleBin)
+            {
+                DeleteFileToRecycleBin(fileData.FullName);
+                return;
+            }
 
-        if (!Win32.DeleteFile(MakeLongPath(fileData.FullName)))
-            throw new FileSystemException(fileData.FullName, new Win32Exception(Marshal.GetLastWin32Error()).Message);
+            if (!Win32.DeleteFile(MakeLongPath(fileData.FullName)))
+                throw new FileSystemException(fileData.FullName, new Win32Exception(Marshal.GetLastWin32Error()).Message);
+        }
+        catch
+        {
+            if (readonlyRemoved)
+                RestoreFileReadonlyAttribute(fileData.FullName);
+            throw;
+        }
     }
 
     private static void DeleteFileToRecycleBin(string fileFullName)
@@ -310,16 +317,37 @@ internal static class FileSystem
 
     public static bool RemoveFileReadonlyAttribute(FileData fileData)
     {
-        var fileAttributes = GetFileAttributes(fileData.FullName);
-        return fileAttributes != null && Win32.SetFileAttributes(fileData.FullName, fileAttributes);
+        var fileAttributes = Win32.GetFileAttributes(fileData.FullName);
+        var readonlyAttribute = (uint)Win32.FileAttributes.Readonly;
+        if (fileAttributes == Win32.INVALID_FILE_ATTRIBUTES || (fileAttributes & readonlyAttribute) == 0)
+            return false;
+
+        fileAttributes &= ~readonlyAttribute;
+        if (fileAttributes == 0)
+            fileAttributes = (uint)Win32.FileAttributes.Normal;
+
+        return Win32.SetFileAttributes(fileData.FullName, fileAttributes);
     }
 
-    public static FileAttributes? GetFileAttributes(string fileFullName)
+    private static void RestoreFileReadonlyAttribute(string fileFullName)
     {
-        var fileAttributesInt = Win32.GetFileAttributes(fileFullName);
-        return fileAttributesInt != Win32.INVALID_FILE_ATTRIBUTES
-            ? new FileAttributes(fileAttributesInt) { IsReadonly = false }
-            : null;
+        var fileAttributes = Win32.GetFileAttributes(fileFullName);
+        if (fileAttributes == Win32.INVALID_FILE_ATTRIBUTES)
+            return;
+
+        fileAttributes &= ~(uint)Win32.FileAttributes.Normal;
+        fileAttributes |= (uint)Win32.FileAttributes.Readonly;
+        Win32.SetFileAttributes(fileFullName, fileAttributes);
+    }
+
+    public static bool IsDirectoryReparsePoint(string path)
+    {
+        var attributes = Win32.GetFileAttributes(MakeLongPath(path));
+        if (attributes == Win32.INVALID_FILE_ATTRIBUTES)
+            return false;
+
+        var fileAttributes = new FileAttributes(attributes);
+        return fileAttributes.IsDirectory && fileAttributes.IsReparsePoint;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

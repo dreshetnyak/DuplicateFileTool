@@ -7,13 +7,17 @@ namespace DuplicateFileTool.Configuration;
 [Localizable(true)]
 internal sealed class SearchConfiguration : NotifyPropertyChanged, IChangeable, IDisposable
 {
+    internal const int MinimumOpenFileHandles = 1;
+    internal const int MaximumOpenFileHandles = 512;
+    internal const long MinimumFileSizeValue = 0;
+
     private bool _hasExtensions;
 
     public ConfigurationProperty<int> MaximumFilesOpenedAtOnce { get; } = new(
         Resources.Config_MaximumFilesOpenedAtOnce_Name,
         Resources.Config_MaximumFilesOpenedAtOnce_Description,
         256,
-        new LongValidationRule(1, 512));
+        new LongValidationRule(MinimumOpenFileHandles, MaximumOpenFileHandles));
 
     public ConfigurationProperty<bool> ExcludeSystemFiles { get; } = new(
         Resources.Config_ExcludeSystemFiles_Name,
@@ -53,13 +57,13 @@ internal sealed class SearchConfiguration : NotifyPropertyChanged, IChangeable, 
         Resources.Config_MinFileSize_Name,
         Resources.Config_MinFileSize_Description,
         0,
-        new LongValidationRule(0, long.MaxValue));
+        new LongValidationRule(MinimumFileSizeValue, long.MaxValue));
 
     public ConfigurationProperty<long> MaxFileSize { get; } = new(
         Resources.Config_MaxFileSize_Name,
         Resources.Config_MaxFileSize_Description,
         0,
-        new LongValidationRule(0, long.MaxValue));
+        new LongValidationRule(MinimumFileSizeValue, long.MaxValue));
 
     #endregion
 

@@ -363,6 +363,9 @@
   <data name="Error_The_value_is_not_a_valid_number" xml:space="preserve">
     <value>El valor no es un numero valido</value>
   </data>
+  <data name="Error_Invalid_extension_catalog" xml:space="preserve">
+    <value>El formato del catálogo de extensiones no es válido</value>
+  </data>
   <data name="Error_Unable_to_convert_the_size_to_bytes_unknown_SizeUnits" xml:space="preserve">
     <value>Fallo de convertir el tamaño a los bytes, el parámetro SizeUnits esta desconocido</value>
   </data>
@@ -655,6 +658,12 @@
   <data name="Ui_Search_Extensions_Include" xml:space="preserve">
     <value>Incluir</value>
   </data>
+  <data name="Ui_Search_Oversized_Files_Skipped" xml:space="preserve">
+    <value>Se omitieron {0:N0} archivos porque excedían el tamaño admitido para el tamaño de fragmento hash configurado. Aumente el tamaño del fragmento hash en la configuración a al menos {1:N0} bytes para procesarlos.</value>
+  </data>
+  <data name="Ui_Search_Oversized_Files_Skipped_Unsupported_Chunk_Size" xml:space="preserve">
+    <value>Se omitieron {0:N0} archivos porque excedían el tamaño admitido para el tamaño de fragmento hash configurado. Ningún tamaño de fragmento hash admitido permite procesar el archivo omitido más grande.</value>
+  </data>
   <data name="Ui_Search_Paths_Header_Inclusion" xml:space="preserve">
     <value>Inclusión</value>
   </data>
@@ -855,5 +864,26 @@
   </data>
   <data name="Ui_FolderComparison_Header" xml:space="preserve">
     <value>Comparación de carpetas</value>
+  </data>
+  <data name="Ui_Settings_Save_Failed" xml:space="preserve">
+    <value>No se pudieron guardar los ajustes. Los cambios realizados durante esta sesión se perderán.&#xA;&#xA;{0}</value>
+  </data>
+  <data name="Ui_Settings_Load_Failed" xml:space="preserve">
+    <value>No se pudieron cargar los ajustes. Se usarán los valores predeterminados.&#xA;&#xA;{0}</value>
+  </data>
+  <data name="Ui_Settings_Invalid_Values_Reset" xml:space="preserve">
+    <value>Uno o más ajustes no válidos se restablecieron a sus valores predeterminados. Se conservaron los demás ajustes. Los ajustes corregidos se guardarán al cerrar la aplicación.</value>
+  </data>
+  <data name="Ui_Settings_Load_Failed_Quarantined" xml:space="preserve">
+    <value>No se pudieron cargar los ajustes. Se usarán los valores predeterminados. El archivo no válido se movió a:&#xA;{0}&#xA;&#xA;{1}</value>
+  </data>
+  <data name="Ui_Settings_Quarantine_Failed" xml:space="preserve">
+    <value>El archivo de ajustes no válido no se pudo apartar y permanece sin cambios.&#xA;&#xA;{0}</value>
+  </data>
+  <data name="Ui_Settings_Save_Blocked" xml:space="preserve">
+    <value>El archivo de ajustes existente no se pudo leer de forma segura, por lo que se dejó sin cambios.</value>
+  </data>
+  <data name="Ui_Settings_Unsupported_Version" xml:space="preserve">
+    <value>Este archivo de ajustes usa la versión de esquema no compatible {0}. Se dejó sin cambios.</value>
   </data>
 </root>

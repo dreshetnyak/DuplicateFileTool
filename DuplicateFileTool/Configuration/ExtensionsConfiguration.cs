@@ -1,8 +1,9 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.Runtime.CompilerServices;
-using System.Text;
+using System.Windows.Controls;
 using DuplicateFileTool.Properties;
 
 namespace DuplicateFileTool.Configuration;
@@ -13,6 +14,15 @@ public interface IExtensionsTypeConverter
 {
     string GetExtensionTypeName(FileExtensionType extensionType);
     FileExtensionType GetExtensionType(string extension);
+}
+
+[Localizable(true)]
+internal sealed class ExtensionsCatalogValidationRule : ValidationRule
+{
+    public override ValidationResult Validate(object? value, CultureInfo cultureInfo) =>
+        value is string catalog && ExtensionsConfiguration.IsCatalogValid(catalog)
+            ? new ValidationResult(true, null)
+            : new ValidationResult(false, Resources.Error_Invalid_extension_catalog);
 }
 
 [DebuggerDisplay("{Extension,nq}; {Type,nq}")]
@@ -107,12 +117,15 @@ internal sealed class ExtensionsConfiguration : NotifyPropertyChanged, IChangeab
         "SourceCode=c,h,cpp,hpp,cs,xaml,resx,config;" +
         "Binaries=exe,obj,dll,sys,bin";
         
-    public ObservableCollection<FileExtension> Extensions { get; }
+    // The persisted string is authoritative; consumers receive a stable read-only view rebuilt after valid changes.
+    private ObservableCollection<FileExtension> MutableExtensions { get; } = [];
+    public ReadOnlyObservableCollection<FileExtension> Extensions { get; }
 
     public ConfigurationProperty<string> ExtensionsSettings { get; } = new(
         Resources.Config_Extensions_Name,
         Resources.Config_Extensions_Description,
-        DEFAULT_EXTENSIONS);
+        DEFAULT_EXTENSIONS,
+        new ExtensionsCatalogValidationRule());
 
     public bool HasChanged
     {
@@ -125,20 +138,45 @@ internal sealed class ExtensionsConfiguration : NotifyPropertyChanged, IChangeab
     public ExtensionsConfiguration()
     {
         FileExtension.ExtensionConverter = this;
-        Extensions = new ObservableCollection<FileExtension>(GetFileExtensions(ExtensionsSettings.Value));
-        SubscribeToExtensionsChanges();
+        Extensions = new ReadOnlyObservableCollection<FileExtension>(MutableExtensions);
+        ReplaceExtensions(GetFileExtensions(ExtensionsSettings.Value!));
+        ExtensionsSettings.PropertyChanged += OnExtensionsSettingsChanged;
 
         ChangeTracker = new PropertiesChangeTracker<ExtensionsConfiguration>(this);
         ChangeTracker.PropertyChanged += (_, _) => OnPropertyChanged(nameof(HasChanged));
     }
 
-    private void SubscribeToExtensionsChanges()
+    private void OnExtensionsSettingsChanged(object? sender, PropertyChangedEventArgs eventArgs)
     {
-        foreach (var extension in Extensions)
-            extension.PropertyChanged += (_, _) => ExtensionsSettings.Value = GetExtensionsConfiguration(Extensions);
+        if (eventArgs.PropertyName != nameof(ConfigurationProperty<string>.Value)
+            || ExtensionsSettings.Value is not string catalog)
+            return;
+
+        ReplaceExtensions(GetFileExtensions(catalog));
     }
 
-    private static IEnumerable<FileExtension> GetFileExtensions(string? extensionsData)
+    private void ReplaceExtensions(IEnumerable<FileExtension> extensions)
+    {
+        var parsedExtensions = extensions.ToArray();
+        MutableExtensions.Clear();
+        foreach (var extension in parsedExtensions)
+            MutableExtensions.Add(extension);
+    }
+
+    internal static bool IsCatalogValid(string extensionsData)
+    {
+        try
+        {
+            _ = GetFileExtensions(extensionsData).ToArray();
+            return true;
+        }
+        catch (InvalidOperationException)
+        {
+            return false;
+        }
+    }
+
+    private static IEnumerable<FileExtension> GetFileExtensions(string extensionsData)
     {
         if (string.IsNullOrEmpty(extensionsData))
             return [];
@@ -159,7 +197,9 @@ internal sealed class ExtensionsConfiguration : NotifyPropertyChanged, IChangeab
 
     private static FileExtensionType ParseFileType(string fileTypeData)
     {
-        if (!Enum.TryParse(fileTypeData.Trim(), out FileExtensionType fileType))
+        var typeName = fileTypeData.Trim();
+        if (!Enum.TryParse(typeName, out FileExtensionType fileType)
+            || !string.Equals(Enum.GetName(fileType), typeName, StringComparison.Ordinal))
             throw new InvalidOperationException("Unknown extensions type found in the configuration");
         return fileType;
     }
@@ -170,38 +210,6 @@ internal sealed class ExtensionsConfiguration : NotifyPropertyChanged, IChangeab
             .Split([','], StringSplitOptions.RemoveEmptyEntries)
             .Select(extension => extension.Trim())
             .OrderBy(extension => extension);
-    }
-
-    private static string GetExtensionsConfiguration(IEnumerable<FileExtension> fileExtensions)
-    {
-        var configuration = new StringBuilder(512);
-        var extensions = fileExtensions
-            .OrderBy(fileExtension => fileExtension.Type)
-            .ThenBy(fileExtension => fileExtension.Extension)
-            .ToArray();
-
-        var extensionsCount = 0;
-        FileExtensionType currentFileExtensionType = default;
-        foreach (var extension in extensions)
-        {
-            var configLength = configuration.Length;
-            if (configLength == 0 || extension.Type != currentFileExtensionType)
-            {
-                if (configLength != 0)
-                    configuration.Append(';');
-                configuration.Append(extension.Type);
-                configuration.Append('=');
-                extensionsCount = 0;
-                currentFileExtensionType = extension.Type;
-            }
-
-            if (extensionsCount != 0)
-                configuration.Append(',');
-            configuration.Append(extension.Extension);
-            extensionsCount++;
-        }
-
-        return configuration.ToString();
     }
 
     public FileExtensionType GetExtensionType(string extension) => 
@@ -224,5 +232,11 @@ internal sealed class ExtensionsConfiguration : NotifyPropertyChanged, IChangeab
         }
     }
 
-    public void Dispose() => ChangeTracker.Dispose();
+    public void Dispose()
+    {
+        ExtensionsSettings.PropertyChanged -= OnExtensionsSettingsChanged;
+        ChangeTracker.Dispose();
+        if (ReferenceEquals(FileExtension.ExtensionConverter, this))
+            FileExtension.ExtensionConverter = null;
+    }
 }

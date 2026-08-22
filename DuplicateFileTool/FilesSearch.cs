@@ -23,7 +23,7 @@ internal sealed class FilesSearch
         {
             var physicalDrivePaths = searchPaths.Where(searchPath =>
                 physicalDrivePartitions.Any(driveInfo =>
-                    driveInfo.Name == new DirectoryInfo(searchPath.Path).Root.FullName)).ToArray();
+                    string.Equals(driveInfo.Name, new DirectoryInfo(searchPath.Path).Root.FullName, StringComparison.OrdinalIgnoreCase))).ToArray();
 
             if (physicalDrivePaths.Length == 0)
                 continue;
@@ -51,6 +51,9 @@ internal sealed class FilesSearch
             foreach (var path in includePaths)
             {
                 cancellationToken.ThrowIfCancellationRequested();
+                if (IsExcluded(path, excludePaths) || FileSystem.IsDirectoryReparsePoint(path))
+                    continue;
+
                 foreach (var foundPath in FindPathFiles(path, excludePaths, foundFiles.Count, inclusionPredicate, cancellationToken))
                 {
                     if (inclusionPredicate.IsIncluded(foundPath))
@@ -78,10 +81,13 @@ internal sealed class FilesSearch
     {
         var paths = searchPaths
             .Where(searchPath => searchPath.IsActive && searchPath.PathInclusionType == inclusionType)
-            .Select(searchPath => searchPath.Path)
+            .Select(searchPath => PathComparison.Normalize(searchPath.Path))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
 
-        paths.RemoveAll(path1 => paths.Exists(path2 => !ReferenceEquals(path1, path2) && path1.StartsWith(path2, StringComparison.OrdinalIgnoreCase)));
+        paths.RemoveAll(path => paths.Exists(otherPath =>
+            !string.Equals(path, otherPath, StringComparison.OrdinalIgnoreCase) &&
+            PathComparison.IsSameOrDescendant(path, otherPath)));
 
         return paths;
     }
@@ -113,10 +119,10 @@ internal sealed class FilesSearch
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (!inclusionPredicate.IsIncluded(fileData))
+            var fileDataFullName = fileData.FullName;
+            if (IsExcluded(fileDataFullName, excludePaths) || !inclusionPredicate.IsIncluded(fileData))
                 continue;
 
-            var fileDataFullName = fileData.FullName;
             if (!fileData.Attributes.IsDirectory)
             {
                 FilesSearchProgress?.Invoke(this, new FilesSearchProgressEventArgs(fileDataFullName, false, foundFilesCount++));
@@ -124,7 +130,7 @@ internal sealed class FilesSearch
                 continue;
             }
 
-            if (excludePaths.Any(excludePath => fileDataFullName.StartsWith(excludePath, StringComparison.OrdinalIgnoreCase)))
+            if (fileData.Attributes.IsReparsePoint)
                 continue;
 
             FilesSearchProgress?.Invoke(this, new FilesSearchProgressEventArgs(fileDataFullName, true, foundFilesCount));
@@ -137,6 +143,9 @@ internal sealed class FilesSearch
 
         } while (moreItems);
     }
+
+    private static bool IsExcluded(string path, IEnumerable<string> excludePaths) =>
+        excludePaths.Any(excludePath => PathComparison.IsSameOrDescendant(path, excludePath));
 
     private void OnFileSystemError(string path, string message, Exception? exception = null) => 
         FileSystemError?.Invoke(this, new FileSystemErrorEventArgs(path, message, exception));

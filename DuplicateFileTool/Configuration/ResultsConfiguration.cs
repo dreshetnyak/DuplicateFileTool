@@ -6,6 +6,9 @@ namespace DuplicateFileTool.Configuration;
 [Localizable(true)]
 internal sealed class ResultsConfiguration : NotifyPropertyChanged, IChangeable, IDisposable
 {
+    internal const int MinimumItemsPerPage = 10;
+    internal const int MaximumItemsPerPage = 100;
+
     public ConfigurationProperty<bool> SortDescending { get; } = new(
         Resources.Config_Results_Sort_Descending_Name,
         Resources.Config_Results_Sort_Descending_Description,
@@ -20,7 +23,7 @@ internal sealed class ResultsConfiguration : NotifyPropertyChanged, IChangeable,
         Resources.Config_Results_Items_Per_Page_Name,
         Resources.Config_Results_Items_Per_Page_Description,
         25,
-        new LongValidationRule(10, 100));
+        new LongValidationRule(MinimumItemsPerPage, MaximumItemsPerPage));
 
     public ConfigurationProperty<bool> RemoveEmptyDirectories { get; } = new(
         Resources.Config_Results_Remove_Empty_Directories_Name,
@@ -37,18 +40,21 @@ internal sealed class ResultsConfiguration : NotifyPropertyChanged, IChangeable,
         Resources.Config_Results_Name_Column_Width_Name,
         Resources.Config_Results_Name_Column_Width_Description,
         500,
+        new PositiveFiniteDoubleValidationRule(),
         isHidden: true);
 
     public ConfigurationProperty<double> SizeColumnWidth { get; } = new(
         Resources.Config_Results_Size_Column_Width_Name,
         Resources.Config_Results_Size_Column_Width_Description,
         80,
+        new PositiveFiniteDoubleValidationRule(),
         isHidden: true);
 
     public ConfigurationProperty<double> ModifiedColumnWidth { get; } = new(
         Resources.Config_Results_Modified_Column_Width_Name,
         Resources.Config_Results_Modified_Column_Width_Description,
         130,
+        new PositiveFiniteDoubleValidationRule(),
         isHidden: true);
 
     public bool HasChanged

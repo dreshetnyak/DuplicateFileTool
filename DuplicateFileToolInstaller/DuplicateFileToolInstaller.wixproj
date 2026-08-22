@@ -4,10 +4,9 @@
     <OutputName>DuplicateFileTool</OutputName>
     <!-- The packaged application is a self-contained win-x64 single file,
          so the installer package itself is built as x64. With an x64 MSI
-         the directory ProgramFilesFolder still resolves to "Program Files (x86)"
-         (ProgramFiles64Folder is the 64-bit one) which keeps the install
-         location identical to the previous (x86) releases so the existing
-         configuration file is preserved in place across the upgrade. -->
+         the package uses ProgramFiles64Folder and installs under the native
+         64-bit Program Files directory. Mutable settings live outside MSI
+         under each user's Local AppData directory. -->
     <InstallerPlatform>x64</InstallerPlatform>
     <!-- ICE69: non-advertised shortcuts deliberately target a file in another
          component (the standard pattern for per-user shortcuts that point at a

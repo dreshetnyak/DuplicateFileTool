@@ -10,6 +10,22 @@
 
 ## Unreleased
 
+- Bug. Duplicate search no longer follows directory reparse points, preventing junctions and directory symbolic links from exposing one physical file under multiple paths, escaping the search root, or creating traversal cycles.
+- Bug. Files too large for the configured hash chunk size are now skipped instead of being falsely reported as duplicates after fragment-count overflow. One warning reports the skipped count and the minimum chunk size needed to process them.
+- Bug. Choosing Ignore for a duplicate now leaves that file in place for the rest of the deletion run, even if its group collapses.
+- Bug. Auto Select by Path now identifies folders by their Directory attribute, preventing an Archive-marked folder from widening selection to its parent and marking duplicates in sibling folders.
+- Bug. Settings are now stored per user in `%LOCALAPPDATA%\DuplicateFileTool\settings.json`, so installed applications can persist them without write access to Program Files. Existing executable-side settings are migrated when available, writes replace the file atomically, and load/save failures are reported.
+- Bug. Invalid numeric settings are now rejected without replacing the last valid value and show validation feedback. Invalid values loaded from settings are reset individually while valid settings are preserved, and pagination no longer accepts a zero page size.
+- Bug. Deleting every duplicate group while viewing a later results page now resets the empty results view and paging controls instead of leaving invalid page state that could shut down the application on navigation.
+- Bug. Results are now re-filtered and re-sorted after deletion, preventing removed or newly excluded duplicate groups from remaining visible and mutable group sort keys from leaving rows out of order.
+- Bug. Search-path inclusion and exclusion now use normalized directory-segment comparisons, preventing similarly prefixed sibling folders from being omitted and ensuring excluded roots, directories, and files are consistently skipped.
+- Bug. Cancelling a queued folder mark scan before it starts no longer leaves its folder-comparison column covered by a permanent busy overlay.
+- Bug. Custom extension catalogs now update the Add/Remove Extensions categories after loading, editing, or resetting settings. Invalid live values retain the last valid catalog, while invalid saved catalogs safely reset to defaults.
+- Bug. Duplicate search now requires at least one active included path. Exclusion-only path lists cannot clear existing results, and Clear Paths remains available independently.
+- Bug. Failed recycle-bin or permanent deletion attempts now restore a retained file's ReadOnly attribute instead of silently leaving it writable.
+- Bug. Gigabyte file-size displays now use the correct divisor instead of overstating values by roughly 1,024 times.
+- Improvement. Comparison workers can now read independent files concurrently on SSDs and separate drives. Active reads remain protected from cache eviction, and the configured open-handle limit remains enforced.
+
 ## Released
 
 ### DuplicateFileTool 2.5.3: 2026-08-21

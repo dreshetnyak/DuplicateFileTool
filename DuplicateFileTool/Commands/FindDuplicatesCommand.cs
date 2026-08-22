@@ -18,6 +18,10 @@ internal sealed class FindDuplicatesCommand(
 
     public override async void Execute(object? parameter)
     {
+        if (!SearchPaths.Any(searchPath =>
+                searchPath.IsActive && searchPath.PathInclusionType == InclusionType.Include))
+            return;
+
         try
         {
             CanCancel = true;

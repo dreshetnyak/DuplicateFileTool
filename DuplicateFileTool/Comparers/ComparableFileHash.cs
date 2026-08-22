@@ -68,11 +68,22 @@ internal sealed class ComparableFileHash : IComparableFile, IDisposable
 
     #region ComparableFileHash Factory
 
-    internal sealed class Factory(IFileComparerConfig config) : IComparableFileFactory
+    internal sealed class Factory(IFileComparerConfig config) : IComparableFileFactory, IFileSizeLimitedComparableFileFactory
     {
         public IFileComparerConfig Config { get; } = config;
 
         public IComparableFile Create(FileData file) => new ComparableFileHash(file, (ComparableFileHashConfig)Config);
+
+        public bool IsFileSizeSupported(long fileSize) =>
+            fileSize <= (long)int.MaxValue * ((ComparableFileHashConfig)Config).HashChunkSize.Value;
+
+        public long GetMinimumRequiredChunkSize(long fileSize)
+        {
+            var minimumChunkSize = fileSize / int.MaxValue;
+            if (fileSize % int.MaxValue != 0)
+                minimumChunkSize++;
+            return minimumChunkSize;
+        }
     }
 
     #endregion
@@ -111,12 +122,12 @@ internal sealed class ComparableFileHash : IComparableFile, IDisposable
         FileReader.Dispose();
     }
 
-    private int CalculateTotalFragments(long fileLength, int fragmentSize)
+    private static int CalculateTotalFragments(long fileLength, int fragmentSize)
     {
-        var totalFragments = (int)(fileLength / fragmentSize);
-        if (FileData.Size % fragmentSize != 0)
+        var totalFragments = fileLength / fragmentSize;
+        if (fileLength % fragmentSize != 0)
             totalFragments++;
-        return totalFragments;
+        return checked((int)totalFragments);
     }
 
     public int CompareTo(IComparableFile otherFile, CancellationToken cancellationToken)

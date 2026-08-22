@@ -32,6 +32,15 @@
                 </Setter>
             </Style>
 
+            <Style x:Key="ValidatedTextBox" TargetType="{x:Type TextBox}">
+                <Style.Triggers>
+                    <Trigger Property="Validation.HasError" Value="True">
+                        <Setter Property="ToolTip"
+                                Value="{Binding RelativeSource={RelativeSource Self}, Path=(Validation.Errors)[0].ErrorContent}" />
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+
             <local:ConfigTemplateSelector x:Key="ConfigTemplateSelector" />
             <local:ConfigEditTemplateSelector x:Key="ConfigEditTemplateSelector" />
             <!-- The keys below is used from is used in ConfigTemplateSelector/ConfigEditTemplateSelector code -->
@@ -40,7 +49,8 @@
                 <TextBlock Text="{Binding Value}" />
             </DataTemplate>
             <DataTemplate x:Key="TextBoxTemplate">
-                <TextBox Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}" />
+                <TextBox Style="{StaticResource ValidatedTextBox}"
+                         Text="{Binding Value, UpdateSourceTrigger=PropertyChanged, ValidatesOnExceptions=True, ValidatesOnNotifyDataErrors=True}" />
             </DataTemplate>
             <DataTemplate x:Key="CheckBoxTemplate">
                 <CheckBox IsChecked="{Binding Value, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding IsReadOnly, Converter={StaticResource NegateBool}}" />

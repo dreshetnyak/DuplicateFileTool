@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Globalization;
+using System.Collections;
 using System.Runtime.CompilerServices;
 using System.Windows.Controls;
 using DuplicateFileTool.Properties;
@@ -24,16 +25,40 @@ internal sealed class LongValidationRule(long? minValue = null, long? maxValue =
         if (value is null)
             return new ValidationResult(false, Resources.Error_The_value_is_not_a_valid_number);
 
-        if (value is not int intValue)
-            return new ValidationResult(false, Resources.Error_The_value_is_not_a_an_integer);
+        long longValue;
+        switch (value)
+        {
+            case int intValue:
+                longValue = intValue;
+                break;
+            case long value64:
+                longValue = value64;
+                break;
+            default:
+                return new ValidationResult(false, Resources.Error_The_value_is_not_a_an_integer);
+        }
 
-        if (MinValue.HasValue && intValue < MinValue.Value)
+        if (MinValue.HasValue && longValue < MinValue.Value)
             return new ValidationResult(false, Resources.Error_The_value_is_less_than_the_allowed_minimum);
 
-        if (MaxValue.HasValue && intValue > MaxValue.Value)
+        if (MaxValue.HasValue && longValue > MaxValue.Value)
             return new ValidationResult(false, Resources.Error_The_value_is_greater_than_the_allowed_maximum);
 
         return new ValidationResult(true, null);
+    }
+}
+
+[Localizable(true)]
+internal sealed class PositiveFiniteDoubleValidationRule : ValidationRule
+{
+    public override ValidationResult Validate(object? value, CultureInfo cultureInfo)
+    {
+        if (value is not double doubleValue || !double.IsFinite(doubleValue))
+            return new ValidationResult(false, Resources.Error_The_value_is_not_a_valid_number);
+
+        return doubleValue > 0
+            ? new ValidationResult(true, null)
+            : new ValidationResult(false, Resources.Error_The_value_is_less_than_the_allowed_minimum);
     }
 }
 
@@ -41,7 +66,7 @@ internal sealed class LongValidationRule(long? minValue = null, long? maxValue =
 
 #region Configuration Property
 
-internal interface IConfigurationProperty<T> : INotifyPropertyChanged
+internal interface IConfigurationProperty<T> : INotifyPropertyChanged, INotifyDataErrorInfo
 {
     string Name { get; }                // Short name of the property to be displayed before the property value entry
     string Description { get; }         // Long description of the configuration property that should be available on demand
@@ -51,6 +76,7 @@ internal interface IConfigurationProperty<T> : INotifyPropertyChanged
     public T DefaultValue { get; }      // Default value
     T? Value { get; set; }               // The property value
     T[] Options { get; }                // In a case of en Enum will contain all Enum values
+    bool TrySetValue(T? value);          // Validates and stores the value, retaining the last valid value on failure
 }
 
 internal sealed class ConfigurationProperty<T> : IConfigurationProperty<T>
@@ -59,6 +85,7 @@ internal sealed class ConfigurationProperty<T> : IConfigurationProperty<T>
     private T? _value;
     private bool _isValid;
     private bool _isInvalid;
+    private object? _validationError;
 
     #endregion
 
@@ -72,28 +99,14 @@ internal sealed class ConfigurationProperty<T> : IConfigurationProperty<T>
     public T? Value                             // The property value
     {
         get => _value;
-        set
-        {
-            if (IsReadOnly || Equals(_value, value))
-                return;
-            _value = value;
-            OnPropertyChanged();
-            Validate();
-        }
+        set => TrySetValue(value);
     }
     public T[] Options { get; }
-
-    private static bool Equals(T? currentValue, T? newValue)
-    {
-        return !ReferenceEquals(currentValue, null)
-            ? !ReferenceEquals(newValue, null) && currentValue.Equals(newValue)
-            : !ReferenceEquals(newValue, null);
-    }
 
     public bool IsValid
     {
         get => _isValid;
-        set
+        private set
         {
             if (_isValid == value)
                 return;
@@ -104,7 +117,7 @@ internal sealed class ConfigurationProperty<T> : IConfigurationProperty<T>
     public bool IsInvalid
     {
         get => _isInvalid;
-        set
+        private set
         {
             if (_isInvalid == value)
                 return;
@@ -126,6 +139,24 @@ internal sealed class ConfigurationProperty<T> : IConfigurationProperty<T>
         Validate();
     }
 
+    public bool TrySetValue(T? value)
+    {
+        if (IsReadOnly)
+            return false;
+
+        var validationResult = Validator.Validate(value, CultureInfo.CurrentCulture);
+        SetValidationResult(validationResult);
+        if (!validationResult.IsValid)
+            return false;
+
+        if (EqualityComparer<T?>.Default.Equals(_value, value))
+            return true;
+
+        _value = value;
+        OnPropertyChanged(nameof(Value));
+        return true;
+    }
+
     private static T[] GetOptions()
     {
         return typeof(T) is { IsEnum: true } 
@@ -135,9 +166,23 @@ internal sealed class ConfigurationProperty<T> : IConfigurationProperty<T>
 
     private void Validate()
     {
-        var isValid = Validator.Validate(Value, CultureInfo.CurrentCulture).IsValid;
-        IsValid = isValid;
-        IsInvalid = !isValid;
+        SetValidationResult(Validator.Validate(Value, CultureInfo.CurrentCulture));
+    }
+
+    private void SetValidationResult(ValidationResult validationResult)
+    {
+        var hadErrors = HasErrors;
+        var previousError = _validationError;
+
+        _validationError = validationResult.IsValid ? null : validationResult.ErrorContent;
+        IsValid = validationResult.IsValid;
+        IsInvalid = !validationResult.IsValid;
+
+        if (hadErrors == HasErrors && Equals(previousError, _validationError))
+            return;
+
+        OnPropertyChanged(nameof(HasErrors));
+        ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(nameof(Value)));
     }
 
     public override string ToString()
@@ -148,6 +193,19 @@ internal sealed class ConfigurationProperty<T> : IConfigurationProperty<T>
     #region INotifyPropertyChanged Implementation
 
     public event PropertyChangedEventHandler? PropertyChanged;
+
+    public bool HasErrors => IsInvalid;
+    public event EventHandler<DataErrorsChangedEventArgs>? ErrorsChanged;
+
+    public IEnumerable GetErrors(string? propertyName)
+    {
+        if (!string.IsNullOrEmpty(propertyName) && propertyName != nameof(Value))
+            return Array.Empty<object>();
+
+        return HasErrors
+            ? new[] { _validationError ?? Resources.Error_The_value_is_not_a_valid_number }
+            : Array.Empty<object>();
+    }
 
     private void OnPropertyChanged([CallerMemberName] string propertyName = "") => 
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

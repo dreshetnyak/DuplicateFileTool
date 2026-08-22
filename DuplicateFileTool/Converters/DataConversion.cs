@@ -10,7 +10,7 @@ internal static class DataConversion
 
         return length switch
         {
-            >= gigabyteSize => $"{length / megabyteSize:N2} GB",
+            >= gigabyteSize => $"{length / (decimal)gigabyteSize:N2} GB",
             >= megabyteSize => $"{length / megabyteSize} MB",
             _ => length >= kilobyteSize 
                 ? $"{length / kilobyteSize} KB" 

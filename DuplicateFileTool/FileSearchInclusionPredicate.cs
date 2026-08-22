@@ -8,14 +8,14 @@ namespace DuplicateFileTool;
 internal sealed class FileSearchInclusionPredicate(SearchConfiguration searchConfig) : IInclusionPredicate<FileData>
 {
     public SearchConfiguration SearchConfig { get; } = searchConfig;
-    public static string WindowsOsPath { get; } = Environment.GetFolderPath(Environment.SpecialFolder.Windows);
+    public static string WindowsOsPath { get; } = PathComparison.Normalize(Environment.GetFolderPath(Environment.SpecialFolder.Windows));
 
     public bool IsIncluded(FileData fileData)
     {
         var fileAttributes = fileData.Attributes;
         if (SearchConfig.ExcludeSystemFiles.Value && fileAttributes.IsSystem ||
             SearchConfig.ExcludeHiddenFiles.Value && fileAttributes.IsHidden ||
-            SearchConfig.ExcludeOsFiles.Value && fileData.FullName.StartsWith(WindowsOsPath, StringComparison.OrdinalIgnoreCase))
+            SearchConfig.ExcludeOsFiles.Value && PathComparison.IsSameOrDescendant(fileData.FullName, WindowsOsPath))
             return false;
 
         if (fileAttributes.IsDirectory)

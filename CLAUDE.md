@@ -81,7 +81,7 @@ The only implemented comparer is `ComparableFileHash` (MD5 chunk hashing, defaul
 
 `Configuration` (root) → `SearchConfiguration`, `ResultsConfiguration`, `ExtensionsConfiguration`, `ProgramConfiguration`
 
-Each setting is a `ConfigurationProperty<T>` with validation rules, a localizable display name/description, and `INotifyPropertyChanged`. The whole graph is serialized/deserialized as JSON to `%APPDATA%` via `FileAppConfig`.
+Each setting is a `ConfigurationProperty<T>` with validation rules, a localizable display name/description, and `INotifyPropertyChanged`. `SettingsStore` maps the persisted values to a versioned JSON document at `%LOCALAPPDATA%\DuplicateFileTool\settings.json`; executable-side legacy configuration is read only for migration.
 
 ### Win32 / Low-Level Layer
 

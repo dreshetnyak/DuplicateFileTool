@@ -19,9 +19,17 @@
     <Window.Resources>
         <converters:EnumBooleanConverter x:Key="EnumBoolConverter" />
         <converters:BooleanToVisibilityConverter x:Key="BoolVisibilityConverter" />
-        <converters:LongConverter x:Key="LongConverter" />
         <converters:IsNullOrWhitespaceConverter x:Key="IsNullOrWhitespaceConverter" />
         <commands:OpenFileInExplorerCommand x:Key="OpenFileInExplorer" />
+
+        <Style x:Key="ValidatedTextBox" TargetType="{x:Type TextBox}">
+            <Style.Triggers>
+                <Trigger Property="Validation.HasError" Value="True">
+                    <Setter Property="ToolTip"
+                            Value="{Binding RelativeSource={RelativeSource Self}, Path=(Validation.Errors)[0].ErrorContent}" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
 
         <HierarchicalDataTemplate DataType="{x:Type local:FileTreeItem}" ItemsSource="{Binding Children}">
             <StackPanel Orientation="Horizontal">
@@ -250,7 +258,7 @@
                             </Border>
 
                             <Border Grid.Column="1"
-                                    IsEnabled="{Binding Ui.Search.Enabled}" ToolTip="{x:Static resx:Resources.Ui_ToolTip_Clear_Search_Paths}"
+                                    IsEnabled="{Binding Ui.ClearSearchPaths.Enabled}" ToolTip="{x:Static resx:Resources.Ui_ToolTip_Clear_Search_Paths}"
                                     BorderBrush="DimGray" 
                                     BorderThickness="1" 
                                     CornerRadius="5,5,5,5"
@@ -497,9 +505,15 @@
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
                                 <Label Grid.Column="0" Grid.Row="0" Content="{x:Static resx:Resources.Ui_Search_Size_Minimum_Label}" /> 
-                                <TextBox Grid.Column="1" Grid.Row="0" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" Text="{Binding SearchConfig.MinFileSize.Value, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource LongConverter}}" FontFamily="Consolas" FontSize="14" />
+                                <TextBox Grid.Column="1" Grid.Row="0" HorizontalContentAlignment="Right" VerticalContentAlignment="Center"
+                                         Style="{StaticResource ValidatedTextBox}"
+                                         Text="{Binding SearchConfig.MinFileSize.Value, UpdateSourceTrigger=PropertyChanged, ValidatesOnExceptions=True, ValidatesOnNotifyDataErrors=True}"
+                                         FontFamily="Consolas" FontSize="14" />
                                 <Label Grid.Column="0" Grid.Row="1" Margin="0,5,0,2" Content="{x:Static resx:Resources.Ui_Search_Size_Maximum_Label}" />
-                                <TextBox Grid.Column="1" Grid.Row="1" Margin="0,5,0,2" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" Text="{Binding SearchConfig.MaxFileSize.Value, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource LongConverter}}" FontFamily="Consolas" FontSize="14" />
+                                <TextBox Grid.Column="1" Grid.Row="1" Margin="0,5,0,2" HorizontalContentAlignment="Right" VerticalContentAlignment="Center"
+                                         Style="{StaticResource ValidatedTextBox}"
+                                         Text="{Binding SearchConfig.MaxFileSize.Value, UpdateSourceTrigger=PropertyChanged, ValidatesOnExceptions=True, ValidatesOnNotifyDataErrors=True}"
+                                         FontFamily="Consolas" FontSize="14" />
                                 <StackPanel Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" >
                                     <RadioButton Content="{x:Static resx:Resources.Ui_Count_size_in_Bytes}" Margin="0,5,5,2" ToolTip="{x:Static resx:Resources.Ui_Tooltip_Count_size_in_Bytes}" IsChecked="{Binding Path=SearchConfig.ByteSizeUnit.Value, Mode=TwoWay, Converter={StaticResource EnumBoolConverter}, ConverterParameter=Bytes}" />
                                     <RadioButton Content="{x:Static resx:Resources.Ui_Count_size_in_Kilobytes}" Margin="5,5,5,2" ToolTip="{x:Static resx:Resources.Ui_Tooltip_Count_size_in_Kilobytes}" IsChecked="{Binding Path=SearchConfig.ByteSizeUnit.Value, Mode=TwoWay, Converter={StaticResource EnumBoolConverter}, ConverterParameter=Kilobytes}" />

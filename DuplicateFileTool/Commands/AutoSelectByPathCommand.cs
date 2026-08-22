@@ -152,11 +152,11 @@ internal sealed class AutoSelectByPathCommand : CommandBase
     private static List<string> GetPathItems(string path)
     {
         var pathDirInfo = new DirectoryInfo(path);
-        if ((pathDirInfo.Attributes & System.IO.FileAttributes.Archive) == System.IO.FileAttributes.Archive)
+        if ((pathDirInfo.Attributes & System.IO.FileAttributes.Directory) != System.IO.FileAttributes.Directory)
         {
             pathDirInfo = pathDirInfo.Parent;
             if (pathDirInfo == null)
-                throw new InvalidOperationException("Archive parent directory does not exist");
+                throw new InvalidOperationException("File parent directory does not exist");
         }
 
         var currentDir = pathDirInfo;

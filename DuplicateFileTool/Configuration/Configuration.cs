@@ -112,6 +112,10 @@ internal sealed class Configuration : NotifyPropertyChanged, IDisposable
     {
         Log = new Logger(Logger.Target.Debug);
 
+        var settingsStore = SettingsService.Current;
+        settingsStore.Load();
+        var settings = settingsStore.Settings;
+
         ProgramConfig = new ProgramConfiguration();
         ProgramConfigParams = new ObservableCollection<object>(ProgramConfig
             .GetGenericPropertiesObjects(typeof(IConfigurationProperty<>))
@@ -132,8 +136,7 @@ internal sealed class Configuration : NotifyPropertyChanged, IDisposable
             .GetGenericPropertiesObjects(typeof(IConfigurationProperty<>))
             .Where(IsParameterIncluded));
 
-        try { ProgramConfig.LoadFromAppConfig(); }
-        catch (Exception ex) { Log.Write("Error: Loading application configuration from app config failed with the exception: " + ex); throw; }
+        ProgramConfig.LoadFromSettings(settings.Program);
         ProgramConfig.HasChanged = false;
         ProgramConfig.PropertyChanged += OnConfigurationChanged;
         ProgramConfig.SelectedCulture.PropertyChanged += OnSelectedCultureChanged;
@@ -144,22 +147,20 @@ internal sealed class Configuration : NotifyPropertyChanged, IDisposable
         if (ProgramConfig.SelectedCulture.Value != _selectedLanguageData.CultureName)
             ProgramConfig.SelectedCulture.Value = _selectedLanguageData.CultureName;
 
-        try { SearchConfig.LoadFromAppConfig(); }
-        catch (Exception ex) { Log.Write("Error: Loading search configuration from app config failed with the exception: " + ex); throw; }
+        SearchConfig.LoadFromSettings(settings.Search);
         SearchConfig.HasChanged = false;
         SearchConfig.PropertyChanged += OnConfigurationChanged;
 
-        try { ResultsConfig.LoadFromAppConfig(); }
-        catch (Exception ex) { Log.Write("Error: Loading results configuration from app config failed with the exception: " + ex); throw; }
+        ResultsConfig.LoadFromSettings(settings.Results);
         ResultsConfig.HasChanged = false;
         ResultsConfig.PropertyChanged += OnConfigurationChanged;
 
-        try { ExtensionsConfig.LoadFromAppConfig(); }
-        catch (Exception ex) { Log.Write("Error: Loading extensions configuration from app config failed with the exception: " + ex); throw; }
+        ExtensionsConfig.LoadFromSettings(settings.Extensions);
         ExtensionsConfig.HasChanged = false;
         ExtensionsConfig.PropertyChanged += OnConfigurationChanged;
 
         FileComparers = GetFileComparers().ToArray();
+        HasUnsavedChanges = HasUnsavedChanges || settingsStore.NeedsInitialSave;
     }
 
     public void ResetToDefaults()
@@ -190,9 +191,6 @@ internal sealed class Configuration : NotifyPropertyChanged, IDisposable
 
     public void Dispose()
     {
-        if (HasUnsavedChanges)
-            SaveChanges();
-
         ProgramConfig.Dispose();
         SearchConfig.Dispose();
         ExtensionsConfig.Dispose();
@@ -202,18 +200,19 @@ internal sealed class Configuration : NotifyPropertyChanged, IDisposable
         Log.Dispose();
     }
 
-    private void SaveChanges()
+    public void SaveChanges()
     {
-        if (HasChanged)
-            this.SaveToAppConfig();
-        if (ProgramConfig.HasChanged)
-            ProgramConfig.SaveToAppConfig();
-        if (SearchConfig.HasChanged)
-            SearchConfig.SaveToAppConfig();
-        if (ResultsConfig.HasChanged)
-            ResultsConfig.SaveToAppConfig();
-        if (ExtensionsConfig.HasChanged)
-            ExtensionsConfig.SaveToAppConfig();
+        if (!HasUnsavedChanges)
+            return;
+
+        var settings = ConfigManager.CreateSettings(ProgramConfig, SearchConfig, ResultsConfig, ExtensionsConfig);
+        SettingsService.Current.Save(settings);
+
+        ProgramConfig.HasChanged = false;
+        SearchConfig.HasChanged = false;
+        ResultsConfig.HasChanged = false;
+        ExtensionsConfig.HasChanged = false;
+        HasUnsavedChanges = false;
     }
 
     private void OnConfigurationChanged(object? sender, PropertyChangedEventArgs eventArgs)

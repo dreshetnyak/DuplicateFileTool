@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 using DuplicateFileTool.Configuration;
+using AppResources = DuplicateFileTool.Properties.Resources;
 using Button = System.Windows.Controls.Button;
 using Clipboard = System.Windows.Clipboard;
 using Grid = System.Windows.Controls.Grid;
@@ -32,11 +33,68 @@ public partial class App : System.Windows.Application
         AppDomain.CurrentDomain.UnhandledException += OnDomainUnhandledException;
         TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
 
-        var culture = new CultureInfo(FileAppConfig.Get($"{nameof(ProgramConfiguration)}.{nameof(ProgramConfiguration.SelectedCulture)}", "en"));
+        var settingsStore = SettingsService.Current;
+        var culture = ApplyConfiguredCulture(settingsStore);
         Thread.CurrentThread.CurrentCulture = culture;
         Thread.CurrentThread.CurrentUICulture = culture;
         CultureInfo.DefaultThreadCurrentCulture = culture;
         CultureInfo.DefaultThreadCurrentUICulture = culture;
+
+        QueueSettingsLoadWarning(settingsStore);
+    }
+
+    internal static CultureInfo ApplyConfiguredCulture(SettingsStore settingsStore)
+    {
+        settingsStore.Load();
+        var cultureName = settingsStore.Settings.Program.SelectedCulture;
+        if (string.IsNullOrWhiteSpace(cultureName))
+            return CultureInfo.GetCultureInfo("en");
+
+        try { return CultureInfo.GetCultureInfo(cultureName); }
+        catch (CultureNotFoundException) { return CultureInfo.GetCultureInfo("en"); }
+    }
+
+    private static void QueueSettingsLoadWarning(SettingsStore settingsStore)
+    {
+        if (settingsStore.LoadException == null && !settingsStore.InvalidValuesReset)
+            return;
+
+        var loadFailed = settingsStore.LoadException != null;
+        string warning;
+        if (loadFailed)
+        {
+            var details = GetSettingsErrorDetails(settingsStore.LoadException!);
+            warning = settingsStore.QuarantinedSettingsPath != null
+                ? string.Format(AppResources.Ui_Settings_Load_Failed_Quarantined, settingsStore.QuarantinedSettingsPath, details)
+                : string.Format(AppResources.Ui_Settings_Load_Failed, details);
+            if (settingsStore.QuarantineException != null)
+                warning += Environment.NewLine + Environment.NewLine
+                    + string.Format(AppResources.Ui_Settings_Quarantine_Failed, settingsStore.QuarantineException.Message);
+        }
+        else
+            warning = AppResources.Ui_Settings_Invalid_Values_Reset;
+
+        Current.Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, new Action(() =>
+        {
+            var owner = Current.MainWindow;
+            var caption = loadFailed ? AppResources.Ui_Errors_Type_Error : AppResources.Ui_Errors_Type_Warning;
+            var icon = loadFailed ? MessageBoxImage.Error : MessageBoxImage.Warning;
+            if (owner is { IsVisible: true })
+                System.Windows.MessageBox.Show(owner, warning, caption, MessageBoxButton.OK, icon);
+            else
+                System.Windows.MessageBox.Show(warning, caption, MessageBoxButton.OK, icon);
+        }));
+    }
+
+    internal static string GetSettingsErrorDetails(Exception exception)
+    {
+        if (exception is SettingsSaveBlockedException { InnerException: UnsupportedSettingsVersionException unsupportedVersion })
+            return string.Format(AppResources.Ui_Settings_Unsupported_Version, unsupportedVersion.Version);
+        if (exception is SettingsSaveBlockedException)
+            return AppResources.Ui_Settings_Save_Blocked;
+        if (exception is UnsupportedSettingsVersionException unsupported)
+            return string.Format(AppResources.Ui_Settings_Unsupported_Version, unsupported.Version);
+        return exception.Message;
     }
 
     private void OnDispatcherUnhandledException(object? sender, DispatcherUnhandledExceptionEventArgs e)
