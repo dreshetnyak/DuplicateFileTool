@@ -12,7 +12,7 @@
 
 ## Released
 
-### DuplicateFileTool 2.5.4: 2026-08-25
+### DuplicateFileTool 2.5.4: 2026-08-22
 
 - Bug. Duplicate search no longer follows directory reparse points, preventing junctions and directory symbolic links from exposing one physical file under multiple paths, escaping the search root, or creating traversal cycles.
 - Bug. Files too large for the configured hash chunk size are now skipped instead of being falsely reported as duplicates after fragment-count overflow. One warning reports the skipped count and the minimum chunk size needed to process them.
