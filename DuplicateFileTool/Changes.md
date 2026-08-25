@@ -10,6 +10,10 @@
 
 ## Unreleased
 
+## Released
+
+### DuplicateFileTool 2.5.4: 2026-08-25
+
 - Bug. Duplicate search no longer follows directory reparse points, preventing junctions and directory symbolic links from exposing one physical file under multiple paths, escaping the search root, or creating traversal cycles.
 - Bug. Files too large for the configured hash chunk size are now skipped instead of being falsely reported as duplicates after fragment-count overflow. One warning reports the skipped count and the minimum chunk size needed to process them.
 - Bug. Choosing Ignore for a duplicate now leaves that file in place for the rest of the deletion run, even if its group collapses.
@@ -25,8 +29,6 @@
 - Bug. Failed recycle-bin or permanent deletion attempts now restore a retained file's ReadOnly attribute instead of silently leaving it writable.
 - Bug. Gigabyte file-size displays now use the correct divisor instead of overstating values by roughly 1,024 times.
 - Improvement. Comparison workers can now read independent files concurrently on SSDs and separate drives. Active reads remain protected from cache eviction, and the configured open-handle limit remains enforced.
-
-## Released
 
 ### DuplicateFileTool 2.5.3: 2026-08-21
 
